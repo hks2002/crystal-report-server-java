@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-RptSrvApplication<rptSrv>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "sageAssistant.RptSrvApplication",
+            "projectName": "rptSrv",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

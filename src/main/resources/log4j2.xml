@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- status: log4j2 log level, monitorInterval="30" could let auto reload 
+	the config -->
+<Configuration status="OFF">
+	<Properties>
+		<Property name="LOG_HOME">/var/log/RptSrv</Property>
+		<Property name="patternConsole">%d{HH:mm:ss.SSS} %highlight{[%-5level]} [%c{36}] %msg%n</Property>
+		<Property name="patternFile">%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%c{36}] %msg%n</Property>
+	</Properties>
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY" />
+			<PatternLayout>
+				<Pattern>${patternConsole}</Pattern>
+			</PatternLayout>
+		</Console>
+		<RollingFile name="RollingFile" fileName="${LOG_HOME}/RptSrv.log"
+			filePattern="${LOG_HOME}/RptSrv.%d{yyyy-MM-dd}.log" append="true">
+			<ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY" />
+			<PatternLayout>
+				<Pattern>${patternFile}</Pattern>
+			</PatternLayout>
+
+			<Policies>
+				<!-- Apply policies every 1 day -->
+				<TimeBasedTriggeringPolicy modulate="true" interval="1" />
+			</Policies>
+			<DefaultRolloverStrategy>
+				<Delete basePath="${baseLogDir}" maxDepth="1">
+					<IfFileName glob="*.log" />
+					<IfLastModified age="15d" />
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+		<Root level="INFO">
+			<AppenderRef ref="Console" />
+			<AppenderRef ref="RollingFile" />
+		</Root>
+		<!-- this app log -->
+		<Logger name="sageassistant" level="DEBUG" additivity="false">
+			<AppenderRef ref="Console" />
+			<AppenderRef ref="RollingFile" />
+		</Logger>
+
+		<!-- disable some tomcat log -->
+		<Logger name="org.apache.catalina" level="INFO" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<!-- disable some springframework log -->
+		<Logger name="org.springframework.beans"
+			level="INFO" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Logger name="org.springframework.test"
+			level="INFO" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+
+		<!-- Crystal report log -->
+		<Logger name="com.businessobjects" level="ERROR" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Logger name="com.crystaldecisions.reports" level="ERROR" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Logger name="com.crystaldecisions12.reports" level="ERROR" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+	</Loggers>
+</Configuration>

@@ -1,0 +1,14 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "cSpell.customDictionaries": {
+        "project-words": {
+            "name": "project-words",
+            "description": "Words used in this project",
+            "path": "${workspaceRoot}/project-words.txt",
+            "addWords": true
+        },
+        "custom": true, // Enable the `custom` dictionary
+        "internal-terms": false // Disable the `internal-terms` dictionary
+    }
+}
