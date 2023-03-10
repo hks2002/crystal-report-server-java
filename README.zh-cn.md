@@ -17,4 +17,4 @@
 5. 将水晶报表文件拷贝到 `WEB-INF/classes/reports` 文件夹中，可以随时添加。
 6. 在浏览器中打开 `http://server:port/Report/{ReportTemplateName}/{format}?param0=val0&param1=val1`，即可看到报表。
 
-> 说明：`{ReportTemplateName}` 是报表文件名，不包含扩展名；`{format}` 是报表格式，如 `pdf` `doc` `xls`；`param0` 和 `param1` 是报表参数，如果有一个参数名包含 `NO`，则该参数值将作为文件名。
+> 说明：`{ReportTemplateName}` 是报表文件名，不包含扩展名；`{format}` 是报表格式，如 `pdf` `doc` `xls`；`param0` 和 `param1` 是报表参数，如果有一个参数名包含 `filename`，则该参数值将作为文件名。

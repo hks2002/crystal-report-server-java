@@ -19,4 +19,4 @@ An Crystal Report server run in java.
 5. Copy your crystal report files to `WEB-INF/classes/reports` folder, you can add them at anytime.
 6. Open `http://server:port/Report/{ReportTemplateName}/{format}?param0=val0&param1=val1` in browser, you can see your report.
 
-> Note: `{ReportTemplateName}` is the name of your report file without extension, `{format}` is the format you want, such as `pdf` `doc` `xls`, `param0` and `param1` are the parameters of your report, give a param named with `NO`, this param value will be used as the file name.
+> Note: `{ReportTemplateName}` is the name of your report file without extension, `{format}` is the format you want, such as `pdf` `doc` `xls`, `param0` and `param1` are the parameters of your report, give a param named with `filename`, this param value will be used as the file name.

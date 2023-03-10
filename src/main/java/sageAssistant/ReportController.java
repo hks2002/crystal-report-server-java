@@ -2,7 +2,7 @@
  * @Author                : hks2002<56649783@qq.com>                                             *
  * @CreatedDate           : 2023-03-06 21:22:42                                                  *
  * @LastEditors           : hks2002<56649783@qq.com>                                             *
- * @LastEditDate          : 2023-03-07 18:34:48                                                  *
+ * @LastEditDate          : 2023-03-10 10:10:39                                                  *
  * @FilePath              : rptSrv/src/main/java/sageAssistant/ReportController.java             *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                      *
  ************************************************************************************************/
@@ -82,7 +82,7 @@ public class ReportController {
                 String value = reqParams.get(key)[0];
                 log.debug("Parameter: " + key + "; Value: " + value);
 
-                if (key.contains("NO")) {
+                if (key.toLowerCase().equals("filename")) {
                     reportNO = value;
                 }
 
@@ -96,7 +96,7 @@ public class ReportController {
             ISummaryInfo summaryInfo = new com.crystaldecisions.sdk.occa.report.document.SummaryInfo();
             summaryInfo.setAuthor("Sage Assistant");
             if (reportNO.isEmpty()) {
-                log.warn("Please provide a parameter with {NO}, the value will be the file name.");
+                log.warn("Please provide a parameter named {FileName}, the value will be the file name.");
             }
             summaryInfo.setTitle(reportNO);
             rptDoc.setSummaryInfo(summaryInfo);
