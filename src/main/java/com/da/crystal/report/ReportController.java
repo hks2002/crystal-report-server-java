@@ -1,13 +1,13 @@
-/*************************************************************************************************
- * @Author                : hks2002<56649783@qq.com>                                             *
- * @CreatedDate           : 2023-03-06 21:22:42                                                  *
- * @LastEditors           : hks2002<56649783@qq.com>                                             *
- * @LastEditDate          : 2023-03-10 10:10:39                                                  *
- * @FilePath              : rptSrv/src/main/java/sageAssistant/ReportController.java             *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                                      *
- ************************************************************************************************/
+/*********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                            *
+ * @CreatedDate           : 2023-03-06 21:22:42                                                                      *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
+ * @LastEditDate          : 2023-04-08 16:39:44                                                                      *
+ * @FilePath              : src/main/java/com/da/crystal/report/ReportController.java                                *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
+ ********************************************************************************************************************/
 
-package sageAssistant;
+package com.da.crystal.report;
 
 import com.crystaldecisions.sdk.occa.report.application.ReportClientDocument;
 import com.crystaldecisions.sdk.occa.report.document.ISummaryInfo;
@@ -44,10 +44,6 @@ public class ReportController {
     @Value("${spring.datasource.password}")
     private String password;
 
-    ReportController() {
-        log.debug("ReportController() is called!");
-    }
-
     @GetMapping("/Report/*/*")
     public void handReportRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
@@ -58,15 +54,34 @@ public class ReportController {
             // Check format
             List<String> allowedFormat = Arrays.asList("pdf", "xls", "doc", "rtf", "csv");
             if (!allowedFormat.contains(format)) {
-                resp.getWriter().write("<H1>Format {" + format + "} not supported!</H1>");
+                resp.getWriter().write("<H1>Document format {" + format + "} is not supported!</H1>");
                 return;
             }
 
-            // Check report
-            File file = new File("reports/" + report + ".rpt");
+            // Check report template file
+            String reportsPath =
+                Thread.currentThread().getContextClassLoader().getResource("").getPath() + "../reports/";
+            log.debug(reportsPath);
+            File file = new File(reportsPath + report + ".rpt");
             if (!file.exists()) {
                 resp.getWriter().write("<H1>Report template {" + report + "} not found!</H1>");
                 return;
+            }
+
+            // Set additions parameters
+            String reportNO = "";
+            String author = "Crystal Report Server Java";
+            var reqParams = req.getParameterMap();
+            for (String key : reqParams.keySet()) {
+                String value = reqParams.get(key)[0];
+                log.debug("Request Parameter: {} ; Value: {}", key, value);
+
+                if (key.toUpperCase().equals("FILENAME")) {
+                    reportNO = value;
+                }
+                if (key.toUpperCase().equals("AUTHOR")) {
+                    author = value;
+                }
             }
 
             // open report
@@ -75,29 +90,27 @@ public class ReportController {
             // set Database connection
             CRJavaHelper.changeDataSource(rptDoc, username, password, url, driverClassName, "");
 
-            // set parameters
-            String reportNO = "";
-            var reqParams = req.getParameterMap();
-            for (String key : reqParams.keySet()) {
-                String value = reqParams.get(key)[0];
-                log.debug("Parameter: " + key + "; Value: " + value);
+            // Check/Set report param
+            List<String> reportParams = CRJavaHelper.getTopParams(rptDoc);
+            for (String param : reportParams) {
+                log.debug("Report Parameter: {}", param);
+                if (!reqParams.containsKey(param)) {
+                    log.warn("Request Parameter: {} missing", param);
+                    resp.getWriter().write("<H1>Report param [" + param + "] not found in request!</H1>");
+                    return;
+                } else {
+                    String value = reqParams.get(param)[0];
 
-                if (key.toLowerCase().equals("filename")) {
-                    reportNO = value;
-                }
-
-                // ⚠️❗❗❗ top level parameter only, make sure all parameters are top level
-                if (value != null && !value.isEmpty()) {
-                    CRJavaHelper.setParameterValue(rptDoc, key, value);
+                    // ⚠️❗❗❗ top level parameter only, make sure all parameters are top level
+                    if (value != null && !value.isEmpty()) {
+                        CRJavaHelper.setParameterValue(rptDoc, param, value);
+                    }
                 }
             }
 
             // set summary info
             ISummaryInfo summaryInfo = new com.crystaldecisions.sdk.occa.report.document.SummaryInfo();
-            summaryInfo.setAuthor("Sage Assistant");
-            if (reportNO.isEmpty()) {
-                log.warn("Please provide a parameter named {FileName}, the value will be the file name.");
-            }
+            summaryInfo.setAuthor(author);
             summaryInfo.setTitle(reportNO);
             rptDoc.setSummaryInfo(summaryInfo);
 
@@ -118,10 +131,15 @@ public class ReportController {
                 default:
                     break;
             }
-            rptDoc.close();
         } catch (ReportSDKExceptionBase e) {
             resp.getWriter().write("<H1>Server Error!</H1><br>" + e.getMessage());
             e.printStackTrace();
+        } finally {
+            try {
+                rptDoc.close();
+            } catch (ReportSDKExceptionBase e) {
+                /* ignore */
+            }
         }
     }
 }

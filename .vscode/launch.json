@@ -2,11 +2,11 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Spring Boot-RptSrvApplication<rptSrv>",
+            "name": "Spring Boot-RptSrvApplication",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "mainClass": "sageAssistant.RptSrvApplication",
-            "projectName": "rptSrv",
+            "mainClass": "com.da.crystal.report.RptSrvApplication",
+            "projectName": "crystal-report-server-java",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }

@@ -3,6 +3,5 @@
         "mwpb.java-prettier-formatter",
         "merbleueaviation.auto-header-plus",
         "merbleueaviation.emoji-commit-tiny"
-    ],
-    "unwantedRecommendations": ["vscjava.vscode-java-dependency", "vscjava.vscode-spring-boot-dashboard"]
+    ]
 }

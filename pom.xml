@@ -6,22 +6,31 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.4</version>
+		<version>3.0.5</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>sageassistant</groupId>
-	<artifactId>rptSrv</artifactId>
+
+	<groupId>com.da</groupId>
+	<artifactId>crystal-report-server-java</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
 	<name>crystal-report-server-java</name>
 	<description>An Crystal Report Server for java</description>
+	<packaging>war</packaging>
 	<url>https://github.com/hks2002/crystal-report-server-java</url>
+	<!-- Define where the source code for this project lives -->
+	<scm>
+		<connection>scm:git:https://github.com/hks2002/crystal-report-server-java.git</connection>
+		<developerConnection>scm:git:https://github.com/hks2002/crystal-report-server-java.git</developerConnection>
+		<url>https://github.com/hks2002/crystal-report-server-java</url>
+	</scm>
+
 	<licenses>
 		<license>
 			<name>MIT</name>
 			<url>https://opensource.org/licenses/MIT</url>
 		</license>
 	</licenses>
+
 	<developers>
 		<developer>
 			<name>Robert Huang</name>
@@ -30,12 +39,7 @@
 			<organizationUrl></organizationUrl>
 		</developer>
 	</developers>
-	<!-- Define where the source code for this project lives -->
-	<scm>
-		<connection>scm:git:https://github.com/hks2002/crystal-report-server-java.git</connection>
-		<developerConnection>scm:git:https://github.com/hks2002/crystal-report-server-java.git</developerConnection>
-		<url>https://github.com/hks2002/crystal-report-server-java</url>
-	</scm>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -100,8 +104,7 @@
 			<version>8.0.32</version>
 		</dependency>
 
-		<!--
-		https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+		<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
@@ -135,7 +138,7 @@
 		<dependency>
 			<groupId>commons-configuration</groupId>
 			<artifactId>commons-configuration</artifactId>
-			<version>1.2</version>
+			<version>9</version>
 			<scope>system</scope>
 			<systemPath>${pom.basedir}/lib/commons-configuration-1.2.jar</systemPath>
 		</dependency>
@@ -150,7 +153,7 @@
 		<dependency>
 			<groupId>SAP</groupId>
 			<artifactId>AzleaUflBarcode</artifactId>
-			<version>1.0.0</version>
+			<version>9</version>
 			<scope>system</scope>
 			<systemPath>${pom.basedir}/lib/com.azalea.ufl.barcode.1.0.jar
 			</systemPath>
@@ -240,7 +243,34 @@
 	<build>
 		<!-- name without version-->
 		<!-- <finalName>ReportSrv</finalName> -->
+		<resources>
+		    <!-- this copy is excute during complile, so it could run test/debug -->
+			<!-- resource not under classes will not copy to war default -->
+			<resource>
+				<directory>reports</directory>
+				<targetPath>../reports</targetPath>
+				<includes>
+					<include>**/*.rpt</include>
+				</includes>
+			</resource>
+			<!-- add default resources -->
+			<resource>
+				<directory>src/main/resources/</directory>
+				<includes>
+					<include>**/*.*</include>
+				</includes>
+			</resource>
+		</resources>
 		<plugins>
+			<!-- Skip test -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
 			<!-- Package referenced libraries to war -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -249,22 +279,24 @@
 				<configuration>
 					<webResources>
 						<resource>
-							<directory>
-								lib</directory>
+							<directory>lib</directory>
 							<targetPath>WEB-INF/lib/</targetPath>
 							<includes>
 								<include>**/*.jar</include>
 							</includes>
 						</resource>
+						<!-- resource not under classes will not copy to war default -->
 						<resource>
-							<directory>
-								reports</directory>
-							<targetPath>WEB-INF/classes/reports</targetPath>
+							<directory>reports</directory>
+							<targetPath>WEB-INF/reports</targetPath>
 							<includes>
 								<include>**/*.rpt</include>
 							</includes>
 						</resource>
 					</webResources>
+					<packagingIncludes>
+
+					</packagingIncludes>
 					<packagingExcludes>
 						WEB-INF/lib/jackson-*.jar
 					</packagingExcludes>

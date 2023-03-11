@@ -1,18 +1,18 @@
-/*************************************************************************************************
- * @Author                : hks2002<56649783@qq.com>                                             *
- * @CreatedDate           : 2023-03-07 00:03:27                                                  *
- * @LastEditors           : hks2002<56649783@qq.com>                                             *
- * @LastEditDate          : 2023-03-07 17:50:35                                                  *
- * @FilePath              : rptSrv/src/main/java/sageAssistant/CRJavaHelper.java                 *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                                      *
- ************************************************************************************************/
+/*********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                            *
+ * @CreatedDate           : 2023-03-07 00:03:27                                                                      *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
+ * @LastEditDate          : 2023-04-08 16:06:58                                                                      *
+ * @FilePath              : src/main/java/com/da/crystal/report/CRJavaHelper.java                                    *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
+ ********************************************************************************************************************/
 
 /**
  * This sample code is an example of how to use the Business Objects APIs.
  * Because the sample code is designed for demonstration only, it is
  * unsupported.  You are free to modify and distribute the sample code as needed.
  */
-package sageAssistant;
+package com.da.crystal.report;
 
 import com.crystaldecisions.sdk.occa.report.application.DataDefController;
 import com.crystaldecisions.sdk.occa.report.application.ParameterFieldController;
@@ -50,7 +50,9 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -386,6 +388,22 @@ public class CRJavaHelper {
             }
         }
         return false;
+    }
+
+    /**
+     * Get all top level parameters name.
+     * @param clientDoc
+     * @return List of parameters name
+     * @throws ReportSDKException
+     */
+    public static List<String> getTopParams(ReportClientDocument clientDoc) throws ReportSDKException {
+        List<String> topParams = new ArrayList<String>();
+        Fields<IParameterField> parameterFields = clientDoc.getDataDefinition().getParameterFields();
+        for (int i = 0; i < parameterFields.size(); i++) {
+            IParameterField paramToChange = (IParameterField) parameterFields.getField(i);
+            topParams.add(paramToChange.getName());
+        }
+        return topParams;
     }
 
     /**
