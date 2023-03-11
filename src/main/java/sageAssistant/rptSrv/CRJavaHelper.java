@@ -1,18 +1,18 @@
-/*************************************************************************************************
- * @Author                : hks2002<56649783@qq.com>                                             *
- * @CreatedDate           : 2023-03-07 00:03:27                                                  *
- * @LastEditors           : hks2002<56649783@qq.com>                                             *
- * @LastEditDate          : 2023-03-07 17:50:35                                                  *
- * @FilePath              : rptSrv/src/main/java/sageAssistant/CRJavaHelper.java                 *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                                      *
- ************************************************************************************************/
+/*********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                            *
+ * @CreatedDate           : 2023-03-07 00:03:27                                                                      *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
+ * @LastEditDate          : 2023-03-11 18:46:02                                                                      *
+ * @FilePath              : src/main/java/sageAssistant/rptSrv/CRJavaHelper.java                                     *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
+ ********************************************************************************************************************/
 
 /**
  * This sample code is an example of how to use the Business Objects APIs.
  * Because the sample code is designed for demonstration only, it is
  * unsupported.  You are free to modify and distribute the sample code as needed.
  */
-package sageAssistant;
+package sageAssistant.rptSrv;
 
 import com.crystaldecisions.sdk.occa.report.application.DataDefController;
 import com.crystaldecisions.sdk.occa.report.application.ParameterFieldController;

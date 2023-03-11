@@ -10,5 +10,6 @@
         },
         "custom": true, // Enable the `custom` dictionary
         "internal-terms": false // Disable the `internal-terms` dictionary
-    }
+    },
+    "auto-header-plus.pathContainsWorkspaceFolder": false
 }

@@ -16,12 +16,10 @@
 	<Loggers>
 		<Root level="INFO">
 			<AppenderRef ref="Console" />
-			<AppenderRef ref="RollingFile" />
 		</Root>
 		<!-- this app log -->
 		<Logger name="sageassistant" level="DEBUG" additivity="false">
 			<AppenderRef ref="Console" />
-			<AppenderRef ref="RollingFile" />
 		</Logger>
 
 		<!-- disable some tomcat log -->
