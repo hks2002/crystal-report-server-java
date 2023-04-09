@@ -33,8 +33,8 @@ An Crystal Report server run in java.
 1. It contains `postgres`，`mysql`， `sql server` driver by default, Add your db driver in `pom.xml` as necessary.
 2. Config your database url, driverClassName, user, password in `application.properties`.
 3. Run `maven package` to get `war` package.
-4. Copy `war` to tomcat, and run tomcat.
-5. Copy your crystal report files to `WEB-INF/reports` folder, you can add them at anytime.
-6. Open `http://server:port/Report/{ReportTemplateName}/{format}?param0=val0&param1=val1` in browser, you can see your report.
+4. Copy `war` to tomcat, and run tomcat. Then copy your crystal report files to `WEB-INF/reports` folder, you can add them at anytime.
+5. Open `http://server:port/Report/{ReportTemplateName}/{format}?param0=val0&param1=val1` in browser, you can see your report.
+6. If chinese text can't display in pdf, please configure /ect/locale.conf `LANG=zh_CN.UTF-8`
 
 > Note: `{ReportTemplateName}` is the name of your report template file without extension, `{format}` is the format you want, such as `pdf` `doc` `xls`, `param0` and `param1` are the parameters of your report, give a param named with `filename`, this param value will be used as the file name.
