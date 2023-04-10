@@ -1,12 +1,13 @@
 on:
     workflow_dispatch:
     push:
-        tags:
-            - 'v*'
+        branches:
+            - 'main'
 
 # https://github.com/OWNER/REPO/settings/actions
 # MUST CHANGE GITHUB_TOKEN PERMISSION FROM READ TO WRITE
 # MUST CHANGE GITHUB_TOKEN PERMISSION ALLOW PULL REQUESTS
+# ⚠ ⚠ ⚠ You need merge pull request manually ⚠ ⚠ ⚠
 permissions:
     contents: write
     pull-requests: write
