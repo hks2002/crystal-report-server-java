@@ -1,7 +1,7 @@
 # Crystal Report Server Java (水晶报表 Java 服务器)
 
 ![Github Version](https://img.shields.io/github/v/release/hks2002/crystal-report-server-java?display_name=release)
-![Github Build Status](https://img.shields.io/github/actions/workflow/status/hks2002/crystal-report-server-java/Build.yml)
+![Github Build Status](https://img.shields.io/github/actions/workflow/status/hks2002/crystal-report-server-java/Release-Please.yml)
 ![GitHub License](https://img.shields.io/github/license/hks2002/crystal-report-server-java)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![release-please: angular](https://img.shields.io/badge/release--please-angular-e10079??style=flat&logo=google)](https://github.com/google-github-actions/release-please-action)
@@ -35,6 +35,6 @@
 3. 运行 `maven package` 生成 `war` 包，将 `war` 包拷贝到 tomcat（或者其他容器） 中运行, `war`包是为了更新报表更便捷。
 4. 将水晶报表`rpt`文件拷贝到 `WEB-INF/reports` 文件夹中，可以随时添加。
 5. 在浏览器中打开 `http://server:port/Report/{ReportTemplateName}/{format}?param0=val0&param1=val1`，即可看到报表。
-6. 如果pdf文件不能显示中文, 请编辑/ect/locale.conf `LANG=zh_CN.UTF-8`
+6. 如果 pdf 文件不能显示中文, 请编辑/ect/locale.conf `LANG=zh_CN.UTF-8`
 
 > 说明：`{ReportTemplateName}` 是报表模板文件名，不包含扩展名；`{format}` 是报表格式，如 `pdf` `doc` `xls`；`param0` 和 `param1` 是报表参数，如果有一个参数名包含 `filename`，则该参数值将作为文件名。

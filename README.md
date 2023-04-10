@@ -1,7 +1,7 @@
 # Crystal Report Server Java
 
 ![Github Version](https://img.shields.io/github/v/release/hks2002/crystal-report-server-java?display_name=release)
-![Github Build Status](https://img.shields.io/github/actions/workflow/status/hks2002/crystal-report-server-java/Build.yml)
+![Github Build Status](https://img.shields.io/github/actions/workflow/status/hks2002/crystal-report-server-java/Release-Please.yml)
 ![GitHub License](https://img.shields.io/github/license/hks2002/crystal-report-server-java)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![release-please: angular](https://img.shields.io/badge/release--please-angular-e10079??style=flat&logo=google)](https://github.com/google-github-actions/release-please-action)
