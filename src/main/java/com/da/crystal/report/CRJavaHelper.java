@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                            *
  * @CreatedDate           : 2023-03-07 00:03:27                                                                      *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-04-08 16:06:58                                                                      *
+ * @LastEditDate          : 2023-04-15 19:05:25                                                                      *
  * @FilePath              : src/main/java/com/da/crystal/report/CRJavaHelper.java                                    *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
  ********************************************************************************************************************/
@@ -21,7 +21,6 @@ import com.crystaldecisions.sdk.occa.report.data.FieldDisplayNameType;
 import com.crystaldecisions.sdk.occa.report.data.Fields;
 import com.crystaldecisions.sdk.occa.report.data.IConnectionInfo;
 import com.crystaldecisions.sdk.occa.report.data.IParameterField;
-import com.crystaldecisions.sdk.occa.report.data.IParameterFieldDiscreteValue;
 import com.crystaldecisions.sdk.occa.report.data.ITable;
 import com.crystaldecisions.sdk.occa.report.data.ParameterField;
 import com.crystaldecisions.sdk.occa.report.data.ParameterFieldDiscreteValue;
@@ -54,6 +53,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Crystal Reports Java Helper Sample ************************ Please note that
@@ -63,6 +64,8 @@ import java.util.Locale;
  * @author Business Objects
  */
 public class CRJavaHelper {
+
+    private static final Logger log = LogManager.getLogger();
 
     /**
      * Logs on to all existing datasource
@@ -78,14 +81,17 @@ public class CRJavaHelper {
     }
 
     /**
-     * Changes the DataSource for each Table
+     * Changes the DataSource for all table, include sub reports also.
+     * ⚠️Suggest setup JNDI for best performance⚠️
+     * ⚠️Suggest using Command sql instead of tables⚠️
      *
      * @param clientDoc     The reportClientDocument representing the report being used
      * @param username      The DB logon user name
      * @param password      The DB logon password
      * @param connectionURL The connection URL
      * @param driverName    The driver Name
-     * @param jndiName      The JNDI name
+     * @param jndiName      The JNDI name, without "jdbc/", but you need set: <Resource name="jdbc/xxx"
+     * // How to use a JNDI data source with the Crystal Reports Java SDK on Tomcat https://userapps.support.sap.com/sap/support/knowledge/en/1343290
      * @throws ReportSDKException
      */
     public static void changeDataSource(
@@ -96,187 +102,110 @@ public class CRJavaHelper {
         String driverName,
         String jndiName
     ) throws ReportSDKException {
-        changeDataSource(clientDoc, null, null, username, password, connectionURL, driverName, jndiName);
-    }
-
-    /**
-     * Changes the DataSource for a specific Table
-     *
-     * @param clientDoc     The reportClientDocument representing the report being used
-     * @param reportName    "" for main report, name of subReport for subReport, null for all reports
-     * @param tableName     name of table to change. null for all tables.
-     * @param username      The DB logon user name
-     * @param password      The DB logon password
-     * @param connectionURL The connection URL
-     * @param driverName    The driver Name
-     * @param jndiName      The JNDI name
-     * @throws ReportSDKException
-     */
-    public static void changeDataSource(
-        ReportClientDocument clientDoc,
-        String reportName,
-        String tableName,
-        String username,
-        String password,
-        String connectionURL,
-        String driverName,
-        String jndiName
-    ) throws ReportSDKException {
-        PropertyBag propertyBag = null;
-        IConnectionInfo connectionInfo = null;
-        ITable origTable = null;
-        ITable newTable = null;
-
-        // Declare variables to hold ConnectionInfo values.
-        // Below is the list of values required to switch to use a JDBC/JNDI
-        // connection
-        String TRUSTED_CONNECTION = "false";
-        String SERVER_TYPE = "JDBC (JNDI)";
-        String USE_JDBC = "true";
-        String DATABASE_DLL = "crdb_jdbc.dll";
-        String JNDI_DATASOURCE_NAME = jndiName;
-        String CONNECTION_URL = connectionURL;
-        String DATABASE_CLASS_NAME = driverName;
-
-        // The next few parameters are optional parameters which you may want to
-        // uncomment
-        // You may wish to adjust the arguments of the method to pass these
-        // values in if necessary
-        // String TABLE_NAME_QUALIFIER = "new_table_name";
-        // String SERVER_NAME = "new_server_name";
-        // String CONNECTION_STRING = "new_connection_string";
-        // String DATABASE_NAME = "new_database_name";
-        // String URI = "new_URI";
-
-        // Declare variables to hold database User Name and Password values
-        String DB_USER_NAME = username;
-        String DB_PASSWORD = password;
-
-        // Obtain collection of tables from this database controller
-        if (reportName == null || reportName.equals("")) {
-            Tables tables = clientDoc.getDatabaseController().getDatabase().getTables();
-            for (int i = 0; i < tables.size(); i++) {
-                origTable = tables.getTable(i);
-                if (tableName == null || origTable.getName().equals(tableName)) {
-                    newTable = (ITable) origTable.clone(true);
-
-                    // We set the Fully qualified name to the Table Alias to keep the
-                    // method generic
-                    // This workflow may not work in all scenarios and should likely be
-                    // customized to work
-                    // in the developer's specific situation. The end result of this
-                    // statement will be to strip
-                    // the existing table of it's db specific identifiers. For example
-                    // Xtreme.dbo.Customer becomes just Customer
-                    newTable.setQualifiedName(origTable.getAlias());
-
-                    // Change properties that are different from the original datasource
-                    // For example, if the table name has changed you will be required
-                    // to change it during this routine
-                    // table.setQualifiedName(TABLE_NAME_QUALIFIER);
-
-                    // Change connection information properties
-                    connectionInfo = newTable.getConnectionInfo();
-
-                    // Set new table connection property attributes
-                    propertyBag = new PropertyBag();
-
-                    // Overwrite any existing properties with updated values
-                    propertyBag.put("Trusted_Connection", TRUSTED_CONNECTION);
-                    propertyBag.put("Server Type", SERVER_TYPE);
-                    propertyBag.put("Use JDBC", USE_JDBC);
-                    propertyBag.put("Database DLL", DATABASE_DLL);
-                    propertyBag.put("JNDI Datasource Name", JNDI_DATASOURCE_NAME);
-                    propertyBag.put("Connection URL", CONNECTION_URL);
-                    propertyBag.put("Database Class Name", DATABASE_CLASS_NAME);
-                    // propertyBag.put("Server Name", SERVER_NAME); //Optional property
-                    // propertyBag.put("Connection String", CONNECTION_STRING); //Optional property
-                    // propertyBag.put("Database Name", DATABASE_NAME); //Optional property
-                    // propertyBag.put("URI", URI); //Optional property
-                    connectionInfo.setAttributes(propertyBag);
-
-                    // Set database username and password
-                    // NOTE: Even if the username and password properties do not change
-                    // when switching databases, the
-                    // database password is *not* saved in the report and must be set at
-                    // runtime if the database is secured.
-                    connectionInfo.setUserName(DB_USER_NAME);
-                    connectionInfo.setPassword(DB_PASSWORD);
-
-                    // Update the table information
-                    clientDoc.getDatabaseController().setTableLocation(origTable, newTable);
-                }
+        // If not JNDI and same jdbc info, just do login
+        IConnectionInfo oldConnectionInfo = clientDoc.getDatabaseController().getConnectionInfos(null).get(0);
+        PropertyBag oldPropertyBag = oldConnectionInfo.getAttributes();
+        if (oldPropertyBag.getStringValue("Server Type").equals("JDBC (JNDI)")) {
+            if (
+                oldPropertyBag.getStringValue("Connection URL").equals(connectionURL) &&
+                oldPropertyBag.getStringValue("Database Class Name").equals(driverName)
+            ) {
+                logonDataSource(clientDoc, username, password);
+                return;
             }
         }
-        // Next loop through all the subReports and pass in the same
-        // information. You may consider
-        // creating a separate method which accepts
-        if (reportName == null || !(reportName.equals(""))) {
-            IStrings subNames = clientDoc.getSubreportController().getSubreportNames();
-            for (int subNum = 0; subNum < subNames.size(); subNum++) {
-                Tables tables = clientDoc
+
+        PropertyBag propertyBag = null;
+        Tables tables = null;
+        ITable table = null;
+        ITable newTable = null;
+        // Set new table connection property attributes
+        propertyBag = new PropertyBag();
+
+        // Below is the list of values required to switch to use a JDBC/JNDI connection
+
+        propertyBag.put("Server Type", "JDBC (JNDI)");
+        propertyBag.put("Use JDBC", "true");
+        propertyBag.put("Trusted_Connection", "false");
+        propertyBag.put("Connection URL", connectionURL);
+        propertyBag.put("Database Class Name", driverName);
+        propertyBag.put("Database DLL", "crdb_jdbc.dll");
+        propertyBag.put("Connection Name (Optional)", jndiName); // How to use a JNDI data source with the Crystal Reports Java SDK on Tomcat https://userapps.support.sap.com/sap/support/knowledge/en/1343290
+
+        // Obtain collection of tables from this database controller
+        tables = clientDoc.getDatabaseController().getDatabase().getTables();
+        for (int i = 0; i < tables.size(); i++) {
+            table = tables.getTable(i);
+            // ⚠️⚠️⚠️ Must Update the table with new table, It's seems a bug of Crystal Report
+            newTable = changeDataSource(table, propertyBag, username, password);
+            clientDoc.getDatabaseController().setTableLocation(table, newTable);
+        }
+
+        // Next loop through all the subReports.
+        IStrings subReportNames = clientDoc.getSubreportController().getSubreportNames();
+        for (int subNum = 0; subNum < subReportNames.size(); subNum++) {
+            String subReportName = subReportNames.getString(subNum);
+
+            tables =
+                clientDoc
                     .getSubreportController()
-                    .getSubreport(subNames.getString(subNum))
+                    .getSubreport(subReportName)
                     .getDatabaseController()
                     .getDatabase()
                     .getTables();
-                for (int i = 0; i < tables.size(); i++) {
-                    origTable = tables.getTable(i);
-                    if (tableName == null || origTable.getName().equals(tableName)) {
-                        newTable = (ITable) origTable.clone(true);
+            for (int i = 0; i < tables.size(); i++) {
+                table = tables.getTable(i);
 
-                        // We set the Fully qualified name to the Table Alias to keep
-                        // the method generic
-                        // This workflow may not work in all scenarios and should likely
-                        // be customized to work
-                        // in the developer's specific situation. The end result of this
-                        // statement will be to strip
-                        // the existing table of it's db specific identifiers. For
-                        // example Xtreme.dbo.Customer becomes just Customer
-                        newTable.setQualifiedName(origTable.getAlias());
-
-                        // Change properties that are different from the original
-                        // datasource
-                        // table.setQualifiedName(TABLE_NAME_QUALIFIER);
-
-                        // Change connection information properties
-                        connectionInfo = newTable.getConnectionInfo();
-
-                        // Set new table connection property attributes
-                        propertyBag = new PropertyBag();
-
-                        // Overwrite any existing properties with updated values
-                        propertyBag.put("Trusted_Connection", TRUSTED_CONNECTION);
-                        propertyBag.put("Server Type", SERVER_TYPE);
-                        propertyBag.put("Use JDBC", USE_JDBC);
-                        propertyBag.put("Database DLL", DATABASE_DLL);
-                        propertyBag.put("JNDI Datasource Name", JNDI_DATASOURCE_NAME);
-                        propertyBag.put("Connection URL", CONNECTION_URL);
-                        propertyBag.put("Database Class Name", DATABASE_CLASS_NAME);
-                        // propertyBag.put("Server Name", SERVER_NAME); //Optional property
-                        // propertyBag.put("Connection String", CONNECTION_STRING); //Optional property
-                        // propertyBag.put("Database Name", DATABASE_NAME); //Optional property
-                        // propertyBag.put("URI", URI); //Optional property
-                        connectionInfo.setAttributes(propertyBag);
-
-                        // Set database username and password
-                        // NOTE: Even if the username and password properties do not
-                        // change when switching databases, the
-                        // database password is *not* saved in the report and must be
-                        // set at runtime if the database is secured.
-                        connectionInfo.setUserName(DB_USER_NAME);
-                        connectionInfo.setPassword(DB_PASSWORD);
-
-                        // Update the table information
-                        clientDoc
-                            .getSubreportController()
-                            .getSubreport(subNames.getString(subNum))
-                            .getDatabaseController()
-                            .setTableLocation(origTable, newTable);
-                    }
-                }
+                // ⚠️⚠️⚠️ Must Update the table with new table, It's seems a bug of Crystal Report
+                newTable = changeDataSource(table, propertyBag, username, password);
+                clientDoc
+                    .getSubreportController()
+                    .getSubreport(subReportName)
+                    .getDatabaseController()
+                    .setTableLocation(table, newTable);
             }
         }
+    }
+
+    /**
+     * Changes the DataSource for table.
+     *
+     * @param table     The table need to changed
+     * @param propertyBag   connection info properties
+     * @param username      The DB logon user name
+     * @param password      The DB logon password
+     * @throws ReportSDKException
+     */
+    public static ITable changeDataSource(ITable table, PropertyBag propertyBag, String username, String password) {
+        log.debug("{} {} {}", table.getName(), table.getAlias(), table.getQualifiedName());
+
+        // We set the Fully qualified name to the Table Alias to keep the method generic
+        // This workflow may not work in all scenarios and should likely be customized to work
+        // in the developer's specific situation. The end result of this statement will be to strip
+        // the existing table of it's db specific identifiers. For example
+        // Xtreme.dbo.Customer becomes just Customer
+        // table.setQualifiedName(table.getAlias());
+
+        // Change properties that are different from the original datasource
+        // For example, if the table name has changed you will be required to change it during this routine
+        // table.setQualifiedName(TABLE_NAME_QUALIFIER);
+
+        // Change connection information properties
+        IConnectionInfo connectionInfo = table.getConnectionInfo();
+        log.debug(table.getName() + ":" + connectionInfo.getAttributes().toString());
+
+        connectionInfo.setAttributes(propertyBag);
+
+        // Set database username and password
+        // NOTE: Even if the username and password properties do not change
+        // when switching databases, the database password is ⚠️*not*⚠️ saved in the report and must be set at
+        // runtime if the database is secured.
+        connectionInfo.setUserName(username);
+        connectionInfo.setPassword(password);
+        log.debug(table.getName() + ":" + connectionInfo.getAttributes().toString());
+
+        // ⚠️⚠️⚠️ Must Update the table with new table, It's seems a bug of Crystal Report
+        return (ITable) table.clone(true);
     }
 
     /**
@@ -285,21 +214,21 @@ public class CRJavaHelper {
      * @param clientDoc  The reportClientDocument representing the report being used
      * @param rs         The java.sql.ResultSet used to populate the Table
      * @param tableAlias The alias of the table
-     * @param reportName The name of the subReport. If tables in the main report is to be used, "" should be passed
+     * @param subReportName The name of the subReport. If tables in the main report is to be used, "" should be passed
      * @throws ReportSDKException
      */
     public static void passResultSet(
         ReportClientDocument clientDoc,
         java.sql.ResultSet rs,
         String tableAlias,
-        String reportName
+        String subReportName
     ) throws ReportSDKException {
-        if (reportName.equals("")) {
+        if (subReportName.equals("")) {
             clientDoc.getDatabaseController().setDataSource(rs, tableAlias, tableAlias);
         } else {
             clientDoc
                 .getSubreportController()
-                .getSubreport(reportName)
+                .getSubreport(subReportName)
                 .getDatabaseController()
                 .setDataSource(rs, tableAlias, tableAlias);
         }
@@ -312,7 +241,7 @@ public class CRJavaHelper {
      * @param dataSet    The java.sql.ResultSet used to populate the Table
      * @param className  The fully-qualified class name of the POJO objects being passed
      * @param tableAlias The alias of the table
-     * @param reportName The name of the subReport. If tables in the main report is to be used, "" should be passed
+     * @param subReportName The name of the subReport. If tables in the main report is to be used, "" should be passed
      * @throws ReportSDKException
      */
     public static void passPOJO(
@@ -320,14 +249,14 @@ public class CRJavaHelper {
         @SuppressWarnings("rawtypes") Collection dataSet,
         String className,
         String tableAlias,
-        String reportName
+        String subReportName
     ) throws ReportSDKException, ClassNotFoundException {
-        if (reportName.isEmpty()) {
+        if (subReportName.isEmpty()) {
             clientDoc.getDatabaseController().setDataSource(dataSet, Class.forName(className), tableAlias, tableAlias);
         } else {
             clientDoc
                 .getSubreportController()
-                .getSubreport(reportName)
+                .getSubreport(subReportName)
                 .getDatabaseController()
                 .setDataSource(dataSet, Class.forName(className), tableAlias, tableAlias);
         }
@@ -339,24 +268,24 @@ public class CRJavaHelper {
      * @param clientDoc  The reportClientDocument representing the report being used
      * @param dataSet    The java.sql.ResultSet used to populate the Table
      * @param className  The fully-qualified class name of the POJO objects being passed
-     * @param reportName The name of the subReport. If tables in the main report is to be used, "" should be passed
+     * @param subReportName The name of the subReport. If tables in the main report is to be used, "" should be passed
      * @throws ReportSDKException
      */
     public static void passPOJO(
         ReportClientDocument clientDoc,
         @SuppressWarnings("rawtypes") Collection dataSet,
         String className,
-        String reportName
+        String subReportName
     ) throws ReportSDKException, ClassNotFoundException {
         String tableAlias = null;
-        if (reportName.isEmpty()) {
+        if (subReportName.isEmpty()) {
             tableAlias = clientDoc.getDatabase().getTables().get(0).getName();
             clientDoc.getDatabaseController().setDataSource(dataSet, Class.forName(className), tableAlias, tableAlias);
         } else {
             tableAlias =
                 clientDoc
                     .getSubreportController()
-                    .getSubreport(reportName)
+                    .getSubreport(subReportName)
                     .getDatabaseController()
                     .getDatabase()
                     .getTables()
@@ -364,7 +293,7 @@ public class CRJavaHelper {
                     .getName();
             clientDoc
                 .getSubreportController()
-                .getSubreport(reportName)
+                .getSubreport(subReportName)
                 .getDatabaseController()
                 .setDataSource(dataSet, Class.forName(className), tableAlias, tableAlias);
         }
@@ -415,7 +344,7 @@ public class CRJavaHelper {
      * @param newValue      The new value of the parameter
      * @throws ReportSDKException
      */
-    public static void setParameterValue(ReportClientDocument clientDoc, String parameterName, Object newValue)
+    public static void setTopParameter(ReportClientDocument clientDoc, String parameterName, Object newValue)
         throws ReportSDKException {
         ParameterFieldController paramFieldController = clientDoc.getDataDefController().getParameterFieldController();
         Fields<IParameterField> parameterFields = clientDoc.getDataDefinition().getParameterFields();
@@ -425,16 +354,7 @@ public class CRJavaHelper {
             String field = paramField.getName();
 
             if (field.equals(parameterName)) {
-                ParameterField tempParam = new ParameterField();
-                paramField.copyTo(tempParam, true);
-                if (tempParam.getCurrentValues().size() > 0) {
-                    tempParam.getCurrentValues().remove(0);
-                }
-
-                IParameterFieldDiscreteValue newDiscreteValue = new ParameterFieldDiscreteValue();
-                newDiscreteValue.setValue(newValue);
-                tempParam.getCurrentValues().add(0, newDiscreteValue);
-                paramFieldController.modify(paramField, tempParam);
+                paramFieldController.setCurrentValue("", parameterName, newValue);
             }
         }
     }
@@ -448,7 +368,7 @@ public class CRJavaHelper {
      * @param newValue      The new value of the parameter
      * @throws ReportSDKException
      */
-    public static void addDiscreteParameterValue(
+    public static void setDiscreteParameterValue(
         ReportClientDocument clientDoc,
         String reportName,
         String parameterName,
@@ -494,7 +414,7 @@ public class CRJavaHelper {
      * @param newValues     An array of new values to get set on the parameter
      * @throws ReportSDKException
      */
-    public static void addDiscreteParameterValue(
+    public static void setDiscreteParameterValue(
         ReportClientDocument clientDoc,
         String reportName,
         String parameterName,
@@ -517,14 +437,14 @@ public class CRJavaHelper {
      * @param endValue      The value of the end of the range
      * @throws ReportSDKException
      */
-    public static void addRangeParameterValue(
+    public static void setRangeParameterValue(
         ReportClientDocument clientDoc,
         String reportName,
         String parameterName,
         Object beginValue,
         Object endValue
     ) throws ReportSDKException {
-        addRangeParameterValue(
+        setRangeParameterValue(
             clientDoc,
             reportName,
             parameterName,
@@ -551,14 +471,14 @@ public class CRJavaHelper {
      * @param endValues     Array of ending values. Must be same length as beginValues.
      * @throws ReportSDKException
      */
-    public static void addRangeParameterValue(
+    public static void setRangeParameterValue(
         ReportClientDocument clientDoc,
         String reportName,
         String parameterName,
         Object[] beginValues,
         Object[] endValues
     ) throws ReportSDKException {
-        addRangeParameterValue(
+        setRangeParameterValue(
             clientDoc,
             reportName,
             parameterName,
@@ -581,7 +501,7 @@ public class CRJavaHelper {
      * @param upperBoundType The inclusion/exclusion range of the end of range.
      * @throws ReportSDKException
      */
-    public static void addRangeParameterValue(
+    public static void setRangeParameterValue(
         ReportClientDocument clientDoc,
         String reportName,
         String parameterName,
@@ -627,7 +547,7 @@ public class CRJavaHelper {
     /**
      * Passes multiple range parameter values to a report parameter.
      *
-     * This overload of the addRangeParameterValue will only work if the parameter
+     * This overload of the setRangeParameterValue will only work if the parameter
      * is setup to accept multiple values.
      *
      * If the Parameter does not accept multiple values then it is expected that
@@ -643,7 +563,7 @@ public class CRJavaHelper {
      *
      * @throws ReportSDKException
      */
-    public static void addRangeParameterValue(
+    public static void setRangeParameterValue(
         ReportClientDocument clientDoc,
         String reportName,
         String parameterName,
