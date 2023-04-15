@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                            *
  * @CreatedDate           : 2023-03-06 21:22:42                                                                      *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-04-08 16:39:44                                                                      *
+ * @LastEditDate          : 2023-04-15 18:29:17                                                                      *
  * @FilePath              : src/main/java/com/da/crystal/report/ReportController.java                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
  ********************************************************************************************************************/
@@ -11,6 +11,7 @@ package com.da.crystal.report;
 
 import com.crystaldecisions.sdk.occa.report.application.ReportClientDocument;
 import com.crystaldecisions.sdk.occa.report.document.ISummaryInfo;
+import com.crystaldecisions.sdk.occa.report.document.SummaryInfo;
 import com.crystaldecisions.sdk.occa.report.lib.ReportSDKExceptionBase;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReportController {
 
     private static final Logger log = LogManager.getLogger();
-    ReportClientDocument rptDoc = new ReportClientDocument();
+    ReportClientDocument clientDoc = new ReportClientDocument();
 
     @Value("${spring.datasource.url}")
     private String url;
@@ -43,6 +44,9 @@ public class ReportController {
 
     @Value("${spring.datasource.password}")
     private String password;
+
+    @Value("${spring.datasource.jndiName}")
+    private String jndiName;
 
     @GetMapping("/Report/*/*")
     public void handReportRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -85,13 +89,13 @@ public class ReportController {
             }
 
             // open report
-            rptDoc = ReportClientDocument.openReport(file);
+            clientDoc = ReportClientDocument.openReport(file);
 
             // set Database connection
-            CRJavaHelper.changeDataSource(rptDoc, username, password, url, driverClassName, "");
+            CRJavaHelper.changeDataSource(clientDoc, username, password, url, driverClassName, jndiName);
 
             // Check/Set report param
-            List<String> reportParams = CRJavaHelper.getTopParams(rptDoc);
+            List<String> reportParams = CRJavaHelper.getTopParams(clientDoc);
             for (String param : reportParams) {
                 log.debug("Report Parameter: {}", param);
                 if (!reqParams.containsKey(param)) {
@@ -103,30 +107,30 @@ public class ReportController {
 
                     // ⚠️❗❗❗ top level parameter only, make sure all parameters are top level
                     if (value != null && !value.isEmpty()) {
-                        CRJavaHelper.setParameterValue(rptDoc, param, value);
+                        CRJavaHelper.setTopParameter(clientDoc, param, value);
                     }
                 }
             }
 
             // set summary info
-            ISummaryInfo summaryInfo = new com.crystaldecisions.sdk.occa.report.document.SummaryInfo();
+            ISummaryInfo summaryInfo = new SummaryInfo();
             summaryInfo.setAuthor(author);
             summaryInfo.setTitle(reportNO);
-            rptDoc.setSummaryInfo(summaryInfo);
+            clientDoc.setSummaryInfo(summaryInfo);
 
             // export report
             switch (format) {
                 case "pdf":
-                    CRJavaHelper.exportPDF(rptDoc, resp, false);
+                    CRJavaHelper.exportPDF(clientDoc, resp, false);
                     break;
                 case "doc":
-                    CRJavaHelper.exportMSWord(rptDoc, resp, false);
+                    CRJavaHelper.exportMSWord(clientDoc, resp, false);
                     break;
                 case "rtf":
-                    CRJavaHelper.exportRTF(rptDoc, resp, false);
+                    CRJavaHelper.exportRTF(clientDoc, resp, false);
                     break;
                 case "csv":
-                    CRJavaHelper.exportCSV(rptDoc, resp, false);
+                    CRJavaHelper.exportCSV(clientDoc, resp, false);
                     break;
                 default:
                     break;
@@ -136,7 +140,7 @@ public class ReportController {
             e.printStackTrace();
         } finally {
             try {
-                rptDoc.close();
+                clientDoc.close();
             } catch (ReportSDKExceptionBase e) {
                 /* ignore */
             }
