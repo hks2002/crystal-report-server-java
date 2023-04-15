@@ -284,13 +284,13 @@
 							</includes>
 						</resource>
 						<!-- resource not under classes will not copy to war default -->
-						<resource>
+						<!-- <resource>
 							<directory>reports</directory>
 							<targetPath>WEB-INF/reports</targetPath>
 							<includes>
 								<include>**/*.rpt</include>
 							</includes>
-						</resource>
+						</resource> -->
 					</webResources>
 					<packagingIncludes>
 
