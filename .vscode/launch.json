@@ -8,7 +8,8 @@
             "mainClass": "com.da.crystal.report.RptSrvApplication",
             "projectName": "crystal-report-server-java",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "console": "internalConsole"
         }
     ]
 }
