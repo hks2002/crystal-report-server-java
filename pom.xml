@@ -14,7 +14,6 @@
 	<name>crystal-report-server-java</name>
 	<description>An Crystal Report Server for java</description>
 	<packaging>war</packaging>
-	<url>https://github.com/hks2002/crystal-report-server-java</url>
 	<!-- Define where the source code for this project lives -->
 	<scm>
 		<connection>scm:git:https://github.com/hks2002/crystal-report-server-java.git</connection>
@@ -284,13 +283,14 @@
 							</includes>
 						</resource>
 						<!-- resource not under classes will not copy to war default -->
-						<!-- <resource>
+						<resource>
 							<directory>reports</directory>
 							<targetPath>WEB-INF/reports</targetPath>
 							<includes>
-								<include>**/*.rpt</include>
+								<include>**/TEST.rpt</include>
+								<include>**/NEW.rpt</include>
 							</includes>
-						</resource> -->
+						</resource>
 					</webResources>
 					<packagingIncludes>
 
