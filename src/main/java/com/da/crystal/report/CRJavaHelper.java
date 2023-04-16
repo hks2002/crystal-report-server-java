@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                            *
  * @CreatedDate           : 2023-03-07 00:03:27                                                                      *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-04-15 19:05:25                                                                      *
+ * @LastEditDate          : 2023-04-16 15:11:36                                                                      *
  * @FilePath              : src/main/java/com/da/crystal/report/CRJavaHelper.java                                    *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
  ********************************************************************************************************************/
@@ -123,6 +123,12 @@ public class CRJavaHelper {
         propertyBag = new PropertyBag();
 
         // Below is the list of values required to switch to use a JDBC/JNDI connection
+        // How to use a JNDI data source with the Crystal Reports Java SDK on Tomcat
+        // https://userapps.support.sap.com/sap/support/knowledge/en/1343290
+        if (!jndiName.startsWith("jdbc/", 0)) {
+            log.warn("JNDI name for Crystal Report must start with 'jdbc/'");
+        }
+        String newJndiName = jndiName.replace("jdbc/", "");
 
         propertyBag.put("Server Type", "JDBC (JNDI)");
         propertyBag.put("Use JDBC", "true");
@@ -130,8 +136,7 @@ public class CRJavaHelper {
         propertyBag.put("Connection URL", connectionURL);
         propertyBag.put("Database Class Name", driverName);
         propertyBag.put("Database DLL", "crdb_jdbc.dll");
-        propertyBag.put("Connection Name (Optional)", jndiName); // How to use a JNDI data source with the Crystal Reports Java SDK on Tomcat https://userapps.support.sap.com/sap/support/knowledge/en/1343290
-
+        propertyBag.put("Connection Name (Optional)", newJndiName);
         // Obtain collection of tables from this database controller
         tables = clientDoc.getDatabaseController().getDatabase().getTables();
         for (int i = 0; i < tables.size(); i++) {
