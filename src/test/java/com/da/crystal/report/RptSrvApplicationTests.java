@@ -1,16 +1,15 @@
-/**********************************************************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                                                             *
- * @CreatedDate           : 2023-03-06 21:25:06                                                                       *
- * @LastEditors           : Robert Huang<56649783@qq.com>                                                             *
- * @LastEditDate          : 2023-04-08 13:13:49                                                                       *
- * @FilePath              : src/test/java/com/da/crystal/report/RptSrvApplicationTests.java                           *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                                                           *
- *********************************************************************************************************************/
+/*********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                            *
+ * @CreatedDate           : 2023-03-06 21:25:06                                                                      *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
+ * @LastEditDate          : 2023-04-17 15:06:11                                                                      *
+ * @FilePath              : src/test/java/com/da/crystal/report/RptSrvApplicationTests.java                          *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
+ ********************************************************************************************************************/
 
 package com.da.crystal.report;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,18 +18,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
 class RptSrvApplicationTests {
-
-    static final Logger logger = LogManager.getLogger();
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
     void contextLoads() {
-        logger.debug("contextLoads");
+        log.debug("contextLoads");
     }
 
     /**
@@ -53,7 +51,7 @@ class RptSrvApplicationTests {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType("application/word"));
         } catch (Exception e) {
-            logger.error(e);
+            log.error(e.getMessage());
         }
     }
 }

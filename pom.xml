@@ -50,6 +50,13 @@
 			</exclusions>
 		</dependency>
 
+		<!-- Slf4j notation -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.26</version>
+			<scope>provided</scope>
+		</dependency>
 		<!-- use log4j2 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
