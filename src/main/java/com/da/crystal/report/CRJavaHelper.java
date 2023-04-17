@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                            *
  * @CreatedDate           : 2023-03-07 00:03:27                                                                      *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-04-16 21:01:06                                                                      *
+ * @LastEditDate          : 2023-04-17 15:04:36                                                                      *
  * @FilePath              : src/main/java/com/da/crystal/report/CRJavaHelper.java                                    *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
  ********************************************************************************************************************/
@@ -53,8 +53,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Crystal Reports Java Helper Sample ************************ Please note that
@@ -63,9 +62,8 @@ import org.apache.logging.log4j.Logger;
  *
  * @author Business Objects
  */
+@Slf4j
 public class CRJavaHelper {
-
-    private static final Logger log = LogManager.getLogger();
 
     /**
      * Logs on to all existing datasource
