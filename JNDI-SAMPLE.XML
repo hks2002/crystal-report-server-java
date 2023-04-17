@@ -2,7 +2,7 @@
     <!-- Copy jar of driverClass/JNDIFactory to tomcat lib -->
     <!-- If you want to change db pool factory, add this -->      
     <!-- factory="com.zaxxer.hikari.HikariJNDIFactory" -->
-    <Resource name="jdbc/SageDB" auth="Container"   
+    <Resource name="java:comp/env/jdbc/SageDB" auth="Container"   
 		    type="javax.sql.DataSource"
 		    driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"  
 		    url="jdbc:sqlserver://server\instance;DatabaseName=dbname;trustServerCertificate=true"  

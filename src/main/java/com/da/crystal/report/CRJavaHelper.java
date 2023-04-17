@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                            *
  * @CreatedDate           : 2023-03-07 00:03:27                                                                      *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-04-16 15:11:36                                                                      *
+ * @LastEditDate          : 2023-04-16 21:01:06                                                                      *
  * @FilePath              : src/main/java/com/da/crystal/report/CRJavaHelper.java                                    *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
  ********************************************************************************************************************/
@@ -125,10 +125,10 @@ public class CRJavaHelper {
         // Below is the list of values required to switch to use a JDBC/JNDI connection
         // How to use a JNDI data source with the Crystal Reports Java SDK on Tomcat
         // https://userapps.support.sap.com/sap/support/knowledge/en/1343290
-        if (!jndiName.startsWith("jdbc/", 0)) {
+        if (!jndiName.startsWith("java:comp/env/jdbc/", 0)) {
             log.warn("JNDI name for Crystal Report must start with 'jdbc/'");
         }
-        String newJndiName = jndiName.replace("jdbc/", "");
+        String newJndiName = jndiName.replace("java:comp/env/jdbc/", "");
 
         propertyBag.put("Server Type", "JDBC (JNDI)");
         propertyBag.put("Use JDBC", "true");
