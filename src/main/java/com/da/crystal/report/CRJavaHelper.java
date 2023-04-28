@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                            *
  * @CreatedDate           : 2023-03-07 00:03:27                                                                      *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-04-17 15:04:36                                                                      *
+ * @LastEditDate          : 2023-04-28 10:07:43                                                                      *
  * @FilePath              : src/main/java/com/da/crystal/report/CRJavaHelper.java                                    *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
  ********************************************************************************************************************/
@@ -103,14 +103,13 @@ public class CRJavaHelper {
         // If not JNDI and same jdbc info, just do login
         IConnectionInfo oldConnectionInfo = clientDoc.getDatabaseController().getConnectionInfos(null).get(0);
         PropertyBag oldPropertyBag = oldConnectionInfo.getAttributes();
-        if (oldPropertyBag.getStringValue("Server Type").equals("JDBC (JNDI)")) {
-            if (
-                oldPropertyBag.getStringValue("Connection URL").equals(connectionURL) &&
-                oldPropertyBag.getStringValue("Database Class Name").equals(driverName)
-            ) {
-                logonDataSource(clientDoc, username, password);
-                return;
-            }
+        if (
+            oldPropertyBag.getStringValue("Server Type").equals("JDBC (JNDI)") &&
+            oldPropertyBag.getStringValue("Connection URL").equals(connectionURL) &&
+            oldPropertyBag.getStringValue("Database Class Name").equals(driverName)
+        ) {
+            logonDataSource(clientDoc, username, password);
+            return;
         }
 
         PropertyBag propertyBag = null;
@@ -123,10 +122,14 @@ public class CRJavaHelper {
         // Below is the list of values required to switch to use a JDBC/JNDI connection
         // How to use a JNDI data source with the Crystal Reports Java SDK on Tomcat
         // https://userapps.support.sap.com/sap/support/knowledge/en/1343290
-        if (!jndiName.startsWith("java:comp/env/jdbc/", 0)) {
+        if (jndiName == null || jndiName.isEmpty()) {
+            log.info("JNDI name for Crystal Report is empty");
+        } else if (!jndiName.startsWith("jdbc/", 0)) {
             log.warn("JNDI name for Crystal Report must start with 'jdbc/'");
+            jndiName = null;
+        } else {
+            jndiName = jndiName.replace("jdbc/", "");
         }
-        String newJndiName = jndiName.replace("java:comp/env/jdbc/", "");
 
         propertyBag.put("Server Type", "JDBC (JNDI)");
         propertyBag.put("Use JDBC", "true");
@@ -134,7 +137,7 @@ public class CRJavaHelper {
         propertyBag.put("Connection URL", connectionURL);
         propertyBag.put("Database Class Name", driverName);
         propertyBag.put("Database DLL", "crdb_jdbc.dll");
-        propertyBag.put("Connection Name (Optional)", newJndiName);
+        propertyBag.put("Connection Name (Optional)", jndiName);
         // Obtain collection of tables from this database controller
         tables = clientDoc.getDatabaseController().getDatabase().getTables();
         for (int i = 0; i < tables.size(); i++) {
@@ -226,7 +229,7 @@ public class CRJavaHelper {
         String tableAlias,
         String subReportName
     ) throws ReportSDKException {
-        if (subReportName.equals("")) {
+        if (subReportName == null || subReportName.isEmpty()) {
             clientDoc.getDatabaseController().setDataSource(rs, tableAlias, tableAlias);
         } else {
             clientDoc
@@ -254,7 +257,7 @@ public class CRJavaHelper {
         String tableAlias,
         String subReportName
     ) throws ReportSDKException, ClassNotFoundException {
-        if (subReportName.isEmpty()) {
+        if (subReportName == null || subReportName.isEmpty()) {
             clientDoc.getDatabaseController().setDataSource(dataSet, Class.forName(className), tableAlias, tableAlias);
         } else {
             clientDoc
@@ -266,7 +269,7 @@ public class CRJavaHelper {
     }
 
     /**
-     * Passes a populated collection of a Java class to a Table object
+     * Passes a populated collection of a Java class to a Table object, ⚠️⚠️⚠️ only one Table in the report
      *
      * @param clientDoc  The reportClientDocument representing the report being used
      * @param dataSet    The java.sql.ResultSet used to populate the Table
@@ -281,7 +284,7 @@ public class CRJavaHelper {
         String subReportName
     ) throws ReportSDKException, ClassNotFoundException {
         String tableAlias = null;
-        if (subReportName.isEmpty()) {
+        if (subReportName == null || subReportName.isEmpty()) {
             tableAlias = clientDoc.getDatabase().getTables().get(0).getName();
             clientDoc.getDatabaseController().setDataSource(dataSet, Class.forName(className), tableAlias, tableAlias);
         } else {
@@ -378,7 +381,7 @@ public class CRJavaHelper {
         Object newValue
     ) throws ReportSDKException {
         DataDefController dataDefController = null;
-        if (reportName.equals("")) {
+        if (reportName == null || reportName.isEmpty()) {
             dataDefController = clientDoc.getDataDefController();
         } else {
             dataDefController = clientDoc.getSubreportController().getSubreport(reportName).getDataDefController();
@@ -514,7 +517,7 @@ public class CRJavaHelper {
         RangeValueBoundType upperBoundType
     ) throws ReportSDKException {
         DataDefController dataDefController = null;
-        if (reportName.equals("")) {
+        if (reportName == null || reportName.isEmpty()) {
             dataDefController = clientDoc.getDataDefController();
         } else {
             dataDefController = clientDoc.getSubreportController().getSubreport(reportName).getDataDefController();
@@ -630,7 +633,6 @@ public class CRJavaHelper {
     public static void exportPDF(
         ReportClientDocument clientDoc,
         HttpServletResponse response,
-        ServletContext context,
         int startPage,
         int endPage,
         boolean attachment
@@ -707,7 +709,6 @@ public class CRJavaHelper {
     public static void exportRTF(
         ReportClientDocument clientDoc,
         HttpServletResponse response,
-        ServletContext context,
         int startPage,
         int endPage,
         boolean attachment
