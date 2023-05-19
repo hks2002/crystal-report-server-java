@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                            *
  * @CreatedDate           : 2023-03-06 21:22:42                                                                      *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-04-17 15:05:01                                                                      *
+ * @LastEditDate          : 2023-05-19 16:04:25                                                                      *
  * @FilePath              : src/main/java/com/da/crystal/report/ReportController.java                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
  ********************************************************************************************************************/
@@ -92,6 +92,8 @@ public class ReportController {
 
             // set Database connection
             CRJavaHelper.changeDataSource(clientDoc, username, password, url, driverClassName, jndiName);
+            // save it, so that could directly login, change data source is slowly.
+            clientDoc.save();
 
             // Check/Set report param
             List<String> reportParams = CRJavaHelper.getTopParams(clientDoc);
