@@ -6,10 +6,10 @@
     "configurations": [
         {
             "type": "java",
-            "name": "RptSrvApplication",
+            "name": "CrystalReportServer",
             "request": "launch",
             "mainClass": "com.da.crystal.report.RptSrvApplication",
-            "projectName": "demo"
+            "projectName": "crystal-report-server-java"
         }
     ]
 }
