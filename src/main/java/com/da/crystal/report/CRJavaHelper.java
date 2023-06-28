@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                            *
  * @CreatedDate           : 2023-03-07 00:03:27                                                                      *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-04-28 10:07:43                                                                      *
+ * @LastEditDate          : 2023-06-25 16:58:27                                                                      *
  * @FilePath              : src/main/java/com/da/crystal/report/CRJavaHelper.java                                    *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
  ********************************************************************************************************************/
@@ -13,6 +13,15 @@
  * unsupported.  You are free to modify and distribute the sample code as needed.
  */
 package com.da.crystal.report;
+ 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
 
 import com.crystaldecisions.sdk.occa.report.application.DataDefController;
 import com.crystaldecisions.sdk.occa.report.application.ParameterFieldController;
@@ -43,16 +52,9 @@ import com.crystaldecisions.sdk.occa.report.lib.IStrings;
 import com.crystaldecisions.sdk.occa.report.lib.PropertyBag;
 import com.crystaldecisions.sdk.occa.report.lib.ReportSDKException;
 import com.crystaldecisions.sdk.occa.report.lib.ReportSDKExceptionBase;
+
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -129,7 +131,7 @@ public class CRJavaHelper {
             jndiName = null;
         } else {
             jndiName = jndiName.replace("jdbc/", "");
-        }
+        } 
 
         propertyBag.put("Server Type", "JDBC (JNDI)");
         propertyBag.put("Use JDBC", "true");
