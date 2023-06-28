@@ -2,28 +2,31 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                            *
  * @CreatedDate           : 2023-03-06 21:22:42                                                                      *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-05-19 16:04:25                                                                      *
+ * @LastEditDate          : 2023-06-28 13:03:34                                                                      *
  * @FilePath              : src/main/java/com/da/crystal/report/ReportController.java                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
  ********************************************************************************************************************/
 
 package com.da.crystal.report;
 
-import com.crystaldecisions.sdk.occa.report.application.ReportClientDocument;
-import com.crystaldecisions.sdk.occa.report.document.ISummaryInfo;
-import com.crystaldecisions.sdk.occa.report.document.SummaryInfo;
-import com.crystaldecisions.sdk.occa.report.lib.ReportSDKExceptionBase;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.crystaldecisions.sdk.occa.report.application.ReportClientDocument;
+import com.crystaldecisions.sdk.occa.report.document.ISummaryInfo;
+import com.crystaldecisions.sdk.occa.report.document.SummaryInfo;
+import com.crystaldecisions.sdk.occa.report.lib.ReportSDKExceptionBase;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @CrossOrigin
@@ -32,28 +35,36 @@ public class ReportController {
 
     ReportClientDocument clientDoc = new ReportClientDocument();
 
-    @Value("${spring.datasource.url}")
+    @Value("${rpt.datasource.url}")
     private String url;
 
-    @Value("${spring.datasource.driverClassName}")
+    @Value("${rpt.datasource.driverClassName}")
     private String driverClassName;
 
-    @Value("${spring.datasource.username}")
+    @Value("${rpt.datasource.username}")
     private String username;
 
-    @Value("${spring.datasource.password}")
+    @Value("${rpt.datasource.password}")
     private String password;
 
-    @Value("${spring.datasource.jndiName}")
+    @Value("${rpt.datasource.jndiName}")
     private String jndiName;
 
     @GetMapping("/Report/*/*")
     public void handReportRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            String report = req.getServletPath().split("/")[2];
-            String format = req.getServletPath().split("/")[3];
-            log.debug("Report: " + report + " Format: " + format);
+            String params[] = req.getServletPath().split("/");
+            if (params.length != 4) {
+                log.info("Wrong request url:{}", req.getServletPath());
+                resp.getWriter().write("<H1>Wrong request url!</H1>");
+                return;
+            }
 
+            String report = params[2];
+            String format = params[3];
+            if (log.isDebugEnabled()) {
+                log.debug("Report: " + report + " Format: " + format);
+            }
             // Check format
             List<String> allowedFormat = Arrays.asList("pdf", "xls", "doc", "rtf", "csv");
             if (!allowedFormat.contains(format)) {
@@ -98,7 +109,9 @@ public class ReportController {
             // Check/Set report param
             List<String> reportParams = CRJavaHelper.getTopParams(clientDoc);
             for (String param : reportParams) {
-                log.debug("Report Parameter: {}", param);
+                if (log.isDebugEnabled()) {
+                    log.debug("Report Parameter: {}", param);
+                }
                 if (!reqParams.containsKey(param)) {
                     log.warn("Request Parameter: {} missing", param);
                     resp.getWriter().write("<H1>Report param [" + param + "] not found in request!</H1>");
