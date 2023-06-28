@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                            *
  * @CreatedDate           : 2023-03-07 00:03:27                                                                      *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-06-25 16:58:27                                                                      *
+ * @LastEditDate          : 2023-06-28 13:00:08                                                                      *
  * @FilePath              : src/main/java/com/da/crystal/report/CRJavaHelper.java                                    *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
  ********************************************************************************************************************/
@@ -13,7 +13,7 @@
  * unsupported.  You are free to modify and distribute the sample code as needed.
  */
 package com.da.crystal.report;
- 
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,10 +102,38 @@ public class CRJavaHelper {
         String driverName,
         String jndiName
     ) throws ReportSDKException {
+        // Set new table connection property attributes
+        PropertyBag newPropertyBag = new PropertyBag();
+
+        // Below is the list of values required to switch to use a JDBC/JNDI connection
+        // How to use a JNDI data source with the Crystal Reports Java SDK on Tomcat
+        // https://userapps.support.sap.com/sap/support/knowledge/en/1343290
+        if (jndiName == null || jndiName.isEmpty()) {
+            log.info("JNDI name for Crystal Report is empty");
+            newPropertyBag.put("Server Type", "JDBC (JNDI)");
+            newPropertyBag.put("Use JDBC", "true");
+            newPropertyBag.put("Trusted_Connection", "false");
+            newPropertyBag.put("Connection URL", connectionURL);
+            newPropertyBag.put("Database Class Name", driverName);
+            newPropertyBag.put("Database DLL", "crdb_jdbc.dll");
+        } else if (!jndiName.startsWith("jdbc/", 0)) {
+            log.warn("JNDI name for Crystal Report must start with 'jdbc/'");
+            newPropertyBag.put("Server Type", "JDBC (JNDI)");
+            newPropertyBag.put("Use JDBC", "true");
+            newPropertyBag.put("Trusted_Connection", "false");
+            newPropertyBag.put("Connection URL", connectionURL);
+            newPropertyBag.put("Database Class Name", driverName);
+            newPropertyBag.put("Database DLL", "crdb_jdbc.dll");
+        } else {
+            jndiName = jndiName.replace("jdbc/", "");
+            newPropertyBag.put("Connection Name (Optional)", jndiName);
+        }
+
         // If not JNDI and same jdbc info, just do login
         IConnectionInfo oldConnectionInfo = clientDoc.getDatabaseController().getConnectionInfos(null).get(0);
         PropertyBag oldPropertyBag = oldConnectionInfo.getAttributes();
         if (
+            !newPropertyBag.containsKey("Connection Name (Optional)") &&
             oldPropertyBag.getStringValue("Server Type").equals("JDBC (JNDI)") &&
             oldPropertyBag.getStringValue("Connection URL").equals(connectionURL) &&
             oldPropertyBag.getStringValue("Database Class Name").equals(driverName)
@@ -114,38 +142,16 @@ public class CRJavaHelper {
             return;
         }
 
-        PropertyBag propertyBag = null;
         Tables tables = null;
         ITable table = null;
         ITable newTable = null;
-        // Set new table connection property attributes
-        propertyBag = new PropertyBag();
 
-        // Below is the list of values required to switch to use a JDBC/JNDI connection
-        // How to use a JNDI data source with the Crystal Reports Java SDK on Tomcat
-        // https://userapps.support.sap.com/sap/support/knowledge/en/1343290
-        if (jndiName == null || jndiName.isEmpty()) {
-            log.info("JNDI name for Crystal Report is empty");
-        } else if (!jndiName.startsWith("jdbc/", 0)) {
-            log.warn("JNDI name for Crystal Report must start with 'jdbc/'");
-            jndiName = null;
-        } else {
-            jndiName = jndiName.replace("jdbc/", "");
-        } 
-
-        propertyBag.put("Server Type", "JDBC (JNDI)");
-        propertyBag.put("Use JDBC", "true");
-        propertyBag.put("Trusted_Connection", "false");
-        propertyBag.put("Connection URL", connectionURL);
-        propertyBag.put("Database Class Name", driverName);
-        propertyBag.put("Database DLL", "crdb_jdbc.dll");
-        propertyBag.put("Connection Name (Optional)", jndiName);
         // Obtain collection of tables from this database controller
         tables = clientDoc.getDatabaseController().getDatabase().getTables();
         for (int i = 0; i < tables.size(); i++) {
             table = tables.getTable(i);
             // ⚠️⚠️⚠️ Must Update the table with new table, It's seems a bug of Crystal Report
-            newTable = changeDataSource(table, propertyBag, username, password);
+            newTable = changeDataSource(table, newPropertyBag, username, password);
             clientDoc.getDatabaseController().setTableLocation(table, newTable);
         }
 
@@ -165,7 +171,7 @@ public class CRJavaHelper {
                 table = tables.getTable(i);
 
                 // ⚠️⚠️⚠️ Must Update the table with new table, It's seems a bug of Crystal Report
-                newTable = changeDataSource(table, propertyBag, username, password);
+                newTable = changeDataSource(table, newPropertyBag, username, password);
                 clientDoc
                     .getSubreportController()
                     .getSubreport(subReportName)
@@ -185,8 +191,9 @@ public class CRJavaHelper {
      * @throws ReportSDKException
      */
     public static ITable changeDataSource(ITable table, PropertyBag propertyBag, String username, String password) {
-        log.debug("{} {} {}", table.getName(), table.getAlias(), table.getQualifiedName());
-
+        if (log.isDebugEnabled()) {
+            log.debug("{} {} {}", table.getName(), table.getAlias(), table.getQualifiedName());
+        }
         // We set the Fully qualified name to the Table Alias to keep the method generic
         // This workflow may not work in all scenarios and should likely be customized to work
         // in the developer's specific situation. The end result of this statement will be to strip
@@ -200,18 +207,23 @@ public class CRJavaHelper {
 
         // Change connection information properties
         IConnectionInfo connectionInfo = table.getConnectionInfo();
-        log.debug(table.getName() + ":" + connectionInfo.getAttributes().toString());
-
+        if (log.isDebugEnabled()) {
+            log.debug(table.getName() + ":" + connectionInfo.getAttributes().toString());
+        }
         connectionInfo.setAttributes(propertyBag);
 
         // Set database username and password
         // NOTE: Even if the username and password properties do not change
         // when switching databases, the database password is ⚠️*not*⚠️ saved in the report and must be set at
         // runtime if the database is secured.
-        connectionInfo.setUserName(username);
-        connectionInfo.setPassword(password);
-        log.debug(table.getName() + ":" + connectionInfo.getAttributes().toString());
+        if (!propertyBag.containsKey("Connection Name (Optional)")) {
+            connectionInfo.setUserName(username);
+            connectionInfo.setPassword(password);
+        }
 
+        if (log.isDebugEnabled()) {
+            log.debug(table.getName() + ":" + connectionInfo.getAttributes().toString());
+        }
         // ⚠️⚠️⚠️ Must Update the table with new table, It's seems a bug of Crystal Report
         return (ITable) table.clone(true);
     }
