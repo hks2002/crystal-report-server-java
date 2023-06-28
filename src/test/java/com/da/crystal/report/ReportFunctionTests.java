@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                            *
  * @CreatedDate           : 2023-04-12 19:43:00                                                                      *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-04-28 10:39:12                                                                      *
+ * @LastEditDate          : 2023-06-28 11:16:47                                                                      *
  * @FilePath              : src/test/java/com/da/crystal/report/ReportFunctionTests.java                             *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
  ********************************************************************************************************************/
@@ -10,6 +10,13 @@
 package com.da.crystal.report;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import org.junit.jupiter.api.Test;
 
 import com.crystaldecisions.sdk.occa.report.application.ReportClientDocument;
 import com.crystaldecisions.sdk.occa.report.data.Fields;
@@ -24,12 +31,8 @@ import com.crystaldecisions.sdk.occa.report.definition.ReportObjects;
 import com.crystaldecisions.sdk.occa.report.document.ISummaryInfo;
 import com.crystaldecisions.sdk.occa.report.lib.ReportObjectKind;
 import com.crystaldecisions.sdk.occa.report.lib.ReportSDKException;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
 
 @Slf4j
 public class ReportFunctionTests {
@@ -104,17 +107,17 @@ public class ReportFunctionTests {
         ReportObjects rptObjects = clientDoc.getReportDefController().getReportObjectController().getAllReportObjects();
         for (IReportObject obj : rptObjects) {
             if (obj.getKind().equals(ReportObjectKind.text)) {
-                Class clazzObjectText = obj.getClass();
+                Class<?> clazzObjectText = obj.getClass();
                 Method getParagraphs = clazzObjectText.getDeclaredMethod("getParagraphs");
                 Paragraphs paragraphs = (Paragraphs) getParagraphs.invoke(obj);
 
                 for (IParagraph paragraph : paragraphs) {
-                    Class clazzParagraph = paragraph.getClass();
+                    Class<?> clazzParagraph = paragraph.getClass();
                     Method getParagraphElements = clazzParagraph.getDeclaredMethod("getParagraphElements");
                     ParagraphElements paragraphElements = (ParagraphElements) getParagraphElements.invoke(paragraph);
 
                     for (IParagraphElement paragraphElement : paragraphElements) {
-                        Class clazzParagraphElement = paragraphElement.getClass();
+                        Class<?> clazzParagraphElement = paragraphElement.getClass();
                         Method[] methods = clazzParagraphElement.getDeclaredMethods();
                         for (Method method : methods) {
                             if (method.getName().equals("getText")) {
@@ -139,17 +142,17 @@ public class ReportFunctionTests {
         ReportObjects rptObjects = clientDoc.getReportDefController().getReportObjectController().getAllReportObjects();
         for (IReportObject obj : rptObjects) {
             if (obj.getKind().equals(ReportObjectKind.text)) {
-                Class clazzObjectText = obj.getClass();
+                Class<?> clazzObjectText = obj.getClass();
                 Method getParagraphs = clazzObjectText.getDeclaredMethod("getParagraphs");
                 Paragraphs paragraphs = (Paragraphs) getParagraphs.invoke(obj);
 
                 for (IParagraph paragraph : paragraphs) {
-                    Class clazzParagraph = paragraph.getClass();
+                    Class<?> clazzParagraph = paragraph.getClass();
                     Method getParagraphElements = clazzParagraph.getDeclaredMethod("getParagraphElements");
                     ParagraphElements paragraphElements = (ParagraphElements) getParagraphElements.invoke(paragraph);
 
                     for (IParagraphElement paragraphElement : paragraphElements) {
-                        Class clazzParagraphElement = paragraphElement.getClass();
+                        Class<?> clazzParagraphElement = paragraphElement.getClass();
                         Method[] methods = clazzParagraphElement.getDeclaredMethods();
                         for (Method method : methods) {
                             if (method.getName().equals("setText")) { // didn't work
