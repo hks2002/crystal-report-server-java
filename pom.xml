@@ -10,7 +10,7 @@
 
 	<groupId>com.da</groupId>
 	<artifactId>crystal-report-server-java</artifactId>
-	<version>1.1.1</version>
+	<version>1.1.1-SNAPSHOT</version>
 	<name>crystal-report-server-java</name>
 	<description>An Crystal Report Server for java</description>
 	<packaging>war</packaging>
