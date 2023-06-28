@@ -1,4 +1,7 @@
 {
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    },
     "java.compile.nullAnalysis.mode": "automatic",
     "java.configuration.updateBuildConfiguration": "automatic",
     "cSpell.customDictionaries": {
@@ -11,5 +14,6 @@
         "custom": true, // Enable the `custom` dictionary
         "internal-terms": false // Disable the `internal-terms` dictionary
     },
-    "auto-header-plus.pathContainsWorkspaceFolder": false
+    "auto-header-plus.pathContainsWorkspaceFolder": false,
+    "java.debug.settings.onBuildFailureProceed": true
 }
