@@ -10,7 +10,7 @@
 
 	<groupId>com.da</groupId>
 	<artifactId>crystal-report-server-java</artifactId>
-	<version>1.1.1-SNAPSHOT</version>
+	<version>1.1.1</version>
 	<name>crystal-report-server-java</name>
 	<description>An Crystal Report Server for java</description>
 	<packaging>war</packaging>
@@ -49,13 +49,16 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
 
-		<!-- Slf4j notation -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.26</version>
-			<scope>provided</scope>
 		</dependency>
 		<!-- use log4j2 -->
 		<dependency>
@@ -142,7 +145,7 @@
 		<dependency>
 			<groupId>commons-configuration</groupId>
 			<artifactId>commons-configuration</artifactId>
-			<version>9</version>
+			<version>999</version>
 			<scope>system</scope>
 			<systemPath>${pom.basedir}/lib/commons-configuration-1.2.jar</systemPath>
 		</dependency>
@@ -157,7 +160,7 @@
 		<dependency>
 			<groupId>SAP</groupId>
 			<artifactId>AzleaUflBarcode</artifactId>
-			<version>9</version>
+			<version>1.0.0</version>
 			<scope>system</scope>
 			<systemPath>${pom.basedir}/lib/com.azalea.ufl.barcode.1.0.jar
 			</systemPath>
@@ -248,11 +251,9 @@
 		<!-- name without version-->
 		<!-- <finalName>ReportSrv</finalName> -->
 		<resources>
-		    <!-- this copy is excute during complile, so it could run test/debug -->
-			<!-- resource not under classes will not copy to war default -->
 			<resource>
 				<directory>reports</directory>
-				<targetPath>../reports</targetPath>
+				<targetPath>WEB-INF/reports</targetPath>
 				<includes>
 					<include>**/*.rpt</include>
 				</includes>
@@ -260,6 +261,7 @@
 			<!-- add default resources -->
 			<resource>
 				<directory>src/main/resources/</directory>
+				<filtering>true</filtering>
 				<includes>
 					<include>**/*.*</include>
 				</includes>
@@ -282,25 +284,8 @@
 				<version>3.3.2</version>
 				<configuration>
 					<webResources>
-						<resource>
-							<directory>lib</directory>
-							<targetPath>WEB-INF/lib/</targetPath>
-							<includes>
-								<include>**/*.jar</include>
-							</includes>
-						</resource>
-						<!-- resource not under classes will not copy to war default -->
-						<resource>
-							<directory>reports</directory>
-							<targetPath>WEB-INF/reports</targetPath>
-							<includes>
-								<include>**/TEST.rpt</include>
-								<include>**/NEW.rpt</include>
-							</includes>
-						</resource>
 					</webResources>
 					<packagingIncludes>
-
 					</packagingIncludes>
 					<packagingExcludes>
 						WEB-INF/lib/jackson-*.jar
