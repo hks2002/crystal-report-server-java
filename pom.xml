@@ -253,7 +253,7 @@
 		<resources>
 			<resource>
 				<directory>reports</directory>
-				<targetPath>WEB-INF/reports</targetPath>
+				<targetPath>reports</targetPath>
 				<includes>
 					<include>**/*.rpt</include>
 				</includes>
