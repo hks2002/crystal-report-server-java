@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                            *
  * @CreatedDate           : 2023-03-06 21:22:42                                                                      *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-06-28 13:03:34                                                                      *
+ * @LastEditDate          : 2023-09-11 22:09:04                                                                      *
  * @FilePath              : src/main/java/com/da/crystal/report/ReportController.java                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
  ********************************************************************************************************************/
@@ -74,7 +74,7 @@ public class ReportController {
 
             // Check report template file
             String reportsPath =
-                Thread.currentThread().getContextClassLoader().getResource("").getPath() + "../reports/";
+                Thread.currentThread().getContextClassLoader().getResource("").getPath() + "reports/";
             log.debug(reportsPath);
             File file = new File(reportsPath + report + ".rpt");
             if (!file.exists()) {
