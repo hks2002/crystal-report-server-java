@@ -55,5 +55,8 @@
 		<Logger name="com.crystaldecisions12.reports" level="ERROR" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
+		<Logger name="com.crystaldecisions.common" level="ERROR" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>		
 	</Loggers>
 </Configuration>
