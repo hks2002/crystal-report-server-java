@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.3.0](https://github.com/hks2002/crystal-report-server-java/compare/v1.2.0...v1.3.0) (2023-09-16)
+
+
+### Features
+
+* ✨upgrade CR to SP29 ([5dd328f](https://github.com/hks2002/crystal-report-server-java/commit/5dd328fa8362a9470a9bccc95b3cb6563e9d7dc7))
+* 🐛remove jndi support ([14ddb35](https://github.com/hks2002/crystal-report-server-java/commit/14ddb35b6b43456cdc188d1624f8d2bba56b9e46))
+
+
+### Bug Fixes
+
+* 🐛add arial unicode fonts in TEST.rpt ([34d02cf](https://github.com/hks2002/crystal-report-server-java/commit/34d02cf47db3e25d45dda5975a54cbc63c27e9be))
+
+
+### Documentation
+
+* 📚update reports location ([abb6f07](https://github.com/hks2002/crystal-report-server-java/commit/abb6f0744d04f18e4063e9c0901acb6e239b4d95))
+
 ## [1.2.0](https://github.com/hks2002/crystal-report-server-java/compare/v1.1.0...v1.2.0) (2023-09-11)
 
 
