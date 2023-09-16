@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                            *
  * @CreatedDate           : 2023-03-06 21:22:42                                                                      *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-09-11 22:09:04                                                                      *
+ * @LastEditDate          : 2023-09-16 09:51:52                                                                      *
  * @FilePath              : src/main/java/com/da/crystal/report/ReportController.java                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
  ********************************************************************************************************************/
@@ -47,9 +47,6 @@ public class ReportController {
     @Value("${rpt.datasource.password}")
     private String password;
 
-    @Value("${rpt.datasource.jndiName}")
-    private String jndiName;
-
     @GetMapping("/Report/*/*")
     public void handReportRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
@@ -73,8 +70,7 @@ public class ReportController {
             }
 
             // Check report template file
-            String reportsPath =
-                Thread.currentThread().getContextClassLoader().getResource("").getPath() + "reports/";
+            String reportsPath = Thread.currentThread().getContextClassLoader().getResource("").getPath() + "reports/";
             log.debug(reportsPath);
             File file = new File(reportsPath + report + ".rpt");
             if (!file.exists()) {
@@ -88,7 +84,9 @@ public class ReportController {
             var reqParams = req.getParameterMap();
             for (String key : reqParams.keySet()) {
                 String value = reqParams.get(key)[0];
-                log.debug("Request Parameter: {} ; Value: {}", key, value);
+                if (log.isDebugEnabled()) {
+                    log.debug("Request Parameter: {} ; Value: {}", key, value);
+                }
 
                 if (key.toUpperCase().equals("FILENAME")) {
                     reportNO = value;
@@ -102,7 +100,7 @@ public class ReportController {
             clientDoc = ReportClientDocument.openReport(file);
 
             // set Database connection
-            CRJavaHelper.changeDataSource(clientDoc, username, password, url, driverClassName, jndiName);
+            CRJavaHelper.changeDataSource(clientDoc, username, password, url, driverClassName);
             // save it, so that could directly login, change data source is slowly.
             clientDoc.save();
 

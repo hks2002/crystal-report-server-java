@@ -40,4 +40,4 @@
 
 > 说明：`{ReportTemplateName}` 是报表模板文件名，不包含扩展名；`{format}` 是报表格式，如 `pdf` `doc` `xls`；`param0` 和 `param1` 是报表参数，如果有一个参数名包含 `filename`，则该参数值将作为文件名。
 > 建议：使用`Command SQL`代替`Table Link`,可以获得更快的报表生成速度。
-> 建议：配置 Tomcat JNDI 数据库连接池，可以获得更快到报表生成速度。
+
