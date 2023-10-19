@@ -1,11 +1,11 @@
-/*********************************************************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                                                            *
- * @CreatedDate           : 2023-03-06 21:22:42                                                                      *
- * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-09-11 22:09:04                                                                      *
- * @FilePath              : src/main/java/com/da/crystal/report/ReportController.java                                *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
- ********************************************************************************************************************/
+/**********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                             *
+ * @CreatedDate           : 2023-03-06 21:22:42                                                                       *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                             *
+ * @LastEditDate          : 2023-10-19 22:15:32                                                                       *
+ * @FilePath              : src/main/java/com/da/crystal/report/ReportController.java                                 *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                           *
+ *********************************************************************************************************************/
 
 package com.da.crystal.report;
 
@@ -65,7 +65,7 @@ public class ReportController {
             if (log.isDebugEnabled()) {
                 log.debug("Report: " + report + " Format: " + format);
             }
-            // Check format
+            // Check format, it doesn't list all formats supported by Crystal Reports, just listed we want
             List<String> allowedFormat = Arrays.asList("pdf", "xls", "doc", "rtf", "csv");
             if (!allowedFormat.contains(format)) {
                 resp.getWriter().write("<H1>Document format {" + format + "} is not supported!</H1>");
@@ -73,8 +73,7 @@ public class ReportController {
             }
 
             // Check report template file
-            String reportsPath =
-                Thread.currentThread().getContextClassLoader().getResource("").getPath() + "reports/";
+            String reportsPath = Thread.currentThread().getContextClassLoader().getResource("").getPath() + "reports/";
             log.debug(reportsPath);
             File file = new File(reportsPath + report + ".rpt");
             if (!file.exists()) {
@@ -88,7 +87,9 @@ public class ReportController {
             var reqParams = req.getParameterMap();
             for (String key : reqParams.keySet()) {
                 String value = reqParams.get(key)[0];
-                log.debug("Request Parameter: {} ; Value: {}", key, value);
+                if (log.isDebugEnabled()) {
+                    log.debug("Request Parameter: {} ; Value: {}", key, value);
+                }
 
                 if (key.toUpperCase().equals("FILENAME")) {
                     reportNO = value;
@@ -102,9 +103,16 @@ public class ReportController {
             clientDoc = ReportClientDocument.openReport(file);
 
             // set Database connection
-            CRJavaHelper.changeDataSource(clientDoc, username, password, url, driverClassName, jndiName);
-            // save it, so that could directly login, change data source is slowly.
-            clientDoc.save();
+            CRJavaHelper.changeDataSource(
+                clientDoc,
+                username,
+                password,
+                url,
+                driverClassName,
+                jndiName,
+                report + ".rpt",
+                reportsPath
+            );
 
             // Check/Set report param
             List<String> reportParams = CRJavaHelper.getTopParams(clientDoc);

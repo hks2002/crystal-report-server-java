@@ -12,7 +12,7 @@
 
 ### Linux 系统环境准备
 
-1. 将需要到字体复制到`JAVA_HOME/lib/fonts`目录中, 并设置好权限。
+1. 将需要到字体复制到`$JAVA_HOME/lib/fonts`目录中, 并设置好权限。
     ```
     sudo chmod -R $JAVA_HOME/lib/fonts 755
     ```
@@ -34,10 +34,10 @@
 2. 在 `application.properties` 中配置数据库连接信息。
 3. 运行 `maven package` 生成 `war` 包，将 `war` 包拷贝到 tomcat（或者其他容器） 中运行, `war`包是为了更新报表更便捷。
 4. 将依赖库`lib`文件拷贝到`WEB-INF/lib` 文件夹中。
-5. 将水晶报表`rpt`文件拷贝到 `WEB-INF/reports` 文件夹中，可以随时添加。
+5. 将水晶报表`rpt`文件拷贝到 `WEB-INF/class/reports` 文件夹中，可以随时添加。
 6. 在浏览器中打开 `http://server:port/Report/{ReportTemplateName}/{format}?param0=val0&param1=val1`，即可看到报表。
 7. 如果 pdf 文件不能显示中文, 请编辑/ect/locale.conf `LANG=zh_CN.UTF-8`
 
 > 说明：`{ReportTemplateName}` 是报表模板文件名，不包含扩展名；`{format}` 是报表格式，如 `pdf` `doc` `xls`；`param0` 和 `param1` 是报表参数，如果有一个参数名包含 `filename`，则该参数值将作为文件名。
 > 建议：使用`Command SQL`代替`Table Link`,可以获得更快的报表生成速度。
-> 建议：配置 Tomcat JNDI 数据库连接池，可以获得更快到报表生成速度。
+
