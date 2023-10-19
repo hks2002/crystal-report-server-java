@@ -1,11 +1,11 @@
-/*********************************************************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                                                            *
- * @CreatedDate           : 2023-03-07 00:03:27                                                                      *
- * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-09-16 09:56:17                                                                      *
- * @FilePath              : src/main/java/com/da/crystal/report/CRJavaHelper.java                                    *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
- ********************************************************************************************************************/
+/**********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                             *
+ * @CreatedDate           : 2023-03-07 00:03:27                                                                       *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                             *
+ * @LastEditDate          : 2023-10-19 10:46:00                                                                       *
+ * @FilePath              : src/main/java/com/da/crystal/report/CRJavaHelper.java                                     *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                           *
+ *********************************************************************************************************************/
 
 /**
  * This sample code is an example of how to use the Business Objects APIs.
@@ -82,6 +82,8 @@ public class CRJavaHelper {
 
     /**
      * Changes the DataSource for all table, include sub reports also.
+     * If it doesn't need to change the DataSource, it will do logon directly,
+     * If changed the DataSource, it will save the datasource to the report
      * ⚠️Suggest using Command sql instead of tables⚠️
      *
      * @param clientDoc     The reportClientDocument representing the report being used
@@ -89,23 +91,29 @@ public class CRJavaHelper {
      * @param password      The DB logon password
      * @param connectionURL The connection URL
      * @param driverName    The driver Name
+     * @param fileName      The file name
+     * @param filePath      The file path
      * // How to use a JNDI data source with the Crystal Reports Java SDK on Tomcat https://userapps.support.sap.com/sap/support/knowledge/en/1343290
      * @throws ReportSDKException
+     * @throws IOException
      */
     public static void changeDataSource(
         ReportClientDocument clientDoc,
         String username,
         String password,
         String connectionURL,
-        String driverName
-    ) throws ReportSDKException {
-        // Set new table connection property attributes
-        PropertyBag newPropertyBag = new PropertyBag();
+        String driverName,
+        String fileName,
+        String filePath
+    ) {
+        try {
+            // Set new table connection property attributes
+            PropertyBag newPropertyBag = new PropertyBag();
 
-        // Below is the list of values required to switch to use a JDBC/JNDI connection
-        // How to use a JNDI data source with the Crystal Reports Java SDK on Tomcat
-        // JNDI name for Crystal Report must start with 'jdbc/'
-        // https://userapps.support.sap.com/sap/support/knowledge/en/1343290
+            // Below is the list of values required to switch to use a JDBC/JNDI connection
+            // How to use a JNDI data source with the Crystal Reports Java SDK on Tomcat
+            // JNDI name for Crystal Report must start with 'jdbc/'
+            // https://userapps.support.sap.com/sap/support/knowledge/en/1343290
 
             newPropertyBag.put("Server Type", "JDBC (JNDI)");
             newPropertyBag.put("Use JDBC", "true");
@@ -113,55 +121,63 @@ public class CRJavaHelper {
             newPropertyBag.put("Connection URL", connectionURL);
             newPropertyBag.put("Database Class Name", driverName);
             newPropertyBag.put("Database DLL", "crdb_jdbc.dll");
-       
-        // If same jdbc info, just do login
-        IConnectionInfo oldConnectionInfo = clientDoc.getDatabaseController().getConnectionInfos(null).get(0);
-        PropertyBag oldPropertyBag = oldConnectionInfo.getAttributes();
-        if (
-            oldPropertyBag.getStringValue("Server Type").equals("JDBC (JNDI)") &&
-            oldPropertyBag.getStringValue("Connection URL").equals(connectionURL) &&
-            oldPropertyBag.getStringValue("Database Class Name").equals(driverName)
-        ) {
-            logonDataSource(clientDoc, username, password);
-            return;
-        }
 
-        Tables tables = null;
-        ITable table = null;
-        ITable newTable = null;
+            // If same jdbc info, just do login
+            IConnectionInfo oldConnectionInfo = clientDoc.getDatabaseController().getConnectionInfos(null).get(0);
+            PropertyBag oldPropertyBag = oldConnectionInfo.getAttributes();
+            if (
+                oldPropertyBag.getStringValue("Server Type").equals("JDBC (JNDI)") &&
+                oldPropertyBag.getStringValue("Connection URL").equals(connectionURL) &&
+                oldPropertyBag.getStringValue("Database Class Name").equals(driverName)
+            ) {
+                logonDataSource(clientDoc, username, password);
+                return;
+            }
 
-        // Obtain collection of tables from this database controller
-        tables = clientDoc.getDatabaseController().getDatabase().getTables();
-        for (int i = 0; i < tables.size(); i++) {
-            table = tables.getTable(i);
-            // ⚠️⚠️⚠️ Must Update the table with new table, It's seems a bug of Crystal Report
-            newTable = changeDataSource(table, newPropertyBag, username, password);
-            clientDoc.getDatabaseController().setTableLocation(table, newTable);
-        }
+            Tables tables = null;
+            ITable table = null;
+            ITable newTable = null;
 
-        // Next loop through all the subReports.
-        IStrings subReportNames = clientDoc.getSubreportController().getSubreportNames();
-        for (int subNum = 0; subNum < subReportNames.size(); subNum++) {
-            String subReportName = subReportNames.getString(subNum);
-
-            tables =
-                clientDoc
-                    .getSubreportController()
-                    .getSubreport(subReportName)
-                    .getDatabaseController()
-                    .getDatabase()
-                    .getTables();
+            // Obtain collection of tables from this database controller
+            tables = clientDoc.getDatabaseController().getDatabase().getTables();
             for (int i = 0; i < tables.size(); i++) {
                 table = tables.getTable(i);
-
                 // ⚠️⚠️⚠️ Must Update the table with new table, It's seems a bug of Crystal Report
                 newTable = changeDataSource(table, newPropertyBag, username, password);
-                clientDoc
-                    .getSubreportController()
-                    .getSubreport(subReportName)
-                    .getDatabaseController()
-                    .setTableLocation(table, newTable);
+                clientDoc.getDatabaseController().setTableLocation(table, newTable);
             }
+
+            // Next loop through all the subReports.
+            IStrings subReportNames = clientDoc.getSubreportController().getSubreportNames();
+            for (int subNum = 0; subNum < subReportNames.size(); subNum++) {
+                String subReportName = subReportNames.getString(subNum);
+
+                tables =
+                    clientDoc
+                        .getSubreportController()
+                        .getSubreport(subReportName)
+                        .getDatabaseController()
+                        .getDatabase()
+                        .getTables();
+                for (int i = 0; i < tables.size(); i++) {
+                    table = tables.getTable(i);
+
+                    // ⚠️⚠️⚠️ Must Update the table with new table, It's seems a bug of Crystal Report
+                    newTable = changeDataSource(table, newPropertyBag, username, password);
+                    clientDoc
+                        .getSubreportController()
+                        .getSubreport(subReportName)
+                        .getDatabaseController()
+                        .setTableLocation(table, newTable);
+                }
+            }
+
+            // if modified, save it, so that could directly login, change data source is slowly.
+            clientDoc.saveAs(fileName, filePath, 1);
+        } catch (ReportSDKExceptionBase e) {
+            log.error(e.getMessage());
+        } catch (IOException e) {
+            log.error(e.getMessage());
         }
     }
 

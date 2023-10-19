@@ -1,11 +1,11 @@
-/*********************************************************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                                                            *
- * @CreatedDate           : 2023-03-06 21:22:42                                                                      *
- * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-09-16 09:51:52                                                                      *
- * @FilePath              : src/main/java/com/da/crystal/report/ReportController.java                                *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
- ********************************************************************************************************************/
+/**********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                             *
+ * @CreatedDate           : 2023-03-06 21:22:42                                                                       *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                             *
+ * @LastEditDate          : 2023-10-19 14:16:56                                                                       *
+ * @FilePath              : src/main/java/com/da/crystal/report/ReportController.java                                 *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                           *
+ *********************************************************************************************************************/
 
 package com.da.crystal.report;
 
@@ -62,7 +62,7 @@ public class ReportController {
             if (log.isDebugEnabled()) {
                 log.debug("Report: " + report + " Format: " + format);
             }
-            // Check format
+            // Check format, it doesn't list all formats supported by Crystal Reports, just listed we want
             List<String> allowedFormat = Arrays.asList("pdf", "xls", "doc", "rtf", "csv");
             if (!allowedFormat.contains(format)) {
                 resp.getWriter().write("<H1>Document format {" + format + "} is not supported!</H1>");
@@ -98,12 +98,7 @@ public class ReportController {
 
             // open report
             clientDoc = ReportClientDocument.openReport(file);
-
-            // set Database connection
-            CRJavaHelper.changeDataSource(clientDoc, username, password, url, driverClassName);
-            // save it, so that could directly login, change data source is slowly.
-            clientDoc.save();
-
+            
             // Check/Set report param
             List<String> reportParams = CRJavaHelper.getTopParams(clientDoc);
             for (String param : reportParams) {
@@ -130,6 +125,9 @@ public class ReportController {
             summaryInfo.setTitle(reportNO);
             clientDoc.setSummaryInfo(summaryInfo);
 
+            // set Database connection
+            CRJavaHelper.changeDataSource(clientDoc, username, password, url, driverClassName, report + ".rpt", reportsPath);
+           
             // export report
             switch (format) {
                 case "pdf":
