@@ -15,5 +15,11 @@
         "internal-terms": false // Disable the `internal-terms` dictionary
     },
     "auto-header-plus.pathContainsWorkspaceFolder": false,
-    "java.debug.settings.onBuildFailureProceed": true
+    "java.debug.settings.onBuildFailureProceed": true,
+    "auto-header-plus.commentElementsValue": {
+        "CopyRight": "Dedienne Aerospace China ZhuHai"
+    },
+    "auto-header-plus.style.0": {
+        "lineWidth": 120
+    }
 }
