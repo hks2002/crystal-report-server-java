@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                             *
  * @CreatedDate           : 2023-03-07 00:03:27                                                                       *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                             *
- * @LastEditDate          : 2023-10-19 10:46:00                                                                       *
+ * @LastEditDate          : 2023-10-19 14:47:59                                                                       *
  * @FilePath              : src/main/java/com/da/crystal/report/CRJavaHelper.java                                     *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                           *
  *********************************************************************************************************************/
@@ -103,6 +103,7 @@ public class CRJavaHelper {
         String password,
         String connectionURL,
         String driverName,
+        String JNDI,
         String fileName,
         String filePath
     ) {
@@ -115,17 +116,21 @@ public class CRJavaHelper {
             // JNDI name for Crystal Report must start with 'jdbc/'
             // https://userapps.support.sap.com/sap/support/knowledge/en/1343290
 
-            newPropertyBag.put("Server Type", "JDBC (JNDI)");
-            newPropertyBag.put("Use JDBC", "true");
-            newPropertyBag.put("Trusted_Connection", "false");
-            newPropertyBag.put("Connection URL", connectionURL);
-            newPropertyBag.put("Database Class Name", driverName);
-            newPropertyBag.put("Database DLL", "crdb_jdbc.dll");
+            if (!JNDI.isBlank()) {
+                newPropertyBag.put("Connection Name (Optional)", JNDI);
+            } else {
+                newPropertyBag.put("Server Type", "JDBC (JNDI)");
+                newPropertyBag.put("Use JDBC", "true");
+                newPropertyBag.put("Trusted_Connection", "false");
+                newPropertyBag.put("Connection URL", connectionURL);
+                newPropertyBag.put("Database Class Name", driverName);
+                newPropertyBag.put("Database DLL", "crdb_jdbc.dll");
+            }
 
             // If same jdbc info, just do login
             IConnectionInfo oldConnectionInfo = clientDoc.getDatabaseController().getConnectionInfos(null).get(0);
             PropertyBag oldPropertyBag = oldConnectionInfo.getAttributes();
-            if (
+            if (JNDI.isBlank() &&
                 oldPropertyBag.getStringValue("Server Type").equals("JDBC (JNDI)") &&
                 oldPropertyBag.getStringValue("Connection URL").equals(connectionURL) &&
                 oldPropertyBag.getStringValue("Database Class Name").equals(driverName)

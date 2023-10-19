@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                             *
  * @CreatedDate           : 2023-03-06 21:22:42                                                                       *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                             *
- * @LastEditDate          : 2023-10-19 14:16:56                                                                       *
+ * @LastEditDate          : 2023-10-19 14:50:30                                                                       *
  * @FilePath              : src/main/java/com/da/crystal/report/ReportController.java                                 *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                           *
  *********************************************************************************************************************/
@@ -46,6 +46,9 @@ public class ReportController {
 
     @Value("${rpt.datasource.password}")
     private String password;
+
+    @Value("${rpt.datasource.JNDI}")
+    private String JNDI;
 
     @GetMapping("/Report/*/*")
     public void handReportRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -98,7 +101,7 @@ public class ReportController {
 
             // open report
             clientDoc = ReportClientDocument.openReport(file);
-            
+
             // Check/Set report param
             List<String> reportParams = CRJavaHelper.getTopParams(clientDoc);
             for (String param : reportParams) {
@@ -126,8 +129,17 @@ public class ReportController {
             clientDoc.setSummaryInfo(summaryInfo);
 
             // set Database connection
-            CRJavaHelper.changeDataSource(clientDoc, username, password, url, driverClassName, report + ".rpt", reportsPath);
-           
+            CRJavaHelper.changeDataSource(
+                clientDoc,
+                username,
+                password,
+                url,
+                driverClassName,
+                JNDI,
+                report + ".rpt",
+                reportsPath
+            );
+
             // export report
             switch (format) {
                 case "pdf":
