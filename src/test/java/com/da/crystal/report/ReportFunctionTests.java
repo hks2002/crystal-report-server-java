@@ -1,11 +1,11 @@
-/*********************************************************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                                                            *
- * @CreatedDate           : 2023-04-12 19:43:00                                                                      *
- * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2023-06-28 11:16:47                                                                      *
- * @FilePath              : src/test/java/com/da/crystal/report/ReportFunctionTests.java                             *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
- ********************************************************************************************************************/
+/**********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                             *
+ * @CreatedDate           : 2023-04-12 19:43:00                                                                       *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                             *
+ * @LastEditDate          : 2023-10-19 10:32:10                                                                       *
+ * @FilePath              : src/test/java/com/da/crystal/report/ReportFunctionTests.java                              *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                           *
+ *********************************************************************************************************************/
 
 package com.da.crystal.report;
 
@@ -29,6 +29,7 @@ import com.crystaldecisions.sdk.occa.report.definition.ParagraphElements;
 import com.crystaldecisions.sdk.occa.report.definition.Paragraphs;
 import com.crystaldecisions.sdk.occa.report.definition.ReportObjects;
 import com.crystaldecisions.sdk.occa.report.document.ISummaryInfo;
+import com.crystaldecisions.sdk.occa.report.lib.PropertyBag;
 import com.crystaldecisions.sdk.occa.report.lib.ReportObjectKind;
 import com.crystaldecisions.sdk.occa.report.lib.ReportSDKException;
 
@@ -38,7 +39,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ReportFunctionTests {
 
     private ReportClientDocument clientDoc = null;
-    String reportsPath = Thread.currentThread().getContextClassLoader().getResource("").getPath() + "../reports/";
+    String reportsPath =
+        Thread.currentThread().getContextClassLoader().getResource("").getPath() + "../classes/reports/";
 
     @Test
     void saveRptTest() throws ReportSDKException, IOException {
@@ -52,7 +54,8 @@ public class ReportFunctionTests {
         clientDoc.setSummaryInfo(summaryInfo);
 
         clientDoc.saveAs("Modified.rpt", reportsPath, 1); // 1 over write
-
+        clientDoc.close();
+        
         file = new File(reportsPath + "Modified.rpt"); // open it to verify
         clientDoc = ReportClientDocument.openReport(file);
 
@@ -74,6 +77,18 @@ public class ReportFunctionTests {
             log.debug("{} : {}", field.getName(), field.getLongName(null));
         }
 
+        clientDoc.close();
+    }
+
+    @Test
+    void exportRptFormatListTest() throws ReportSDKException, IOException {
+        File file = new File(reportsPath + "TEST.rpt");
+        clientDoc = ReportClientDocument.openReport(file);
+        PropertyBag propertyBag = clientDoc.getAvailableExportFormats(reportsPath, false);
+
+        for (var key : propertyBag.keySet()) {
+            log.debug("{}", propertyBag.get(key));
+        }
         clientDoc.close();
     }
 
