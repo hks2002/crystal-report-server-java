@@ -9,14 +9,13 @@
 	</Properties>
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-			<ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY" />
+			<ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY" />
 			<!-- color 🎨 log enable -->
-			<PatternLayout disableAnsi="false" noConsoleNoAnsi="false" >
+			<PatternLayout disableAnsi="false" noConsoleNoAnsi="false">
 				<Pattern>${patternConsole}</Pattern>
 			</PatternLayout>
 		</Console>
-		<RollingFile name="RollingFile" fileName="${LOG_HOME}/RptSrv.log"
-			filePattern="${LOG_HOME}/RptSrv.%d{yyyy-MM-dd}.log" append="true">
+		<RollingFile name="RollingFile" fileName="${LOG_HOME}/RptSrv.log" filePattern="${LOG_HOME}/RptSrv.%d{yyyy-MM-dd}.log" append="true">
 			<ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY" />
 			<PatternLayout>
 				<Pattern>${patternFile}</Pattern>
@@ -38,7 +37,7 @@
 		<Root level="INFO">
 			<AppenderRef ref="Console" />
 			<AppenderRef ref="RollingFile" />
-		</Root>	
+		</Root>
 		<!-- Customer level bellow  -->
 		<!-- This app if you want debug, set it and line 12 Console level to DEBUG -->
 		<Logger name="com.da" level="INFO" additivity="false">
@@ -49,14 +48,14 @@
 		<Logger name="com.businessobjects" level="ERROR" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
-		<Logger name="com.crystaldecisions.reports" level="ERROR" additivity="false">
+		<Logger name="com.crystaldecisions" level="ERROR" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
 		<Logger name="com.crystaldecisions12.reports" level="ERROR" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
-		<Logger name="com.crystaldecisions.common" level="ERROR" additivity="false">
+		<Logger name="com.crystaldecisions.reports.queryengine.driverImpl.jdbc.JDBCQueryDefinition" level="INFO" additivity="false">
 			<AppenderRef ref="Console" />
-		</Logger>		
+		</Logger>
 	</Loggers>
 </Configuration>
