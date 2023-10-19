@@ -2,7 +2,7 @@ on:
     workflow_dispatch:
     push:
         branches:
-            - 'main'
+            - 'master'
 
 # https://github.com/OWNER/REPO/settings/actions
 # MUST CHANGE GITHUB_TOKEN PERMISSION FROM READ TO WRITE

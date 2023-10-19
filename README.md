@@ -12,7 +12,7 @@ An Crystal Report server run in java.
 
 ### Linux System Prepare
 
-1. Copy fonts to`JAVA_HOME/lib/fonts`, and set permission to this folder。
+1. Copy fonts to`$JAVA_HOME/lib/fonts`, and set permission to this folder。
     ```
     sudo chmod -R $JAVA_HOME/lib/fonts 755
     ```
@@ -34,10 +34,10 @@ An Crystal Report server run in java.
 2. Config your database url, driverClassName, user, password in `application.properties`.
 3. Run `maven package` to get `war` package.
 4. Copy `war` to tomcat, copy crystal dependency `lib` files to `WEB-INF/lib` folder， and run tomcat. 
-5. Then copy your crystal report files to `WEB-INF/reports` folder, you can add them at anytime.
+5. Then copy your crystal report files to `WEB-INF/class/reports` folder, you can add them at anytime.
 6. Open `http://server:port/Report/{ReportTemplateName}/{format}?param0=val0&param1=val1` in browser, you can see your report.
 7. If chinese text can't display in pdf, please configure /ect/locale.conf `LANG=zh_CN.UTF-8`
 
 > Note: `{ReportTemplateName}` is the name of your report template file without extension, `{format}` is the format you want, such as `pdf` `doc` `xls`, `param0` and `param1` are the parameters of your report, give a param named with `filename`, this param value will be used as the file name.
 > Suggestion: Using `Command SQL` instead of `Table Link` for better performance, reduce the report generation duration.
-> Suggestion: Set Tomcat JNI for better performance, reduce the report generation duration.
+
