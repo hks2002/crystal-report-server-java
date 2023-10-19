@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                             *
  * @CreatedDate           : 2023-03-06 21:22:42                                                                       *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                             *
- * @LastEditDate          : 2023-10-19 14:50:30                                                                       *
+ * @LastEditDate          : 2023-10-19 16:46:17                                                                       *
  * @FilePath              : src/main/java/com/da/crystal/report/ReportController.java                                 *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                           *
  *********************************************************************************************************************/
@@ -47,8 +47,8 @@ public class ReportController {
     @Value("${rpt.datasource.password}")
     private String password;
 
-    @Value("${rpt.datasource.JNDI}")
-    private String JNDI;
+    @Value("${rpt.datasource.jndiName}")
+    private String jndiName;
 
     @GetMapping("/Report/*/*")
     public void handReportRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -135,7 +135,7 @@ public class ReportController {
                 password,
                 url,
                 driverClassName,
-                JNDI,
+                jndiName,
                 report + ".rpt",
                 reportsPath
             );

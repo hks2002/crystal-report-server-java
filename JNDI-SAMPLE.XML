@@ -1,0 +1,16 @@
+    <!-- Copy it to tomcat/conf context.xml -->
+    <!-- Copy jar of driverClass/JNDIFactory to tomcat lib -->
+    <!-- If you want to change db pool factory, add this factory="com.zaxxer.hikari.HikariJNDIFactory" -->
+	<!-- How to use a JNDI data source with the Crystal Reports Java SDK on Tomcat https://userapps.support.sap.com/sap/support/knowledge/en/1343290 -->
+    <Resource name="jdbc/SageDB" auth="Container"   
+		    type="javax.sql.DataSource"
+		    driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"  
+		    url="jdbc:sqlserver://server\instance;DatabaseName=dbname;trustServerCertificate=true"  
+		    username="user"  
+		    password="password"  
+		    maxTotal="4"  
+		    maxIdle="2"
+		    initialSize="1"
+		    removeAbandonedOnBorrow="true"
+		    removeAbandonedOnMaintenance="true"
+		    removeAbandonedTimeout="60" /> 
