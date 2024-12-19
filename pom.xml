@@ -270,6 +270,25 @@
 			</resource>
 		</resources>
 		<plugins>
+		<!-- keep war with version and no version at same times -->
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+            <execution>
+                <phase>package</phase>
+                <goals>
+                    <goal>run</goal>
+                </goals>
+                <configuration>
+                    <target>
+                        <copy tofile="${project.build.directory}/${project.artifactId}.war" file="${project.build.directory}/${project.artifactId}-${project.version}.war" />
+                    </target>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
 			<!-- Skip test -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
