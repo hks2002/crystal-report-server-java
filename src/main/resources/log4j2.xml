@@ -2,58 +2,48 @@
 <!-- status: log4j2 log level, monitorInterval="30" could let auto reload 
 	the config -->
 <Configuration status="OFF">
-	<Properties>
-		<Property name="LOG_HOME">/var/log/RptSrv</Property>
-		<Property name="patternConsole">%d{HH:mm:ss.SSS} %highlight{[%-5level]} [%c{36}] %msg%n</Property>
-		<Property name="patternFile">%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%c{36}] %msg%n</Property>
-	</Properties>
-	<Appenders>
-		<Console name="Console" target="SYSTEM_OUT">
-			<ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY" />
-			<!-- color 🎨 log enable -->
-			<PatternLayout disableAnsi="false" noConsoleNoAnsi="false" >
-				<Pattern>${patternConsole}</Pattern>
-			</PatternLayout>
-		</Console>
-		<RollingFile name="RollingFile" fileName="${LOG_HOME}/RptSrv.log"
-			filePattern="${LOG_HOME}/RptSrv.%d{yyyy-MM-dd}.log" append="true">
-			<ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY" />
-			<PatternLayout>
-				<Pattern>${patternFile}</Pattern>
-			</PatternLayout>
+  <Properties>
+    <Property name="LOG_HOME">/var/log/@project.artifactId@</Property>
+    <!-- %l for point to line -->
+    <Property name="PatternLayoutConsole">%d{HH:mm:ss.SSS} %highlight{[%-5level] [%c{36}] %msg%n}</Property>
+    <Property name="PatternLayoutFile">%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%c{36}] %msg%n</Property>
+  </Properties>
 
-			<Policies>
-				<!-- Apply policies every 1 day -->
-				<TimeBasedTriggeringPolicy modulate="true" interval="1" />
-			</Policies>
-			<DefaultRolloverStrategy>
-				<Delete basePath="${baseLogDir}" maxDepth="1">
-					<IfFileName glob="*.log" />
-					<IfLastModified age="15d" />
-				</Delete>
-			</DefaultRolloverStrategy>
-		</RollingFile>
-	</Appenders>
-	<Loggers>
-		<Root level="INFO">
-			<AppenderRef ref="Console" />
-			<AppenderRef ref="RollingFile" />
-		</Root>	
-		<!-- Customer level bellow  -->
-		<!-- This app if you want debug, set it and line 12 Console level to DEBUG -->
-		<Logger name="com.da" level="INFO" additivity="false">
-			<AppenderRef ref="Console" />
-		</Logger>
+  <Loggers>
+    <Root level="TRACE">
+      <AppenderRef ref="Console" />
+      <AppenderRef ref="RollingFile" />
+    </Root>
 
-		<!-- Crystal report log -->
-		<Logger name="com.businessobjects" level="ERROR" additivity="false">
-			<AppenderRef ref="Console" />
-		</Logger>
-		<Logger name="com.crystaldecisions.reports" level="ERROR" additivity="false">
-			<AppenderRef ref="Console" />
-		</Logger>
-		<Logger name="com.crystaldecisions12.reports" level="ERROR" additivity="false">
-			<AppenderRef ref="Console" />
-		</Logger>
-	</Loggers>
+  </Loggers>
+
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <ThresholdFilter level="TRACE" />
+      <PatternLayout>
+        <disableAnsi>false</disableAnsi>
+        <Pattern>${PatternLayoutConsole}</Pattern>
+      </PatternLayout>
+    </Console>
+
+    <RollingFile name="RollingFile" fileName="${LOG_HOME}/@project.artifactId@.log"
+      filePattern="${LOG_HOME}/@project.artifactId@.%d{yyyy-MM-dd}.log" append="true">
+      <ThresholdFilter level="INFO" />
+      <PatternLayout>
+        <Pattern>${PatternLayoutFile}</Pattern>
+      </PatternLayout>
+
+      <Policies>
+        <!-- Apply policies every 1 day -->
+        <TimeBasedTriggeringPolicy modulate="true" interval="1" />
+      </Policies>
+      <DefaultRolloverStrategy>
+        <Delete basePath="${baseLogDir}" maxDepth="1">
+          <IfFileName glob="*.log" />
+          <IfLastModified age="15d" />
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingFile>
+  </Appenders>
+
 </Configuration>

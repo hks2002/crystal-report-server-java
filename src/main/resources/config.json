@@ -1,0 +1,23 @@
+{
+  "http": {
+    "port": 8091,
+    "compressionSupported": false,
+    "compressionLevel": 6,
+    "decompressionSupported": true
+  },
+  "handler": {
+    "report": {
+      "url": "jdbc:sqlserver://192.168.10.60\\x3v12;DatabaseName=x3v12;TrustServerCertificate=true;",
+      "driverClassName": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+      "user": "",
+      "password": "",
+      "jndiName": "",
+      "windows": {
+        "reportsPath": "C:/Users/rhuang/Desktop/Dev/crystal-report-server-java/reports"
+      },
+      "linux": {
+        "reportsPath": "/usr/share/java/crystal-report-server/reports"
+      }
+    }
+  }
+}

@@ -1,15 +1,21 @@
 {
-    "java.compile.nullAnalysis.mode": "automatic",
-    "java.configuration.updateBuildConfiguration": "automatic",
-    "cSpell.customDictionaries": {
-        "project-words": {
-            "name": "project-words",
-            "description": "Words used in this project",
-            "path": "${workspaceRoot}/project-words.txt",
-            "addWords": true
-        },
-        "custom": true, // Enable the `custom` dictionary
-        "internal-terms": false // Disable the `internal-terms` dictionary
-    },
-    "auto-header-plus.pathContainsWorkspaceFolder": false
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "auto-header-plus.commentElements": [
+    "Author",
+    "CreatedDate",
+    "LastEditors",
+    "LastEditDate",
+    "CopyRight"
+  ],
+  "editor.formatOnSave": true,
+  "editor.detectIndentation": false,
+  "editor.stickyTabStops": true,
+  "editor.tabSize": 2,
+  "editor.useTabStops": false,
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "auto-header-plus.pathContainsWorkspaceFolder": false,
+  "java.debug.settings.onBuildFailureProceed": true
 }
