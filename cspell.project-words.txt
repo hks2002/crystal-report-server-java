@@ -8,6 +8,7 @@ crystaldecisions
 cvom
 dbname
 Dedienne
+fontconfig
 Hikari
 Imageio
 isready
@@ -16,6 +17,8 @@ JDBC
 jndi
 jrcerom
 logback
+mkfontdir
+mkfontscale
 OSGI
 pfjgraphics
 PGPASSWORD
@@ -30,5 +33,6 @@ vaadin
 Vals
 Verticle
 Vertx
+xfonts
 Xtreme
 zaxxer
