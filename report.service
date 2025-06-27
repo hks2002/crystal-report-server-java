@@ -1,0 +1,17 @@
+[Unit]
+Description=Java crystal report service
+Wants=network.target
+After=network.target
+
+[Service]
+Type=simple
+
+WorkingDirectory=/usr/share/java/crystal-report-server-java
+ExecStart=/usr/share/java/crystal-report-server-java/startup.sh
+ExecStop=/usr/share/java/crystal-report-server-java/shutdown.sh
+
+User=jarapp
+Group=jarapp
+
+[Install]
+WantedBy=multi-user.target
