@@ -10,11 +10,19 @@
   </Properties>
 
   <Loggers>
-    <Root level="TRACE">
+    <Root level="INFO">
       <AppenderRef ref="Console" />
       <AppenderRef ref="RollingFile" />
     </Root>
-
+    <!-- Crystal report log -->
+    <Logger name="com.businessobjects" level="ERROR" additivity="false">
+      <AppenderRef ref="Console" />More actions </Logger>
+    <Logger name="com.crystaldecisions.reports" level="ERROR" additivity="false">
+      <AppenderRef ref="Console" />
+    </Logger>
+    <Logger name="com.crystaldecisions12.reports" level="ERROR" additivity="false">
+      <AppenderRef ref="Console" />
+    </Logger>
   </Loggers>
 
   <Appenders>
