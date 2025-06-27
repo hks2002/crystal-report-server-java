@@ -2,7 +2,7 @@ on:
     workflow_dispatch:
     push:
         branches:
-            - 'main'
+            - 'master'
 
 # https://github.com/OWNER/REPO/settings/actions
 # MUST CHANGE GITHUB_TOKEN PERMISSION FROM READ TO WRITE
@@ -11,9 +11,10 @@ on:
 permissions:
     contents: write
     pull-requests: write
+    issues: write
 
 jobs:
-    build-and-test:
+    build-test-release:
         strategy:
             matrix:
                 os: [ubuntu-latest]
@@ -31,13 +32,13 @@ jobs:
 
         steps:
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Prepare database
               run: PGPASSWORD=postgres psql -h localhost -U postgres -p 5432 -f './src/test/resources/TEST.sql'
 
             - name: Install JDK
-              uses: actions/setup-java@v3
+              uses: actions/setup-java@v4
               with:
                   java-version: 17
                   distribution: 'adopt'
@@ -45,15 +46,14 @@ jobs:
 
             - name: Run tests
               run: mvn test
-
-    release-please:
-        needs: build-and-test
-        strategy:
-            matrix:
-                os: [ubuntu-latest]
-        runs-on: ${{ matrix.os }}
-        steps:
+              
             - uses: google-github-actions/release-please-action@v3
               with:
                   release-type: maven
                   #package-name: release-please-action
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  extra-files: |
+                    README.md
+                    CHANGELOG.md
+
+
