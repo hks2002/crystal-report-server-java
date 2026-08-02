@@ -1,11 +1,10 @@
-/*********************************************************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                                                            *
- * @CreatedDate           : 2023-04-12 19:43:00                                                                      *
- * @LastEditors           : Robert Huang<56649783@qq.com>                                                            *
- * @LastEditDate          : 2025-06-25 14:06:29                                                                      *
- * @FilePath              : src/test/java/com/da/crystal/report/ReportFunctionTests.java                             *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                                                          *
- ********************************************************************************************************************/
+/*******************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                      *
+ * @CreatedDate           : 2023-04-12 19:43:00                                *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                      *
+ * @LastEditDate          : 2026-08-01 23:52:45                                *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
+ ******************************************************************************/
 
 package com.da.crystal.report;
 
@@ -22,6 +21,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import com.crystaldecisions.sdk.occa.report.application.ReportClientDocument;
 import com.crystaldecisions.sdk.occa.report.data.Fields;
 import com.crystaldecisions.sdk.occa.report.data.IField;
+import com.crystaldecisions.sdk.occa.report.data.IFieldLink;
+import com.crystaldecisions.sdk.occa.report.data.ITableJoin;
 import com.crystaldecisions.sdk.occa.report.data.TableJoins;
 import com.crystaldecisions.sdk.occa.report.definition.IParagraph;
 import com.crystaldecisions.sdk.occa.report.definition.IParagraphElement;
@@ -42,7 +43,7 @@ import lombok.extern.log4j.Log4j2;
 public class ReportFunctionTests {
 
   private ReportClientDocument clientDoc = null;
-  String reportsPath = Thread.currentThread().getContextClassLoader().getResource("").getPath() + "../reports/";
+  String reportsPath = Thread.currentThread().getContextClassLoader().getResource("").getPath() + "../../reports/";
 
   @Test
   void saveRptTest() throws ReportSDKException, IOException {
@@ -74,7 +75,7 @@ public class ReportFunctionTests {
     ReportClientDocument clientDoc = ReportClientDocument.openReport(file);
 
     Fields<IField> fields = clientDoc.getDataDefinition().getResultFields();
-    for (var field : fields) {
+    for (IField field : fields) {
       log.debug("{} : {}", field.getName(), field.getLongName(null));
     }
 
@@ -87,8 +88,8 @@ public class ReportFunctionTests {
     ReportClientDocument clientDoc = ReportClientDocument.openReport(file);
 
     TableJoins tableJoins = clientDoc.getDatabase().getTableJoins();
-    for (var tableJoin : tableJoins) {
-      for (var fieldLink : tableJoin.getFieldLinks())
+    for (ITableJoin tableJoin : tableJoins) {
+      for (IFieldLink fieldLink : tableJoin.getFieldLinks())
         log.debug(
             "{} {} {} {} {} {}",
             tableJoin.getSourceTableAlias(),
@@ -170,6 +171,25 @@ public class ReportFunctionTests {
       }
     }
     clientDoc.saveAs("Modified.rpt", reportsPath, 1);
+    clientDoc.close();
+  }
+
+  @Test
+  void setReportUFL() throws ReportSDKException, IOException {
+    File file = new File(reportsPath + "OLD.rpt");
+    ReportClientDocument clientDoc = ReportClientDocument.openReport(file);
+
+    var formulaFields = clientDoc.getDataDefinition()
+        .getFormulaFields();
+
+    log.info("=== Formula Fields - Count: {} ===", formulaFields.size());
+
+    for (int i = 0; i < formulaFields.size(); i++) {
+      com.crystaldecisions.sdk.occa.report.data.IFormulaField field = (com.crystaldecisions.sdk.occa.report.data.IFormulaField) formulaFields
+          .get(i);
+      log.info("  Name: {} \n{}", field.getName(), field.getText());
+    }
+
     clientDoc.close();
   }
 }

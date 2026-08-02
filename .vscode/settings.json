@@ -17,5 +17,6 @@
   "java.compile.nullAnalysis.mode": "automatic",
   "java.configuration.updateBuildConfiguration": "automatic",
   "auto-header-plus.pathContainsWorkspaceFolder": false,
-  "java.debug.settings.onBuildFailureProceed": true
+  "java.debug.settings.onBuildFailureProceed": true,
+  "java.debug.settings.vmArgs": "",
 }

@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.0.0](https://github.com/hks2002/crystal-report-server-java/compare/v1.1.0...v2.0.0) (2025-06-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* ✨change spring boot to vertx
+
+### Features
+
+* ✨change spring boot to vertx ([632f634](https://github.com/hks2002/crystal-report-server-java/commit/632f634d7e9a42e1b04f969dbe577b919af3b182))
+
+
+### Bug Fixes
+
+* 🐛update the shell script ([68adca8](https://github.com/hks2002/crystal-report-server-java/commit/68adca89efa42f70af752290a6efc3bfc77a246e))
+
 ## [1.1.0](https://github.com/hks2002/crystal-report-server-java/compare/v1.0.0...v1.1.0) (2023-04-10)
 
 

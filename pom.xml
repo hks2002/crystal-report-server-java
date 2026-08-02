@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <groupId>com.da</groupId>
   <artifactId>crystal-report-server-java</artifactId>
-  <version>1.1.1-SNAPSHOT</version>
+  <version>2.0.0</version>
   <name>crystal-report-server-java</name>
   <description>An Crystal Report Server for java</description>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>17</java.version>
+    <java.version>21</java.version>
   </properties>
 
   <licenses>
@@ -32,13 +30,6 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-bom</artifactId>
-        <version>2.24.3</version>
-        <scope>import</scope>
-        <type>pom</type>
-      </dependency>
-      <dependency>
         <groupId>io.vertx</groupId>
         <artifactId>vertx-stack-depchain</artifactId>
         <version>5.0.0</version>
@@ -49,7 +40,7 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- vertx -->
+    <!-- vertx  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-launcher-application</artifactId>
@@ -62,172 +53,167 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>1.18.24</version>
-      <scope>provided</scope>
-    </dependency>
-    <!-- use log4j2 -->
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-    <!-- Log4j 1.x bridge -->
-    <!--https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-1.2-api -->
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-1.2-api</artifactId>
-    </dependency>
-
-    <!-- mssql server driver-->
+    <!-- db driver - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     <dependency>
       <groupId>com.microsoft.sqlserver</groupId>
       <artifactId>mssql-jdbc</artifactId>
-      <version>11.2.3.jre17</version>
+      <version>13.4.0.jre11</version>
     </dependency>
-
-    <!-- https://mvnrepository.com/artifact/com.mysql/mysql-connector-j -->
     <dependency>
       <groupId>com.mysql</groupId>
       <artifactId>mysql-connector-j</artifactId>
       <version>8.0.32</version>
     </dependency>
-
-    <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>42.5.1</version>
     </dependency>
-
-    <!-- test -->
+    <!-- test   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-junit5</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <!-- Crystal Reports lib in maven central -->
+    <!-- lombok - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.46</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- libs for (Crystal Reports) - - - - - - - - - - - - - - - - - - - - -->
+    <dependency>
+      <groupId>com.ibm.icu</groupId>
+      <artifactId>icu4j</artifactId>
+      <version>78.3</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>1.11.0</version>
+    </dependency>
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
       <version>3.2.2</version>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.6</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-configuration2</artifactId>
+      <version>2.15.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.20.0</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.1.1</version>
+      <version>1.4.0</version>
     </dependency>
     <dependency>
-      <groupId>com.ibm.icu</groupId>
-      <artifactId>icu4j</artifactId>
-      <version>60.1</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>1.15.0</version>
     </dependency>
-
-    <!-- don't replace below with maven central -->
     <dependency>
-      <groupId>SAP</groupId>
-      <artifactId>commons-configuration</artifactId>
-      <version>1.0.0</version>
+      <groupId>com.github.jai-imageio</groupId>
+      <artifactId>jai-imageio-core</artifactId>
+      <version>1.4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20260719</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.25.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.25.3</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.ogce</groupId>
+      <artifactId>xpp3</artifactId>
+      <version>1.1.6</version>
+    </dependency>
+    <!-- core lib of (Crystal Reports) - - - - - - - - - - - - - - - - - - - - -->
+    <dependency>
+      <groupId>crystal-reports</groupId>
+      <artifactId>com.azalea.ufl.barcode</artifactId>
+      <version>1.0</version>
       <scope>system</scope>
-      <systemPath>${pom.basedir}/lib/commons-configuration-1.2.jar</systemPath>
-    </dependency>
-
-    <!-- Crystal Reports lib in project -->
-    <dependency>
-      <groupId>SAP</groupId>
-      <artifactId>AzleaUflBarcode</artifactId>
-      <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${pom.basedir}/lib/com.azalea.ufl.barcode.1.0.jar
-			</systemPath>
+      <systemPath>${project.basedir}/lib/com.azalea.ufl.barcode.1.0.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>SAP</groupId>
+      <groupId>crystal-reports</groupId>
       <artifactId>CrystalCommon2</artifactId>
-      <version>1.0.0</version>
+      <version>12.2.233.5802</version>
       <scope>system</scope>
-      <systemPath>${pom.basedir}/lib/CrystalCommon2.jar
-			</systemPath>
+      <systemPath>${project.basedir}/lib/CrystalCommon2.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>SAP</groupId>
+      <groupId>crystal-reports</groupId>
       <artifactId>CrystalReportsRuntime</artifactId>
-      <version>1.0.0</version>
+      <version>12.2.233.5802</version>
       <scope>system</scope>
-      <systemPath>${pom.basedir}/lib/CrystalReportsRuntime.jar
-			</systemPath>
+      <systemPath>${project.basedir}/lib/CrystalReportsRuntime.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>SAP</groupId>
+      <groupId>crystal-reports</groupId>
       <artifactId>cvom</artifactId>
-      <version>1.0.0</version>
+      <version>12.2.233.5802</version>
       <scope>system</scope>
-      <systemPath>${pom.basedir}/lib/cvom.jar</systemPath>
+      <systemPath>${project.basedir}/lib/cvom.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>SAP</groupId>
+      <groupId>crystal-reports</groupId>
       <artifactId>DatabaseConnectors</artifactId>
-      <version>1.0.0</version>
+      <version>12.2.233.5802</version>
       <scope>system</scope>
-      <systemPath>${pom.basedir}/lib/DatabaseConnectors.jar
-			</systemPath>
+      <systemPath>${project.basedir}/lib/DatabaseConnectors.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>SAP</groupId>
-      <artifactId>JaiImageio</artifactId>
-      <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${pom.basedir}/lib/jai_imageio.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>SAP</groupId>
+      <groupId>crystal-reports</groupId>
       <artifactId>JDBInterface</artifactId>
-      <version>1.0.0</version>
+      <version>12.2.233.5802</version>
       <scope>system</scope>
-      <systemPath>${pom.basedir}/lib/JDBInterface.jar</systemPath>
+      <systemPath>${project.basedir}/lib/JDBInterface.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>SAP</groupId>
-      <artifactId>jrcerom</artifactId>
-      <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${pom.basedir}/lib/jrcerom.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>SAP</groupId>
-      <artifactId>logging</artifactId>
-      <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${pom.basedir}/lib/logging.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>SAP</groupId>
-      <artifactId>pfjgraphics</artifactId>
-      <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${pom.basedir}/lib/pfjgraphics.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>SAP</groupId>
-      <artifactId>QueryBuilder</artifactId>
-      <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${pom.basedir}/lib/QueryBuilder.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>SAP</groupId>
+      <groupId>crystal-reports</groupId>
       <artifactId>keycodeDecoder</artifactId>
-      <version>1.0.0</version>
+      <version>12.2.233.5802</version>
       <scope>system</scope>
-      <systemPath>${pom.basedir}/lib/keycodeDecoder.jar</systemPath>
+      <systemPath>${project.basedir}/lib/keycodeDecoder.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>crystal-reports</groupId>
+      <artifactId>logging</artifactId>
+      <version>12.2.233.5802</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/logging.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>crystal-reports</groupId>
+      <artifactId>pfjgraphics</artifactId>
+      <version>12.2.233.5802</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/pfjgraphics.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>crystal-reports</groupId>
+      <artifactId>QueryBuilder</artifactId>
+      <version>12.2.233.5802</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/QueryBuilder.jar</systemPath>
     </dependency>
   </dependencies>
 
@@ -241,15 +227,8 @@
           <include>**/*.*</include>
         </includes>
       </resource>
-      <!-- for <scope>system</scope>, Must keep it -->
-      <resource>
-        <directory>lib</directory>
-        <targetPath>${project.build.directory}/lib</targetPath>
-        <includes>
-          <include>**/*.jar</include>
-        </includes>
-      </resource>
     </resources>
+
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -289,39 +268,7 @@
         </executions>
       </plugin>
       <!-- the default jar without dependencies -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.4.2</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <classpathPrefix>./lib/</classpathPrefix>
-              <mainClass>com.da.crystal.report.VertxApp</mainClass>
-            </manifest>
-            <manifestEntries>
-              <!-- for <scope>system</scope> , Must keep it for the thin jar -->
-              <Class-Path>
-                ./lib/com.azalea.ufl.barcode.1.0.jar
-                ./lib/commons-configuration-1.2.jar
-                ./lib/CrystalCommon2.jar
-                ./lib/CrystalReportsRuntime.jar
-                ./lib/cvom.jar
-                ./lib/DatabaseConnectors.jar
-                ./lib/jai_imageio.jar
-                ./lib/JDBInterface.jar
-                ./lib/jrcerom.jar
-                ./lib/keycodeDecoder.jar
-                ./lib/list.txt
-                ./lib/logging.jar
-                ./lib/pfjgraphics.jar
-                ./lib/QueryBuilder.jar
-              </Class-Path>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
+      <!-- for <scope>system</scope> , Must keep it for the thin jar -->
       <!-- keep jar with version and no version at same times -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -383,16 +330,12 @@
                 <!-- for <scope>system</scope>, Must keep it for the fat jar -->
                 <Class-Path>
                   ./lib/com.azalea.ufl.barcode.1.0.jar
-                  ./lib/commons-configuration-1.2.jar
                   ./lib/CrystalCommon2.jar
                   ./lib/CrystalReportsRuntime.jar
                   ./lib/cvom.jar
                   ./lib/DatabaseConnectors.jar
-                  ./lib/jai_imageio.jar
                   ./lib/JDBInterface.jar
-                  ./lib/jrcerom.jar
                   ./lib/keycodeDecoder.jar
-                  ./lib/list.txt
                   ./lib/logging.jar
                   ./lib/pfjgraphics.jar
                   ./lib/QueryBuilder.jar
