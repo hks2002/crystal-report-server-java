@@ -5,7 +5,7 @@
   <Properties>
     <Property name="LOG_HOME">/var/log/@project.artifactId@</Property>
     <!-- %l for point to line -->
-    <Property name="PatternLayoutConsole">%d{HH:mm:ss.SSS} %highlight{[%-5level] [%c{36}] %msg%n}</Property>
+    <Property name="PatternLayoutConsole">%highlight{%d{HH:mm:ss.SSS} [%-5level] [%c{36}] %msg}%n</Property>
     <Property name="PatternLayoutFile">%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%c{36}] %msg%n</Property>
   </Properties>
 

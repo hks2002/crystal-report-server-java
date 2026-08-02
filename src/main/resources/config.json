@@ -5,18 +5,23 @@
     "compressionLevel": 6,
     "decompressionSupported": true
   },
+  "srvInfo": {
+    "name": "@project.name@",
+    "version": "@project.version@",
+    "dependencies": "@project.dependencies@"
+  },
   "handler": {
     "report": {
-      "url": "jdbc:sqlserver://192.168.10.60\\x3v12;DatabaseName=x3v12;TrustServerCertificate=true;",
+      "url": "jdbc:sqlserver://127.9.9.1\\x3v12;DatabaseName=x3v12;TrustServerCertificate=true;",
       "driverClassName": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
       "user": "",
       "password": "",
       "jndiName": "",
       "windows": {
-        "reportsPath": "C:/Users/rhuang/Desktop/Dev/crystal-report-server-java/reports"
+        "reportsPath": "d:/Dev/crystal-report-server-java/reports"
       },
       "linux": {
-        "reportsPath": "/usr/share/java/crystal-report-server/reports"
+        "reportsPath": "/usr/share/java/crystal-report-server-java/reports"
       }
     }
   }
