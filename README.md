@@ -8,7 +8,7 @@
 
 [English](./README.md) | [简体中文](./README.zh-cn.md)
 
-An Crystal Report server run in java.
+A Crystal Report server run in java.
 
 ### Linux System Prepare
 
@@ -30,16 +30,18 @@ An Crystal Report server run in java.
 3. Allow the TLS disabled algorithms (As Required)
    If the connect database version is too old, and the running Linux system is new, you maybe will have the TLS connection issue by disabled algorithms.
 
-   Edit`JAVA_HOME/conf/security/java.security`, Delete `dk.tls.disabledAlgorithms`disabled algorithms value；
+   Edit`JAVA_HOME/conf/security/java.security`, Delete `jdk.tls.disabledAlgorithms`disabled algorithms value；
    Edit`/etc/crypto-policies/back-ends/java.config`, Delete `jdk.tls.disabledAlgorithms`disabled algorithms value；   
 
 ### How to Use
 
 1. It contains `postgres`，`mysql`， `sql server` driver by default, Add your db driver in `pom.xml` as necessary.
-2. At the target running folder, upload `target\lib`(it contains all dependencies), upload `*.rpt` files to `reports` folder.
-3. update your database url, driverClassName, user, password, report location in `config-prod`.
-4. At the target running folder, Run `java -jar crystal-report-server-java.jar --conf=config-prod.json` or Run `java -jar crystal-report-server-java-fat.jar --conf=config-prod.json`.
-5. Open `http://server:port/Report/{ReportTemplateName}/{format}?param0=val0&param1=val1` in browser, you can see your report.
+2. Upload `crystal-report-server-java.jar` to `SERVER_FOLDER`.
+3. Upload `lib` (crystal report dependencies) to `SERVER_FOLDER/lib`.
+4. Upload `*.rpt` (report template files) to `SERVER_FOLDER/reports`.
+5. Upload `config-prod.json` (config file) to `SERVER_FOLDER`, configure database connection info and report template location.
+6. Run `java -cp "./crystal-report-server-java.jar:lib/*" com.da.crystal.report.VertxApp --conf=config-prod.json --options=vertx-options.json` in `SERVER_FOLDER`.
+7. Open `http://server:port/Report/{ReportTemplateName}/{format}?param0=val0&param1=val1` in browser, you can see your report.
 
 > Note: `{ReportTemplateName}` is the name of your report template file without extension, `{format}` is the format you want, such as `pdf` `doc` `xls`, `param0` and `param1` are the parameters of your report, give a param named with `filename`, this param value will be used as the file name.
 > Suggestion: Using `Command SQL` instead of `Table Link` for better performance, reduce the report generation duration.
