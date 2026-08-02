@@ -7,8 +7,8 @@
   <name>crystal-report-server-java</name>
   <description>An Crystal Report Server for java</description>
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>21</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <licenses>
@@ -230,6 +230,26 @@
     </resources>
 
     <plugins>
+      <!-- copy dependencies to target/lib -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.8.1</version>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/lib</outputDirectory>
+              <stripVersion>true</stripVersion>
+              <includeScope>compile</includeScope>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.11.0</version>
@@ -248,27 +268,11 @@
           <reuseForks>true</reuseForks>
         </configuration>
       </plugin>
-      <!-- copy dependencies to lib -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.8.1</version>
-        <executions>
-          <execution>
-            <id>copy-dependencies</id>
-            <phase>package</phase>
-            <goals>
-              <goal>copy-dependencies</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/lib</outputDirectory>
-              <includeScope>compile</includeScope>
-            </configuration>
-          </execution>
-        </executions>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.4.1</version>
       </plugin>
-      <!-- the default jar without dependencies -->
-      <!-- for <scope>system</scope> , Must keep it for the thin jar -->
       <!-- keep jar with version and no version at same times -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -287,69 +291,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-      <!-- package all dependencies into jar -->
-      <plugin>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.6.0</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <createDependencyReducedPom>false</createDependencyReducedPom>
-          <artifactSet>
-            <includes>
-              <include>*:*</include>
-            </includes>
-          </artifactSet>
-          <filters>
-            <filter>
-              <artifact>*:*</artifact>
-              <excludes>
-                <exclude>META-INF/*.SF</exclude>
-                <exclude>META-INF/*.DSA</exclude>
-                <exclude>META-INF/*.RSA</exclude>
-                <exclude>META-INF/MANIFEST.MF</exclude>
-                <exclude>META-INF/DEPENDENCIES</exclude>
-                <exclude>module-info.class</exclude>
-                <exclude>META-INF/versions/**/module-info.class</exclude>
-                <exclude>META-INF/versions/9/OSGI-INF/MANIFEST.MF</exclude>
-                <exclude>META-INF/io.netty.versions.properties</exclude>
-              </excludes>
-            </filter>
-          </filters>
-          <transformers>
-            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-              <manifestEntries>
-                <Main-Class>com.da.crystal.report.VertxApp</Main-Class>
-                <!-- for <scope>system</scope>, Must keep it for the fat jar -->
-                <Class-Path>
-                  ./lib/com.azalea.ufl.barcode.1.0.jar
-                  ./lib/CrystalCommon2.jar
-                  ./lib/CrystalReportsRuntime.jar
-                  ./lib/cvom.jar
-                  ./lib/DatabaseConnectors.jar
-                  ./lib/JDBInterface.jar
-                  ./lib/keycodeDecoder.jar
-                  ./lib/logging.jar
-                  ./lib/pfjgraphics.jar
-                  ./lib/QueryBuilder.jar
-                </Class-Path>
-              </manifestEntries>
-            </transformer>
-            <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
-            <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer"/>
-            <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-          </transformers>
-          <outputFile>
-            ${project.build.directory}/${project.artifactId}-fat.jar
-          </outputFile>
-        </configuration>
       </plugin>
     </plugins>
   </build>

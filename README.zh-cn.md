@@ -36,10 +36,12 @@
 ### 如何使用
 
 1. 默认包含`postgres`，`mysql`， `sql server`驱动, 其他数据库需要在 `pom.xml` 中添加数据库驱动。
-2. 目标文件夹下，上传`target/lib`(此lib包含所有的依赖)， 上传`*.rpt`报表文件到到`reports`文件夹。
-3. 可在 `config-prod` 中配置数据库连接信息和报表模板位置。
-4. 目标文件夹下运行 `java -jar crystal-report-server-java.jar --conf=config-prod.json`, 或者运行 `java -jar crystal-report-server-java-fat.jar --conf=config-prod.json`。
-5. 在浏览器中打开 `http://server:port/Report/{ReportTemplateName}/{format}?param0=val0&param1=val1`，即可看到报表。
+2. 上传`crystal-report-server-java.jar`到`SERVER_FOLDER`。
+3. 上传`lib`(水晶报表依赖)到`SERVER_FOLDER/lib`。
+4. 上传`*.rpt`(报表模板文件)到到`SERVER_FOLDER/reports`。
+5. 上传`config-prod.json`(配置文件)到`SERVER_FOLDER`， 可配置数据库连接信息和报表模板位置。
+6. `SERVER_FOLDER`下运行 `java -cp "./crystal-report-server-java.jar:lib/*" com.da.crystal.report.VertxApp --conf=config-prod.json --options=vertx-options.json`。
+7. 在浏览器中打开 `http://server:port/Report/{ReportTemplateName}/{format}?param0=val0&param1=val1`，即可看到报表。
 
 > 说明：`{ReportTemplateName}` 是报表模板文件名，不包含扩展名；`{format}` 是报表格式，如 `pdf` `doc` `xls`；`param0` 和 `param1` 是报表参数，如果有一个参数名包含 `filename`，则该参数值将作为文件名。
 > 建议：使用`Command SQL`代替`Table Link`,可以获得更快的报表生成速度。
