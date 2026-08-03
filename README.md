@@ -27,6 +27,7 @@ A Crystal Report server run in java.
     sudo apt-get -y install fontconfig xfonts-utils
     mkfontscale && mkfontdir && fc-cache -fv
     ```
+    Or copy fonts files to JAVA_HOME/lib/fonts directly (Recommended).
 3. Allow the TLS disabled algorithms (As Required)
    If the connect database version is too old, and the running Linux system is new, you maybe will have the TLS connection issue by disabled algorithms.
 

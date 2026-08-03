@@ -27,6 +27,7 @@
     sudo apt-get -y install fontconfig xfonts-utils
     mkfontscale && mkfontdir && fc-cache -fv
    ```
+   或者直接在JAVA_HOME/lib/fonts目录下复制字体文件(推荐)。
 3. 放开TLS传输层加密算法限制（按需）。
    如果你连接的数据库版本比较旧，而Linux系统比较新，可能会遇到TLS传输层算法限制的问题，
 
