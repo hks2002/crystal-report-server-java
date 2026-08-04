@@ -1,39 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- status: log4j2 log level, monitorInterval="30" could let auto reload the config -->
 <Configuration status="OFF">
-	<Properties>
-		<Property name="patternConsole">%d{HH:mm:ss.SSS} %highlight{[%-5level]} [%c{36}] %msg%n</Property>
-	</Properties>
-	<Appenders>
-		<Console name="Console" target="SYSTEM_OUT">
-			<ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY" />
-			<!-- color 🎨 log enable -->
-			<PatternLayout disableAnsi="false" noConsoleNoAnsi="false" >
-				<Pattern>${patternConsole}</Pattern>
-			</PatternLayout>
-		</Console>
-	</Appenders>
-	<Loggers>
-	    <!-- deault level -->
-		<Root level="INFO">
-			<AppenderRef ref="Console" />
-		</Root>
-
-		<!-- Customer level bellow  -->
-		<!-- This app  -->
-		<Logger name="com.da" level="DEBUG" additivity="false">
-			<AppenderRef ref="Console" />
-		</Logger>
-
-		<!-- Crystal report log -->
-		<Logger name="com.businessobjects" level="ERROR" additivity="false">
-			<AppenderRef ref="Console" />
-		</Logger>
-		<Logger name="com.crystaldecisions.reports" level="ERROR" additivity="false">
-			<AppenderRef ref="Console" />
-		</Logger>
-		<Logger name="com.crystaldecisions12.reports" level="ERROR" additivity="false">
-			<AppenderRef ref="Console" />
-		</Logger>
-	</Loggers>
+  <Properties>
+    <Property name="patternConsole">
+      %d{HH:mm:ss.SSS} %highlight{[%-5level]} [%c{36}] %msg%n
+    </Property>
+  </Properties>
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <ThresholdFilter level="TRACE" onMatch="ACCEPT" onMismatch="DENY" />
+      <!-- color 🎨 log enable -->
+      <PatternLayout disableAnsi="false" noConsoleNoAnsi="false">
+        <Pattern>
+          ${patternConsole}
+        </Pattern>
+      </PatternLayout>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <!-- deault level -->
+    <Root level="INFO">
+      <AppenderRef ref="Console" />
+    </Root>
+    <!-- Customer level bellow  -->
+    <!-- This app  -->
+    <Logger name="com.da" level="DEBUG" additivity="false">
+      <AppenderRef ref="Console" />
+    </Logger>
+    <!-- Crystal report log -->
+    <Logger name="com.businessobjects" level="ERROR" additivity="false">
+      <AppenderRef ref="Console" />
+    </Logger>
+    <Logger name="com.crystaldecisions" level="ERROR" additivity="false">
+      <AppenderRef ref="Console" />
+    </Logger>
+    <Logger name="com.crystaldecisions12" level="ERROR" additivity="false">
+      <AppenderRef ref="Console" />
+    </Logger>
+    <Logger name="com.crystaldecisions.reports.queryengine.Connection" level="DEBUG"
+      additivity="false">
+      <AppenderRef ref="Console" />
+    </Logger>
+    <!-- Database connection pool -->
+    <Logger name="com.zaxxer.hikari" level="DEBUG" additivity="false">
+      <AppenderRef ref="Console" />
+    </Logger>
+  </Loggers>
 </Configuration>
