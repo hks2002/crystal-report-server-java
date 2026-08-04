@@ -7,6 +7,8 @@
  ******************************************************************************/
 package com.da.crystal.report;
 
+import com.da.crystal.report.JNDI.JNDIManager;
+
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxBuilder;
 import io.vertx.core.VertxOptions;
@@ -80,8 +82,24 @@ public class VertxAppHooks implements VertxApplicationHooks {
         AppConfig.setupPeriod(context.vertx(), configArg);
       }
 
+      initJNDI();
+
     } catch (Exception e) {
       log.error("{}", e.getMessage());
+    }
+  }
+
+  private void initJNDI() {
+    try {
+      JsonObject handlerConfig = AppConfig.config.getJsonObject("handler");
+      if (handlerConfig != null) {
+        JsonObject reportConfig = handlerConfig.getJsonObject("report");
+        if (reportConfig != null) {
+          JNDIManager.init(reportConfig);
+        }
+      }
+    } catch (Exception e) {
+      log.error("Failed to initialize JNDI", e);
     }
   }
 

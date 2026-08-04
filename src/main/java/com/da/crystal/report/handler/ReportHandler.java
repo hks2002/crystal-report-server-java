@@ -21,6 +21,7 @@ import com.crystaldecisions.sdk.occa.report.document.ISummaryInfo;
 import com.crystaldecisions.sdk.occa.report.document.SummaryInfo;
 import com.crystaldecisions.sdk.occa.report.lib.ReportSDKExceptionBase;
 import com.da.crystal.report.CRJavaHelper;
+import com.da.crystal.report.JNDI.JNDIManager;
 
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
@@ -51,6 +52,7 @@ public class ReportHandler implements Handler<RoutingContext> {
     this.driverClassName = reportConfig.getString("driverClassName", driverClassName);
     this.user = reportConfig.getString("user", user);
     this.password = reportConfig.getString("password", password);
+    this.jndiName = reportConfig.getString("jndiName", jndiName);
   }
 
   @Override
@@ -171,8 +173,14 @@ public class ReportHandler implements Handler<RoutingContext> {
 
   private void setDatabaseConnection(ReportClientDocument clientDoc, String report)
       throws ReportSDKExceptionBase {
-    CRJavaHelper.changeDataSource(clientDoc, user, password, jdbcUrl, driverClassName, null,
-        report + ".JDBC.rpt", reportsPath);
+    boolean isSameDataSource = CRJavaHelper.isSameDataSource(clientDoc, jdbcUrl, driverClassName, jndiName);
+    if (!isSameDataSource) {
+      CRJavaHelper.changeDataSource(clientDoc, user, password, jdbcUrl, driverClassName, jndiName, report, reportsPath);
+    }
+    boolean useJNDI = jndiName != null && !jndiName.isEmpty();
+    if (!useJNDI) {
+      CRJavaHelper.logonDataSource(clientDoc, user, password);
+    }
   }
 
   private void setReportParameters(ReportClientDocument clientDoc, MultiMap reqParams)
@@ -223,6 +231,8 @@ public class ReportHandler implements Handler<RoutingContext> {
       clientDoc.close();
     } catch (ReportSDKExceptionBase e) {
       log.error("Error closing report document", e);
+    } finally {
+      JNDIManager.releaseConnections();
     }
   }
 

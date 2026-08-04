@@ -17,7 +17,6 @@ package com.da.crystal.report;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,9 +26,11 @@ import java.util.Locale;
 import com.crystaldecisions.sdk.occa.report.application.DBOptions;
 import com.crystaldecisions.sdk.occa.report.application.DataDefController;
 import com.crystaldecisions.sdk.occa.report.application.DatabaseController;
+import com.crystaldecisions.sdk.occa.report.application.ISubreportClientDocument;
 import com.crystaldecisions.sdk.occa.report.application.ParameterFieldController;
 import com.crystaldecisions.sdk.occa.report.application.ReportClientDocument;
 import com.crystaldecisions.sdk.occa.report.data.Connection;
+import com.crystaldecisions.sdk.occa.report.data.ConnectionInfo;
 import com.crystaldecisions.sdk.occa.report.data.FieldDisplayNameType;
 import com.crystaldecisions.sdk.occa.report.data.Fields;
 import com.crystaldecisions.sdk.occa.report.data.IConnectionInfo;
@@ -94,93 +95,81 @@ public class CRJavaHelper {
    * 
    * @param clientDoc     The reportClientDocument representing the report being
    *                      used
+   * @param connectionURL The connection URL
+   * @param driverName    The driver Name
+   * @param jndiName      The JNDI name
+   * @throws ReportSDKException
+   */
+  public static boolean isSameDataSource(ReportClientDocument clientDoc, String connectionURL, String driverName,
+      String jndiName)
+      throws ReportSDKException {
+    boolean useJNDI = jndiName != null && !jndiName.isEmpty();
+
+    String SERVER_TYPE = useJNDI ? "JDBC (JNDI)" : "JDBC";
+
+    Tables tables = clientDoc.getDatabaseController().getDatabase().getTables();
+
+    IConnectionInfo oldConnectionInfo = tables.getTable(0).getConnectionInfo();
+    PropertyBag oldPropertyBag = oldConnectionInfo.getAttributes();
+
+    boolean isSameDataSource = false;
+
+    if (useJNDI) {
+      isSameDataSource = jndiName.equals(oldPropertyBag.getStringValue("JNDI Datasource Name"));
+    } else {
+      isSameDataSource = SERVER_TYPE.equals(oldPropertyBag.getStringValue("Server Type")) &&
+          connectionURL.equals(oldPropertyBag.getStringValue("Connection URL")) &&
+          driverName.equals(oldPropertyBag.getStringValue("Database Class Name"));
+    }
+    return isSameDataSource;
+  }
+
+  /**
+   * Changes the DataSource for each Table
+   * 
+   * @param clientDoc     The reportClientDocument representing the report being
+   *                      used
    * @param username      The DB logon user name
    * @param password      The DB logon password
    * @param connectionURL The connection URL
    * @param driverName    The driver Name
    * @param jndiName      The JNDI name
-   * @param newReportName The new document name (with extension) to save as
+   * @param reportName    The new document name (with extension) to save as
    * @param reportPath    The folder path to save the document
    * @throws ReportSDKException
    */
   public static void changeDataSource(ReportClientDocument clientDoc, String username, String password,
-      String connectionURL, String driverName, String jndiName, String newReportName, String reportPath)
+      String connectionURL, String driverName, String jndiName, String reportName, String reportPath)
       throws ReportSDKException {
-    changeDataSource(clientDoc, null, null, username, password, connectionURL, driverName, jndiName, newReportName,
-        reportPath);
-  }
 
-  /**
-   * Changes the DataSource for a specific Table
-   * 
-   * @param clientDoc     The reportClientDocument representing the report being
-   *                      used
-   * @param subreportName "" for main report, name of subreport for subreport,
-   *                      null for all reports
-   * @param tableName     name of table to change. null for all tables.
-   * @param username      The DB logon user name
-   * @param password      The DB logon password
-   * @param connectionURL The connection URL
-   * @param driverName    The driver Name
-   * @param jndiName      The JNDI name
-   * @param newReportName The new document name (with extension) to save as
-   * @param reportPath    The folder path to save the document
-   * @throws ReportSDKException
-   */
-  public static void changeDataSource(ReportClientDocument clientDoc, String subreportName, String tableName,
-      String username, String password, String connectionURL, String driverName,
-      String jndiName, String newReportName, String reportPath) throws ReportSDKException {
+    DatabaseController dbc = clientDoc.getDatabaseController();
+    Tables tables = dbc.getDatabase().getTables();
+    ITable table = tables.get(0);
+    replaceTableConnection(dbc, table, jndiName, connectionURL, driverName, username, password);
 
-    // Declare variables to hold ConnectionInfo values.
-    String SERVER_TYPE = "JDBC (JNDI)";
-    String CONNECTION_URL = connectionURL;
-    String DATABASE_CLASS_NAME = driverName;
+    // Next loop through all the subreports and pass in the same information.
+    IStrings subNames = clientDoc.getSubreportController().getSubreportNames();
+    for (int subNum = 0; subNum < subNames.size(); subNum++) {
+      ISubreportClientDocument subRepotDoc = clientDoc.getSubreportController()
+          .getSubreport(subNames.getString(subNum));
 
-    // Obtain collection of tables from this database controller
-    if (subreportName == null || subreportName.equals("")) {
-      Tables tables = clientDoc.getDatabaseController().getDatabase().getTables();
+      DatabaseController subDbc = subRepotDoc.getDatabaseController();
+      Tables subtables = subDbc.getDatabase().getTables();
 
-      // Check if connection info is already the same, just do simple logon
-      IConnectionInfo oldConnectionInfo = tables.getTable(0).getConnectionInfo();
-      PropertyBag oldPropertyBag = oldConnectionInfo.getAttributes();
-      if (SERVER_TYPE.equals(oldPropertyBag.getStringValue("Server Type")) &&
-          CONNECTION_URL.equals(oldPropertyBag.getStringValue("Connection URL")) &&
-          DATABASE_CLASS_NAME.equals(oldPropertyBag.getStringValue("Database Class Name"))) {
-        logonDataSource(clientDoc, username, password);
-        return;
+      if (subtables.size() > 0) {
+        ITable subTable = subtables.get(0);
+        replaceTableConnection(subDbc, subTable, jndiName, connectionURL, driverName, username, password);
       }
 
-      replaceTableConnection(clientDoc.getDatabaseController(), tables.getTable(0),
-          jndiName, connectionURL, driverName, username, password);
     }
 
-    // Next loop through all the subreports and pass in the same
-    // information. You may consider
-    // creating a separate method which accepts
-    if (subreportName == null || !(subreportName.equals(""))) {
-      IStrings subNames = clientDoc.getSubreportController().getSubreportNames();
-      for (int subNum = 0; subNum < subNames.size(); subNum++) {
-        Tables tables = clientDoc.getSubreportController().getSubreport(subNames.getString(subNum))
-            .getDatabaseController().getDatabase().getTables();
-
-        if (tables.size() > 0) {
-          replaceTableConnection(
-              clientDoc.getSubreportController().getSubreport(subNames.getString(subNum))
-                  .getDatabaseController(),
-              tables.getTable(0),
-              jndiName, connectionURL, driverName, username, password);
-        }
-      }
-    }
-
-    // 判断文件是否存在，不存在则保存
-    Path path = Path.of(reportPath, newReportName);
-    if (!Files.exists(path)) {
-      try {
-        clientDoc.saveAs(newReportName, reportPath, 1);
-      } catch (ReportSDKExceptionBase | IOException e) {
-        log.error("Failed to save report after connection change: {}", e.getMessage());
-      }
+    // Save the report with updated connection info (overwrite if exists)
+    Path path = Path.of(reportPath, reportName + ".JDBC.rpt");
+    try {
+      clientDoc.saveAs(reportName + ".JDBC.rpt", reportPath, 1);
+      log.info("Report saved: {}", path);
+    } catch (ReportSDKExceptionBase | IOException e) {
+      log.error("Failed to save report after connection change: {}", e.getMessage());
     }
   }
 
@@ -190,34 +179,84 @@ public class CRJavaHelper {
   private static void replaceTableConnection(DatabaseController dbController, ITable table,
       String jndiName, String connectionURL, String driverName, String username, String password)
       throws ReportSDKException {
-    IConnectionInfo connectionInfo = buildConnectionInfo(table,
-        jndiName, connectionURL, driverName, username, password);
-    Connection oldConnection = new Connection();
-    oldConnection.setConnectionInfo(table.getConnectionInfo());
+    IConnectionInfo connectionInfo = buildConnectionInfo(jndiName, connectionURL, driverName, username, password);
+
     Connection newConnection = new Connection();
     newConnection.setConnectionInfo(connectionInfo);
-    dbController.replaceConnection(oldConnection, newConnection,
+
+    dbController.replaceConnection(table.getConnection(), newConnection,
         DBOptions._doNotVerifyDB | DBOptions._ignoreCurrentTableQualifiers);
   }
 
   /**
    * Builds a new connection info with the specified JDBC properties.
    */
-  private static IConnectionInfo buildConnectionInfo(ITable table,
-      String jndiName, String connectionURL, String driverName, String username, String password) {
-    IConnectionInfo connectionInfo = table.getConnectionInfo();
-    PropertyBag propertyBag = new PropertyBag();
-    propertyBag.put("Trusted_Connection", "false");
-    propertyBag.put("Server Type", "JDBC (JNDI)");
-    propertyBag.put("Use JDBC", "true");
-    propertyBag.put("Database DLL", "crdb_jdbc.dll");
-    propertyBag.put("JNDIOptionalName", jndiName);
-    propertyBag.put("Connection URL", connectionURL);
-    propertyBag.put("Database Class Name", driverName);
+  private static IConnectionInfo buildConnectionInfo(String jndiName, String connectionURL, String driverName,
+      String username, String password) {
+    IConnectionInfo connectionInfo = new ConnectionInfo();
+    PropertyBag propertyBag = buildConnectionPropertyBag(jndiName, connectionURL, driverName, username, password);
+
     connectionInfo.setAttributes(propertyBag);
     connectionInfo.setUserName(username);
     connectionInfo.setPassword(password);
     return connectionInfo;
+  }
+
+  /**
+   * Builds a new connection info with the specified JDBC properties.
+   */
+  private static PropertyBag buildConnectionPropertyBag(String jndiName, String connectionURL, String driverName,
+      String username, String password) {
+    boolean useJNDI = jndiName != null && !jndiName.isEmpty();
+
+    PropertyBag propertyBag = new PropertyBag();
+    propertyBag.put("Server Type", useJNDI ? "JDBC (JNDI)" : "JDBC");
+    propertyBag.put("Connection URL", connectionURL);
+    propertyBag.put("Database Class Name", driverName);
+    propertyBag.put("Database DLL", "crdb_jdbc.dll");
+    if (useJNDI) {
+      propertyBag.put("JNDI Datasource Name", jndiName);
+    }
+    return propertyBag;
+  }
+
+  /**
+   * Disconnect from the database by closing all matching connections.
+   * 
+   * @param clientDoc     The reportClientDocument representing the report being
+   *                      used
+   * @param username      The DB logon user name
+   * @param password      The DB logon password
+   * @param connectionURL The connection URL
+   * @param driverName    The driver Name
+   * @param jndiName      The JNDI name
+   * @throws ReportSDKException
+   */
+  public static void closeDatabaseConnection(ReportClientDocument clientDoc, String username, String password,
+      String connectionURL, String driverName, String jndiName) throws ReportSDKException {
+
+    DatabaseController dbc = clientDoc.getDatabaseController();
+    IConnectionInfo connectionInfo = buildConnectionInfo(jndiName, connectionURL, driverName, username, password);
+
+    Connection conn = new Connection();
+    conn.setConnectionInfo(connectionInfo);
+    if (dbc.isConnectionOpen(conn)) {
+      dbc.closeConnection(conn);
+      log.info("Closed main report connection");
+    }
+
+    IStrings subNames = clientDoc.getSubreportController().getSubreportNames();
+    for (int subNum = 0; subNum < subNames.size(); subNum++) {
+      DatabaseController subDbc = clientDoc.getSubreportController()
+          .getSubreport(subNames.getString(subNum))
+          .getDatabaseController();
+      Connection subConn = new Connection();
+      subConn.setConnectionInfo(connectionInfo);
+      if (subDbc.isConnectionOpen(subConn)) {
+        subDbc.closeConnection(subConn);
+        log.info("Closed subreport connection: {}", subNames.getString(subNum));
+      }
+    }
   }
 
   /**

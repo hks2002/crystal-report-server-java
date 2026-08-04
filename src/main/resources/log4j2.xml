@@ -3,12 +3,17 @@
 	the config -->
 <Configuration status="OFF">
   <Properties>
-    <Property name="LOG_HOME">/var/log/@project.artifactId@</Property>
+    <Property name="LOG_HOME">
+      /var/log/@project.artifactId@
+    </Property>
     <!-- %l for point to line -->
-    <Property name="PatternLayoutConsole">%highlight{%d{HH:mm:ss.SSS} [%-5level] [%c{36}] %msg}%n</Property>
-    <Property name="PatternLayoutFile">%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%c{36}] %msg%n</Property>
+    <Property name="PatternLayoutConsole">
+      %highlight{%d{HH:mm:ss.SSS} [%-5level] [%c{36}] %msg}%n
+    </Property>
+    <Property name="PatternLayoutFile">
+      %d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%c{36}] %msg%n
+    </Property>
   </Properties>
-
   <Loggers>
     <Root level="INFO">
       <AppenderRef ref="Console" />
@@ -16,31 +21,39 @@
     </Root>
     <!-- Crystal report log -->
     <Logger name="com.businessobjects" level="ERROR" additivity="false">
-      <AppenderRef ref="Console" />More actions </Logger>
-    <Logger name="com.crystaldecisions.reports" level="ERROR" additivity="false">
       <AppenderRef ref="Console" />
     </Logger>
-    <Logger name="com.crystaldecisions12.reports" level="ERROR" additivity="false">
+    <Logger name="com.crystaldecisions" level="ERROR" additivity="false">
+      <AppenderRef ref="Console" />
+    </Logger>
+    <Logger name="com.crystaldecisions12" level="ERROR" additivity="false">
+      <AppenderRef ref="Console" />
+    </Logger>
+    <!-- Database connection pool -->
+    <Logger name="com.zaxxer.hikari" level="INFO" additivity="false">
       <AppenderRef ref="Console" />
     </Logger>
   </Loggers>
-
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
       <ThresholdFilter level="TRACE" />
       <PatternLayout>
-        <disableAnsi>false</disableAnsi>
-        <Pattern>${PatternLayoutConsole}</Pattern>
+        <disableAnsi>
+          false
+        </disableAnsi>
+        <Pattern>
+          ${PatternLayoutConsole}
+        </Pattern>
       </PatternLayout>
     </Console>
-
     <RollingFile name="RollingFile" fileName="${LOG_HOME}/@project.artifactId@.log"
       filePattern="${LOG_HOME}/@project.artifactId@.%d{yyyy-MM-dd}.log" append="true">
       <ThresholdFilter level="INFO" />
       <PatternLayout>
-        <Pattern>${PatternLayoutFile}</Pattern>
+        <Pattern>
+          ${PatternLayoutFile}
+        </Pattern>
       </PatternLayout>
-
       <Policies>
         <!-- Apply policies every 1 day -->
         <TimeBasedTriggeringPolicy modulate="true" interval="1" />
@@ -53,5 +66,4 @@
       </DefaultRolloverStrategy>
     </RollingFile>
   </Appenders>
-
 </Configuration>
