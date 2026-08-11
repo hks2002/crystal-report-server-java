@@ -2,10 +2,9 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2023-04-12 19:43:00                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-01 23:52:45                                *
+ * @LastEditDate          : 2026-08-11 18:25:24                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
-
 package com.da.crystal.report;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -174,22 +173,4 @@ public class ReportFunctionTests {
     clientDoc.close();
   }
 
-  @Test
-  void setReportUFL() throws ReportSDKException, IOException {
-    File file = new File(reportsPath + "OLD.rpt");
-    ReportClientDocument clientDoc = ReportClientDocument.openReport(file);
-
-    var formulaFields = clientDoc.getDataDefinition()
-        .getFormulaFields();
-
-    log.info("=== Formula Fields - Count: {} ===", formulaFields.size());
-
-    for (int i = 0; i < formulaFields.size(); i++) {
-      com.crystaldecisions.sdk.occa.report.data.IFormulaField field = (com.crystaldecisions.sdk.occa.report.data.IFormulaField) formulaFields
-          .get(i);
-      log.info("  Name: {} \n{}", field.getName(), field.getText());
-    }
-
-    clientDoc.close();
-  }
 }
