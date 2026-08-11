@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2023-03-07 00:03:27                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-01 20:22:33                                *
+ * @LastEditDate          : 2026-08-11 19:44:18                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 
@@ -12,7 +12,7 @@
  * unsupported.  You are free to modify and distribute the sample code as
  * needed.
  */
-package com.da.crystal.report;
+package com.da.crystal.report.CR;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -104,24 +104,47 @@ public class CRJavaHelper {
       String jndiName)
       throws ReportSDKException {
     boolean useJNDI = jndiName != null && !jndiName.isEmpty();
-
     String SERVER_TYPE = useJNDI ? "JDBC (JNDI)" : "JDBC";
 
+    // Check all main report tables
     Tables tables = clientDoc.getDatabaseController().getDatabase().getTables();
+    for (int i = 0; i < tables.size(); i++) {
+      if (!isTableConnectionMatch(tables.getTable(i), SERVER_TYPE, connectionURL, driverName, jndiName, useJNDI)) {
+        return false;
+      }
+    }
 
-    IConnectionInfo oldConnectionInfo = tables.getTable(0).getConnectionInfo();
+    // Check all subreport tables
+    IStrings subNames = clientDoc.getSubreportController().getSubreportNames();
+    for (int subNum = 0; subNum < subNames.size(); subNum++) {
+      ISubreportClientDocument subDoc = clientDoc.getSubreportController()
+          .getSubreport(subNames.getString(subNum));
+      Tables subTables = subDoc.getDatabaseController().getDatabase().getTables();
+      for (int i = 0; i < subTables.size(); i++) {
+        if (!isTableConnectionMatch(subTables.getTable(i), SERVER_TYPE, connectionURL, driverName, jndiName, useJNDI)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Checks if a single table's connection matches the target data source.
+   */
+  private static boolean isTableConnectionMatch(ITable table, String serverType, String connectionURL,
+      String driverName, String jndiName, boolean useJNDI) {
+    IConnectionInfo oldConnectionInfo = table.getConnectionInfo();
     PropertyBag oldPropertyBag = oldConnectionInfo.getAttributes();
 
-    boolean isSameDataSource = false;
-
     if (useJNDI) {
-      isSameDataSource = jndiName.equals(oldPropertyBag.getStringValue("JNDI Datasource Name"));
+      return jndiName.equals(oldPropertyBag.getStringValue("JNDI Datasource Name"));
     } else {
-      isSameDataSource = SERVER_TYPE.equals(oldPropertyBag.getStringValue("Server Type")) &&
+      return serverType.equals(oldPropertyBag.getStringValue("Server Type")) &&
           connectionURL.equals(oldPropertyBag.getStringValue("Connection URL")) &&
           driverName.equals(oldPropertyBag.getStringValue("Database Class Name"));
     }
-    return isSameDataSource;
   }
 
   /**
@@ -142,10 +165,12 @@ public class CRJavaHelper {
       String connectionURL, String driverName, String jndiName, String reportName, String reportPath)
       throws ReportSDKException {
 
+    // Replace connection for all main report tables
     DatabaseController dbc = clientDoc.getDatabaseController();
     Tables tables = dbc.getDatabase().getTables();
-    ITable table = tables.get(0);
-    replaceTableConnection(dbc, table, jndiName, connectionURL, driverName, username, password);
+    for (int i = 0; i < tables.size(); i++) {
+      replaceTableConnection(dbc, tables.getTable(i), jndiName, connectionURL, driverName, username, password);
+    }
 
     // Next loop through all the subreports and pass in the same information.
     IStrings subNames = clientDoc.getSubreportController().getSubreportNames();
@@ -156,11 +181,9 @@ public class CRJavaHelper {
       DatabaseController subDbc = subRepotDoc.getDatabaseController();
       Tables subtables = subDbc.getDatabase().getTables();
 
-      if (subtables.size() > 0) {
-        ITable subTable = subtables.get(0);
-        replaceTableConnection(subDbc, subTable, jndiName, connectionURL, driverName, username, password);
+      for (int i = 0; i < subtables.size(); i++) {
+        replaceTableConnection(subDbc, subtables.getTable(i), jndiName, connectionURL, driverName, username, password);
       }
-
     }
 
     // Save the report with updated connection info (overwrite if exists)
