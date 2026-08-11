@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                      *
+ * @CreatedDate           : 2026-08-11 18:28:30                                *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                      *
+ * @LastEditDate          : 2026-08-11 18:28:36                                *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
+ ******************************************************************************/
+
 package com.da.crystal.report.JNDI;
 
 import java.sql.Connection;
