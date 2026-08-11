@@ -33,26 +33,26 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class ReportHandler implements Handler<RoutingContext> {
-  String reportsPath = "/usr/share/java/crystal-report-server/reports";
-  String jdbcUrl = "jdbc:mysql://localhost:3306/crystal_report";
-  String driverClassName = "com.mysql.cj.jdbc.Driver";
-  String user = "crystal_report";
-  String password = "crystal_report";
-  String jndiName = "java:comp/env/jdbc/crystal_report";
+  String REPORTS_PATH = "/usr/share/java/crystal-report-server/reports";
+  String JDBC_URL = "jdbc:mysql://localhost:3306/crystal_report";
+  String DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
+  String USER = "crystal_report";
+  String PASSWORD = "crystal_report";
+  String JNDI_NAME = "java:comp/env/jdbc/crystal_report";
 
   ReportClientDocument clientDoc = new ReportClientDocument();
 
   public ReportHandler(JsonObject config) {
     JsonObject reportConfig = config.getJsonObject("report");
 
-    this.reportsPath = Utils.isWindows()
-        ? reportConfig.getJsonObject("windows").getString("reportsPath", reportsPath)
-        : reportConfig.getJsonObject("linux").getString("reportsPath", reportsPath);
-    this.jdbcUrl = reportConfig.getString("url", jdbcUrl);
-    this.driverClassName = reportConfig.getString("driverClassName", driverClassName);
-    this.user = reportConfig.getString("user", user);
-    this.password = reportConfig.getString("password", password);
-    this.jndiName = reportConfig.getString("jndiName", jndiName);
+    this.REPORTS_PATH = Utils.isWindows()
+        ? reportConfig.getJsonObject("windows").getString("reportsPath", REPORTS_PATH)
+        : reportConfig.getJsonObject("linux").getString("reportsPath", REPORTS_PATH);
+    this.JDBC_URL = reportConfig.getString("url", JDBC_URL);
+    this.DRIVER_CLASS_NAME = reportConfig.getString("driverClassName", DRIVER_CLASS_NAME);
+    this.USER = reportConfig.getString("user", USER);
+    this.PASSWORD = reportConfig.getString("password", PASSWORD);
+    this.JNDI_NAME = reportConfig.getString("jndiName", JNDI_NAME);
   }
 
   @Override
@@ -121,13 +121,13 @@ public class ReportHandler implements Handler<RoutingContext> {
   }
 
   private File findReportFile(String report) {
-    log.debug(reportsPath);
-    File JDBC_rpt = new File(reportsPath + '/' + report + ".JDBC.rpt");
+    log.debug(REPORTS_PATH);
+    File JDBC_rpt = new File(REPORTS_PATH + '/' + report + ".JDBC.rpt");
     if (JDBC_rpt.exists()) {
       log.debug("Using report: {}", JDBC_rpt.getPath());
       return JDBC_rpt;
     }
-    File file = new File(reportsPath + '/' + report + ".rpt");
+    File file = new File(REPORTS_PATH + '/' + report + ".rpt");
     return file.exists() ? file : null;
   }
 
@@ -173,13 +173,14 @@ public class ReportHandler implements Handler<RoutingContext> {
 
   private void setDatabaseConnection(ReportClientDocument clientDoc, String report)
       throws ReportSDKExceptionBase {
-    boolean isSameDataSource = CRJavaHelper.isSameDataSource(clientDoc, jdbcUrl, driverClassName, jndiName);
+    boolean isSameDataSource = CRJavaHelper.isSameDataSource(clientDoc, JDBC_URL, DRIVER_CLASS_NAME, JNDI_NAME);
     if (!isSameDataSource) {
-      CRJavaHelper.changeDataSource(clientDoc, user, password, jdbcUrl, driverClassName, jndiName, report, reportsPath);
+      CRJavaHelper.changeDataSource(clientDoc, USER, PASSWORD, JDBC_URL, DRIVER_CLASS_NAME, JNDI_NAME, report,
+          REPORTS_PATH);
     }
-    boolean useJNDI = jndiName != null && !jndiName.isEmpty();
+    boolean useJNDI = JNDI_NAME != null && !JNDI_NAME.isEmpty();
     if (!useJNDI) {
-      CRJavaHelper.logonDataSource(clientDoc, user, password);
+      CRJavaHelper.logonDataSource(clientDoc, USER, PASSWORD);
     }
   }
 
