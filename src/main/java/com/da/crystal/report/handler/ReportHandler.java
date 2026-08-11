@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2025-03-16 11:51:49                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-01 20:43:38                                *
+ * @LastEditDate          : 2026-08-11 19:44:08                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 
@@ -20,7 +20,7 @@ import com.crystaldecisions.sdk.occa.report.application.ReportClientDocument;
 import com.crystaldecisions.sdk.occa.report.document.ISummaryInfo;
 import com.crystaldecisions.sdk.occa.report.document.SummaryInfo;
 import com.crystaldecisions.sdk.occa.report.lib.ReportSDKExceptionBase;
-import com.da.crystal.report.CRJavaHelper;
+import com.da.crystal.report.CR.CRJavaHelper;
 import com.da.crystal.report.JNDI.JNDIManager;
 
 import io.vertx.core.Handler;
@@ -123,12 +123,25 @@ public class ReportHandler implements Handler<RoutingContext> {
   private File findReportFile(String report) {
     log.debug(REPORTS_PATH);
     File JDBC_rpt = new File(REPORTS_PATH + '/' + report + ".JDBC.rpt");
+    File original_rpt = new File(REPORTS_PATH + '/' + report + ".rpt");
+
+    // If the original .rpt is newer than the cached .JDBC.rpt, the original
+    // report was modified after the JDBC version was generated. Delete the
+    // stale JDBC file so changeDataSource() regenerates it with fresh content.
+    if (JDBC_rpt.exists() && original_rpt.exists()
+        && original_rpt.lastModified() > JDBC_rpt.lastModified()) {
+      log.info("Original report newer than JDBC cache, deleting stale cache: {}", JDBC_rpt.getName());
+      if (!JDBC_rpt.delete()) {
+        log.warn("Failed to delete stale JDBC report cache: {}", JDBC_rpt.getPath());
+      }
+      return original_rpt;
+    }
+
     if (JDBC_rpt.exists()) {
       log.debug("Using report: {}", JDBC_rpt.getPath());
       return JDBC_rpt;
     }
-    File file = new File(REPORTS_PATH + '/' + report + ".rpt");
-    return file.exists() ? file : null;
+    return original_rpt.exists() ? original_rpt : null;
   }
 
   private ReportParams extractQueryParams(RoutingContext context) {
