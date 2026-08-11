@@ -8,6 +8,7 @@
 package com.da.crystal.report;
 
 import com.da.crystal.report.JNDI.JNDIManager;
+import com.da.crystal.report.UFL.UflRegistrar;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxBuilder;
@@ -83,6 +84,7 @@ public class VertxAppHooks implements VertxApplicationHooks {
       }
 
       initJNDI();
+      registerUFLs();
 
     } catch (Exception e) {
       log.error("{}", e.getMessage());
@@ -100,6 +102,14 @@ public class VertxAppHooks implements VertxApplicationHooks {
       }
     } catch (Exception e) {
       log.error("Failed to initialize JNDI", e);
+    }
+  }
+
+  private void registerUFLs() {
+    try {
+      UflRegistrar.registerUfls();
+    } catch (UflRegistrar.UflRegistrationException e) {
+      log.warn("Failed to register custom Java UFL functions: {}", e.getMessage());
     }
   }
 
