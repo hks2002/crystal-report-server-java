@@ -32,7 +32,7 @@
       <dependency>
         <groupId>io.vertx</groupId>
         <artifactId>vertx-stack-depchain</artifactId>
-        <version>5.0.0</version>
+        <version>5.1.5</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -68,12 +68,12 @@
     <dependency>
       <groupId>com.mysql</groupId>
       <artifactId>mysql-connector-j</artifactId>
-      <version>8.0.32</version>
+      <version>8.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.5.1</version>
+      <version>42.7.11</version>
     </dependency>
     <!-- test   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     <dependency>
@@ -137,18 +137,18 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
-      <version>2.25.3</version>
+      <version>2.25.4</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>2.25.3</version>
+      <version>2.25.4</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j2-impl</artifactId>
-      <version>2.25.3</version>
+      <version>2.25.4</version>
     </dependency>
     <dependency>
       <groupId>org.ogce</groupId>
@@ -156,76 +156,58 @@
       <version>1.1.6</version>
     </dependency>
     <!-- core lib of (Crystal Reports) - - - - - - - - - - - - - - - - - - - - -->
+    <!-- Install with: .\install-libs.ps1 -->
     <dependency>
       <groupId>crystal-reports</groupId>
       <artifactId>com.azalea.ufl.barcode</artifactId>
       <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/com.azalea.ufl.barcode.1.0.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>crystal-reports</groupId>
       <artifactId>CrystalCommon2</artifactId>
       <version>12.2.233.5802</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/CrystalCommon2.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>crystal-reports</groupId>
       <artifactId>CrystalReportsRuntime</artifactId>
       <version>12.2.233.5802</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/CrystalReportsRuntime.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>crystal-reports</groupId>
       <artifactId>cvom</artifactId>
       <version>12.2.233.5802</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/cvom.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>crystal-reports</groupId>
       <artifactId>DatabaseConnectors</artifactId>
       <version>12.2.233.5802</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/DatabaseConnectors.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>crystal-reports</groupId>
       <artifactId>JDBInterface</artifactId>
       <version>12.2.233.5802</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/JDBInterface.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>crystal-reports</groupId>
       <artifactId>keycodeDecoder</artifactId>
       <version>12.2.233.5802</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/keycodeDecoder.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>crystal-reports</groupId>
       <artifactId>logging</artifactId>
       <version>12.2.233.5802</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/logging.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>crystal-reports</groupId>
       <artifactId>pfjgraphics</artifactId>
       <version>12.2.233.5802</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/pfjgraphics.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>crystal-reports</groupId>
       <artifactId>QueryBuilder</artifactId>
       <version>12.2.233.5802</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/QueryBuilder.jar</systemPath>
     </dependency>
+    <!-- End of Crystal Reports dependencies -->
   </dependencies>
 
   <build>
