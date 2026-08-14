@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2025-03-16 11:51:49                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-11 19:44:08                                *
+ * @LastEditDate          : 2026-08-14 16:38:13                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 
@@ -21,7 +21,7 @@ import com.crystaldecisions.sdk.occa.report.document.ISummaryInfo;
 import com.crystaldecisions.sdk.occa.report.document.SummaryInfo;
 import com.crystaldecisions.sdk.occa.report.lib.ReportSDKExceptionBase;
 import com.da.crystal.report.CR.CRJavaHelper;
-import com.da.crystal.report.JNDI.JNDIManager;
+import com.da.crystal.report.CR.DataSourceConfig;
 
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
@@ -34,11 +34,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class ReportHandler implements Handler<RoutingContext> {
   String REPORTS_PATH = "/usr/share/java/crystal-report-server/reports";
-  String JDBC_URL = "jdbc:mysql://localhost:3306/crystal_report";
-  String DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
-  String USER = "crystal_report";
-  String PASSWORD = "crystal_report";
-  String JNDI_NAME = "java:comp/env/jdbc/crystal_report";
+  DataSourceConfig dbConfig;
 
   ReportClientDocument clientDoc = new ReportClientDocument();
 
@@ -48,11 +44,12 @@ public class ReportHandler implements Handler<RoutingContext> {
     this.REPORTS_PATH = Utils.isWindows()
         ? reportConfig.getJsonObject("windows").getString("reportsPath", REPORTS_PATH)
         : reportConfig.getJsonObject("linux").getString("reportsPath", REPORTS_PATH);
-    this.JDBC_URL = reportConfig.getString("url", JDBC_URL);
-    this.DRIVER_CLASS_NAME = reportConfig.getString("driverClassName", DRIVER_CLASS_NAME);
-    this.USER = reportConfig.getString("user", USER);
-    this.PASSWORD = reportConfig.getString("password", PASSWORD);
-    this.JNDI_NAME = reportConfig.getString("jndiName", JNDI_NAME);
+    this.dbConfig = new DataSourceConfig(
+        reportConfig.getString("url", "jdbc:mysql://localhost:3306/crystal_report"),
+        reportConfig.getString("driverClassName", "com.mysql.cj.jdbc.Driver"),
+        reportConfig.getString("jndiName", "jdbc/crystal_report"),
+        reportConfig.getString("user", "crystal_report"),
+        reportConfig.getString("password", "crystal_report"));
   }
 
   @Override
@@ -69,31 +66,20 @@ public class ReportHandler implements Handler<RoutingContext> {
       String report = pathInfo[0];
       String format = pathInfo[1];
 
-      // 2. Validate format
-      if (!isFormatAllowed(format)) {
-        resp.setStatusCode(200).end("<H1>Document format {" + format + "} is not supported!</H1>");
-        return;
-      }
-
-      // 3. Check report file exists
+      // 2. Check report file exists
       File reportFile = findReportFile(report);
       if (reportFile == null) {
         resp.setStatusCode(404).end("<H1>Report template {" + report + "} not found!</H1>");
         return;
       }
 
-      // 4. Extract query parameters
-      ReportParams params = extractQueryParams(context);
-      String reportFileName = params.reportFileName;
-      String author = params.author;
-
-      // 5. Copy report to temp file to avoid locking the original
+      // 3. Copy report to temp file to avoid locking the original
       Path tempFile = Files.createTempFile("cr_", ".rpt");
       Files.copy(reportFile.toPath(), tempFile, StandardCopyOption.REPLACE_EXISTING);
       clientDoc = ReportClientDocument.openReport(tempFile.toFile());
 
-      // 6. Process and export report
-      processReport(clientDoc, context, report, format, author, reportFileName);
+      // 4. Process and export report
+      processReport(clientDoc, context, report, format);
 
     } catch (ReportSDKExceptionBase | IOException e) {
       if (!resp.closed()) {
@@ -115,8 +101,8 @@ public class ReportHandler implements Handler<RoutingContext> {
     return new String[] { report, format };
   }
 
-  private boolean isFormatAllowed(String format) {
-    List<String> allowedFormat = Arrays.asList("pdf", "xls", "doc", "rtf", "csv");
+  private boolean isFormatAllowed(ReportClientDocument clientDoc, String format) {
+    List<String> allowedFormat = Arrays.asList("pdf", "xls", "xlsx", "doc", "docx", "csv");
     return allowedFormat.contains(format);
   }
 
@@ -128,8 +114,7 @@ public class ReportHandler implements Handler<RoutingContext> {
     // If the original .rpt is newer than the cached .JDBC.rpt, the original
     // report was modified after the JDBC version was generated. Delete the
     // stale JDBC file so changeDataSource() regenerates it with fresh content.
-    if (JDBC_rpt.exists() && original_rpt.exists()
-        && original_rpt.lastModified() > JDBC_rpt.lastModified()) {
+    if (JDBC_rpt.exists() && original_rpt.exists() && original_rpt.lastModified() > JDBC_rpt.lastModified()) {
       log.info("Original report newer than JDBC cache, deleting stale cache: {}", JDBC_rpt.getName());
       if (!JDBC_rpt.delete()) {
         log.warn("Failed to delete stale JDBC report cache: {}", JDBC_rpt.getPath());
@@ -138,40 +123,55 @@ public class ReportHandler implements Handler<RoutingContext> {
     }
 
     if (JDBC_rpt.exists()) {
-      log.debug("Using report: {}", JDBC_rpt.getPath());
+      log.debug("Using cached report: {}", JDBC_rpt.getPath());
       return JDBC_rpt;
     }
     return original_rpt.exists() ? original_rpt : null;
+
   }
 
-  private ReportParams extractQueryParams(RoutingContext context) {
-    ReportParams params = new ReportParams();
+  private ReportInfo extractReportInfo(RoutingContext context) {
+    ReportInfo info = new ReportInfo();
     var reqParams = context.request().params();
     for (String key : reqParams.names()) {
       String value = reqParams.get(key);
       log.debug("Request Parameter: {} ; Value: {}", key, value);
       if ("FILENAME".equalsIgnoreCase(key)) {
-        params.reportFileName = value;
+        info.reportFileName = value;
       }
       if ("AUTHOR".equalsIgnoreCase(key)) {
-        params.author = value;
+        info.author = value;
       }
     }
-    return params;
+    return info;
   }
 
   private void processReport(ReportClientDocument clientDoc, RoutingContext context,
-      String report, String format, String author, String reportFileName) {
+      String report, String format) {
     var resp = context.response();
     var reqParams = context.request().params();
+
+    ReportInfo info = extractReportInfo(context);
+    String reportFileName = info.reportFileName;
+    String author = info.author;
+
+    if (!isFormatAllowed(clientDoc, format)) {
+      resp.setStatusCode(200).end("<H1>Document format {" + format + "} is not supported!</H1>");
+      return;
+    }
 
     context.vertx().executeBlocking(() -> {
       try {
         setDatabaseConnection(clientDoc, report);
         setReportParameters(clientDoc, reqParams);
+
+        if (log.isDebugEnabled()) {
+          logSelectionFormula(clientDoc, "");
+        }
+
         setSummaryInfo(clientDoc, author, reportFileName);
         resp.setChunked(true);
-        exportReport(clientDoc, resp, format);
+        exportReport(clientDoc, resp, format, reportFileName);
         return null;
       } finally {
         closeClientDoc(clientDoc, report);
@@ -186,14 +186,30 @@ public class ReportHandler implements Handler<RoutingContext> {
 
   private void setDatabaseConnection(ReportClientDocument clientDoc, String report)
       throws ReportSDKExceptionBase {
-    boolean isSameDataSource = CRJavaHelper.isSameDataSource(clientDoc, JDBC_URL, DRIVER_CLASS_NAME, JNDI_NAME);
-    if (!isSameDataSource) {
-      CRJavaHelper.changeDataSource(clientDoc, USER, PASSWORD, JDBC_URL, DRIVER_CLASS_NAME, JNDI_NAME, report,
-          REPORTS_PATH);
+    if (!CRJavaHelper.isSameDataSource(clientDoc, dbConfig)) {
+      CRJavaHelper.changeDataSource(clientDoc, dbConfig, report, REPORTS_PATH);
     }
-    boolean useJNDI = JNDI_NAME != null && !JNDI_NAME.isEmpty();
-    if (!useJNDI) {
-      CRJavaHelper.logonDataSource(clientDoc, USER, PASSWORD);
+    CRJavaHelper.logonDataSource(clientDoc, dbConfig.getUsername(), dbConfig.getPassword());
+  }
+
+  private void logSelectionFormula(ReportClientDocument clientDoc, String phase) {
+    try {
+      Object dataDef = clientDoc.getDataDefController().getDataDefinition();
+      Object recordFilter = dataDef.getClass().getMethod("getRecordFilter").invoke(dataDef);
+      if (recordFilter == null) {
+        log.debug("Selection formula {}: <null>", phase);
+        return;
+      }
+      String formula = (String) recordFilter.getClass()
+          .getMethod("getFreeEditingText").invoke(recordFilter);
+      log.debug("Selection formula {}: \n{}", phase, formula);
+      if (formula != null && formula.contains(":=")) {
+        log.warn(
+            "Too complex formula will cause performance issue!, [WHERE] clause will probably not generated in the SQL statements");
+      }
+
+    } catch (Exception e) {
+      log.warn("Selection formula {}: <error: {}>", phase, e.getMessage());
     }
   }
 
@@ -221,20 +237,23 @@ public class ReportHandler implements Handler<RoutingContext> {
     clientDoc.setSummaryInfo(summaryInfo);
   }
 
-  private void exportReport(ReportClientDocument clientDoc, HttpServerResponse resp, String format)
+  private void exportReport(ReportClientDocument clientDoc, HttpServerResponse resp, String format, String fileName)
       throws ReportSDKExceptionBase, IOException {
     switch (format) {
       case "pdf":
-        CRJavaHelper.exportPDF(clientDoc, resp, false);
-        break;
-      case "doc":
-        CRJavaHelper.exportMSWord(clientDoc, resp, false);
+        CRJavaHelper.exportPDF(clientDoc, resp, fileName.isEmpty() ? false : true);
         break;
       case "rtf":
-        CRJavaHelper.exportRTF(clientDoc, resp, false);
+      case "doc":
+      case "docx":
+        CRJavaHelper.exportMSWord(clientDoc, resp, fileName.isEmpty() ? false : true);
+        break;
+      case "xls":
+      case "xlsx":
+        CRJavaHelper.exportExcel(clientDoc, resp, fileName.isEmpty() ? false : true);
         break;
       case "csv":
-        CRJavaHelper.exportCSV(clientDoc, resp, false);
+        CRJavaHelper.exportCSV(clientDoc, resp, fileName.isEmpty() ? false : true);
         break;
     }
   }
@@ -245,12 +264,10 @@ public class ReportHandler implements Handler<RoutingContext> {
       clientDoc.close();
     } catch (ReportSDKExceptionBase e) {
       log.error("Error closing report document", e);
-    } finally {
-      JNDIManager.releaseConnections();
     }
   }
 
-  private static class ReportParams {
+  private static class ReportInfo {
     String reportFileName = "";
     String author = "Crystal Report Server Java";
   }
