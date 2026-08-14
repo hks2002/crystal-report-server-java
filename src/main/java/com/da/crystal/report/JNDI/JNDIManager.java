@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2026-08-03 00:00:00                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-11 18:28:23                                *
+ * @LastEditDate          : 2026-08-14 15:43:52                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 
@@ -31,15 +31,11 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.vertx.core.json.JsonObject;
 import lombok.extern.log4j.Log4j2;
 
-// TODO Currently CR SDK-2025 can't close(release) the conection after document.close() when using JNDI, 
-// if it fixed, could removing the `tracedDataSource` class.
-
 @Log4j2
 public class JNDIManager {
 
   private static final Map<String, Object> store = new ConcurrentHashMap<>();
   private static volatile boolean initialized = false;
-  private static volatile TrackedDataSource trackedDs;
 
   private JNDIManager() {
   }
@@ -63,7 +59,7 @@ public class JNDIManager {
 
   private static void setupDataSource(JsonObject dsConfig) {
     try {
-      String jndiName = dsConfig.getString("jndiName", "jdbc/crystal_report");
+      String jndiName = dsConfig.getString("jndiName", "");
       HikariConfig hikariConfig = new HikariConfig();
 
       hikariConfig.setJdbcUrl(dsConfig.getString("url"));
@@ -96,14 +92,22 @@ public class JNDIManager {
         }
       }
 
-      HikariDataSource dataSource = new HikariDataSource(hikariConfig);
-      trackedDs = new TrackedDataSource(dataSource);
-      bind(jndiName, trackedDs);
+      HikariDataSource hikariDataSource = new HikariDataSource(hikariConfig);
+
+      boolean sqlIntercept = dsConfig.getBoolean("sqlIntercept", false);
+      if (sqlIntercept) {
+        DataSourceProxy dataSource = new DataSourceProxy(hikariDataSource, sql -> sql);
+        bind(jndiName, dataSource);
+        log.info("SQL intercept ENABLED");
+      } else {
+        bind(jndiName, hikariDataSource);
+        log.info("SQL intercept disabled");
+      }
 
       log.info("HikariCP DataSource bound to JNDI: {}", jndiName);
-      log.info("  URL: {}", hikariConfig.getJdbcUrl());
-      log.info("  MaxPoolSize: {}", hikariConfig.getMaximumPoolSize());
-      log.info("  MinIdle: {}", hikariConfig.getMinimumIdle());
+      log.info("URL: {}", hikariConfig.getJdbcUrl());
+      log.info("MaxPoolSize: {}", hikariConfig.getMaximumPoolSize());
+      log.info("MinIdle: {}", hikariConfig.getMinimumIdle());
     } catch (Exception e) {
       log.error("Failed to setup HikariCP DataSource in JNDI", e);
     }
@@ -119,23 +123,15 @@ public class JNDIManager {
   }
 
   public static void shutdown() {
-    releaseConnections();
     for (Object obj : store.values()) {
-      if (obj instanceof TrackedDataSource) {
-        ((TrackedDataSource) obj).getDelegate().close();
-        log.info("HikariCP DataSource closed");
+      if (obj instanceof DataSourceProxy) {
+        ((HikariDataSource) ((DataSourceProxy) obj).getTarget()).close();
       } else if (obj instanceof HikariDataSource) {
         ((HikariDataSource) obj).close();
-        log.info("HikariCP DataSource closed");
       }
+      log.info("HikariCP DataSource closed");
     }
     store.clear();
-  }
-
-  public static void releaseConnections() {
-    if (trackedDs != null) {
-      trackedDs.releaseBorrowedConnections();
-    }
   }
 
   public static class SimpleJNDIFactory implements InitialContextFactory {
@@ -163,16 +159,21 @@ public class JNDIManager {
 
     @Override
     public Object lookup(String name) throws NamingException {
+      log.info("JNDI lookup: {}", name);
       Object result = bindings.get(name);
       if (result != null) {
+        log.info("JNDI found: {} -> {}", name, result.getClass().getName());
         return result;
       }
+
       if (name.startsWith("java:comp/env/")) {
         result = bindings.get(name.substring("java:comp/env/".length()));
+        if (result != null) {
+          log.info("JNDI found (stripped prefix): {} -> {}", name, result.getClass().getName());
+          return result;
+        }
       }
-      if (result != null) {
-        return result;
-      }
+      log.warn("JNDI not found: {} (available: {})", name, bindings.keySet());
       throw new NameNotFoundException("Name not found: " + name);
     }
 

@@ -16,15 +16,16 @@
       "driverClassName": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
       "user": "",
       "password": "",
-      "jndiName": "java:comp/env/jdbc/crystal_report",
+      "jndiName": "jdbc/crystal_report",
+      "sqlIntercept": true,
       "pool": {
         "poolName": "CrystalReportPool",
         "maximumPoolSize": 10,
-        "minimumIdle": 2,
+        "minimumIdle": 1,
         "connectionTimeout": 30000,
         "idleTimeout": 600000,
         "maxLifetime": 1800000,
-        "leakDetectionThreshold": 60000
+        "leakDetectionThreshold": 0
       },
       "windows": {
         "reportsPath": "d:/Dev/crystal-report-server-java/reports"
