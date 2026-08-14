@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2023-03-07 00:03:27                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-11 19:44:18                                *
+ * @LastEditDate          : 2026-08-14 14:36:34                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 
@@ -29,10 +29,14 @@ import com.crystaldecisions.sdk.occa.report.application.DatabaseController;
 import com.crystaldecisions.sdk.occa.report.application.ISubreportClientDocument;
 import com.crystaldecisions.sdk.occa.report.application.ParameterFieldController;
 import com.crystaldecisions.sdk.occa.report.application.ReportClientDocument;
+import com.crystaldecisions.sdk.occa.report.application.ReportSaveAsOptions;
+import com.crystaldecisions.sdk.occa.report.application.SubreportController;
 import com.crystaldecisions.sdk.occa.report.data.Connection;
 import com.crystaldecisions.sdk.occa.report.data.ConnectionInfo;
+import com.crystaldecisions.sdk.occa.report.data.Connections;
 import com.crystaldecisions.sdk.occa.report.data.FieldDisplayNameType;
 import com.crystaldecisions.sdk.occa.report.data.Fields;
+import com.crystaldecisions.sdk.occa.report.data.IConnection;
 import com.crystaldecisions.sdk.occa.report.data.IConnectionInfo;
 import com.crystaldecisions.sdk.occa.report.data.IParameterField;
 import com.crystaldecisions.sdk.occa.report.data.ITable;
@@ -42,19 +46,17 @@ import com.crystaldecisions.sdk.occa.report.data.ParameterFieldRangeValue;
 import com.crystaldecisions.sdk.occa.report.data.RangeValueBoundType;
 import com.crystaldecisions.sdk.occa.report.data.Tables;
 import com.crystaldecisions.sdk.occa.report.data.Values;
+import com.crystaldecisions.sdk.occa.report.document.IReportOptions;
 import com.crystaldecisions.sdk.occa.report.document.PaperSize;
 import com.crystaldecisions.sdk.occa.report.document.PaperSource;
 import com.crystaldecisions.sdk.occa.report.document.PrintReportOptions;
 import com.crystaldecisions.sdk.occa.report.document.PrinterDuplex;
 import com.crystaldecisions.sdk.occa.report.exportoptions.CharacterSeparatedValuesExportFormatOptions;
-import com.crystaldecisions.sdk.occa.report.exportoptions.DataOnlyExcelExportFormatOptions;
-import com.crystaldecisions.sdk.occa.report.exportoptions.EditableRTFExportFormatOptions;
 import com.crystaldecisions.sdk.occa.report.exportoptions.ExcelExportFormatOptions;
 import com.crystaldecisions.sdk.occa.report.exportoptions.ExportOptions;
 import com.crystaldecisions.sdk.occa.report.exportoptions.PDFExportFormatOptions;
 import com.crystaldecisions.sdk.occa.report.exportoptions.RTFWordExportFormatOptions;
 import com.crystaldecisions.sdk.occa.report.exportoptions.ReportExportFormat;
-import com.crystaldecisions.sdk.occa.report.exportoptions.XMLExportFormatOptions;
 import com.crystaldecisions.sdk.occa.report.lib.IStrings;
 import com.crystaldecisions.sdk.occa.report.lib.PropertyBag;
 import com.crystaldecisions.sdk.occa.report.lib.ReportSDKException;
@@ -76,6 +78,87 @@ import lombok.extern.log4j.Log4j2;
  */
 @Log4j2
 public class CRJavaHelper {
+  /** Builds a Connection object from the DataSourceConfig. */
+  private static Connection buildConnection(DataSourceConfig config) {
+    Connection connection = new Connection();
+    connection.setConnectionInfo(buildConnectionInfo(config));
+    return connection;
+  }
+
+  /** Builds a ConnectionInfo from the DataSourceConfig. */
+  private static IConnectionInfo buildConnectionInfo(DataSourceConfig config) {
+    IConnectionInfo info = new ConnectionInfo();
+    info.setAttributes(buildConnectionPropertyBag(config));
+    info.setUserName(config.getUsername());
+    info.setPassword(config.getPassword());
+    return info;
+  }
+
+  /** Builds a PropertyBag with JDBC/JNDI connection attributes. */
+  private static PropertyBag buildConnectionPropertyBag(DataSourceConfig config) {
+    PropertyBag bag = new PropertyBag();
+    bag.put("Database DLL", "crdb_jdbc.dll");
+    if (config.useJNDI()) {
+      bag.put("Server Type", "JDBC (JNDI)");
+      bag.put("JNDI Datasource Name", config.getJndiName());
+    } else {
+      bag.put("Server Type", "JDBC");
+      bag.put("Connection URL", config.getConnectionURL());
+      bag.put("Database Class Name", config.getDriverName());
+    }
+    return bag;
+  }
+
+  /**
+   * Checks if a connection matches the target data source.
+   */
+  private static boolean isConnectionMatch(IConnection conn, DataSourceConfig config) {
+    IConnectionInfo info = conn.getConnectionInfo();
+    PropertyBag bag = info.getAttributes();
+    if (bag == null) {
+      return false;
+    }
+
+    if (config.useJNDI()) {
+      return config.getJndiName().equals(bag.getStringValue("JNDI Datasource Name"));
+    } else {
+      return "JDBC".equals(bag.getStringValue("Server Type"))
+          && config.getConnectionURL().equals(bag.getStringValue("Connection URL"))
+          && config.getDriverName().equals(bag.getStringValue("Database Class Name"));
+    }
+  }
+
+  /**
+   * Checks if the report already uses the target data source.
+   */
+  public static boolean isSameDataSource(ReportClientDocument clientDoc, DataSourceConfig config)
+      throws ReportSDKException {
+
+    // Check unique connections in the main report
+    DatabaseController dbc = clientDoc.getDatabaseController();
+
+    for (IConnection conn : dbc.getDatabase().getConnections()) {
+      if (!isConnectionMatch(conn, config)) {
+        return false;
+      }
+    }
+
+    // Check unique connections in each subreport
+    IStrings subNames = clientDoc.getSubreportController().getSubreportNames();
+    for (int subNum = 0; subNum < subNames.size(); subNum++) {
+      SubreportController subReportController = clientDoc.getSubreportController();
+      ISubreportClientDocument subDoc = subReportController.getSubreport(subNames.getString(subNum));
+      DatabaseController subDbc = subDoc.getDatabaseController();
+
+      for (IConnection conn : subDbc.getDatabase().getConnections()) {
+        if (!isConnectionMatch(conn, config)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
 
   /**
    * Logs on to an existing datasource
@@ -90,106 +173,26 @@ public class CRJavaHelper {
     clientDoc.getDatabaseController().logon(username, password);
   }
 
-  /**
-   * Changes the DataSource for each Table
-   * 
-   * @param clientDoc     The reportClientDocument representing the report being
-   *                      used
-   * @param connectionURL The connection URL
-   * @param driverName    The driver Name
-   * @param jndiName      The JNDI name
-   * @throws ReportSDKException
-   */
-  public static boolean isSameDataSource(ReportClientDocument clientDoc, String connectionURL, String driverName,
-      String jndiName)
-      throws ReportSDKException {
-    boolean useJNDI = jndiName != null && !jndiName.isEmpty();
-    String SERVER_TYPE = useJNDI ? "JDBC (JNDI)" : "JDBC";
+  public static void changeDataSource(ReportClientDocument clientDoc,
+      DataSourceConfig config, String reportName, String reportPath) throws ReportSDKException {
 
-    // Check all main report tables
-    Tables tables = clientDoc.getDatabaseController().getDatabase().getTables();
-    for (int i = 0; i < tables.size(); i++) {
-      if (!isTableConnectionMatch(tables.getTable(i), SERVER_TYPE, connectionURL, driverName, jndiName, useJNDI)) {
-        return false;
-      }
-    }
+    DatabaseController mainDBC = clientDoc.getDatabaseController();
+    applyDatabaseLocation(mainDBC, config);
 
-    // Check all subreport tables
-    IStrings subNames = clientDoc.getSubreportController().getSubreportNames();
-    for (int subNum = 0; subNum < subNames.size(); subNum++) {
-      ISubreportClientDocument subDoc = clientDoc.getSubreportController()
-          .getSubreport(subNames.getString(subNum));
-      Tables subTables = subDoc.getDatabaseController().getDatabase().getTables();
-      for (int i = 0; i < subTables.size(); i++) {
-        if (!isTableConnectionMatch(subTables.getTable(i), SERVER_TYPE, connectionURL, driverName, jndiName, useJNDI)) {
-          return false;
-        }
-      }
-    }
-
-    return true;
-  }
-
-  /**
-   * Checks if a single table's connection matches the target data source.
-   */
-  private static boolean isTableConnectionMatch(ITable table, String serverType, String connectionURL,
-      String driverName, String jndiName, boolean useJNDI) {
-    IConnectionInfo oldConnectionInfo = table.getConnectionInfo();
-    PropertyBag oldPropertyBag = oldConnectionInfo.getAttributes();
-
-    if (useJNDI) {
-      return jndiName.equals(oldPropertyBag.getStringValue("JNDI Datasource Name"));
-    } else {
-      return serverType.equals(oldPropertyBag.getStringValue("Server Type")) &&
-          connectionURL.equals(oldPropertyBag.getStringValue("Connection URL")) &&
-          driverName.equals(oldPropertyBag.getStringValue("Database Class Name"));
-    }
-  }
-
-  /**
-   * Changes the DataSource for each Table
-   * 
-   * @param clientDoc     The reportClientDocument representing the report being
-   *                      used
-   * @param username      The DB logon user name
-   * @param password      The DB logon password
-   * @param connectionURL The connection URL
-   * @param driverName    The driver Name
-   * @param jndiName      The JNDI name
-   * @param reportName    The new document name (with extension) to save as
-   * @param reportPath    The folder path to save the document
-   * @throws ReportSDKException
-   */
-  public static void changeDataSource(ReportClientDocument clientDoc, String username, String password,
-      String connectionURL, String driverName, String jndiName, String reportName, String reportPath)
-      throws ReportSDKException {
-
-    // Replace connection for all main report tables
-    DatabaseController dbc = clientDoc.getDatabaseController();
-    Tables tables = dbc.getDatabase().getTables();
-    for (int i = 0; i < tables.size(); i++) {
-      replaceTableConnection(dbc, tables.getTable(i), jndiName, connectionURL, driverName, username, password);
-    }
-
-    // Next loop through all the subreports and pass in the same information.
-    IStrings subNames = clientDoc.getSubreportController().getSubreportNames();
-    for (int subNum = 0; subNum < subNames.size(); subNum++) {
-      ISubreportClientDocument subRepotDoc = clientDoc.getSubreportController()
-          .getSubreport(subNames.getString(subNum));
-
-      DatabaseController subDbc = subRepotDoc.getDatabaseController();
-      Tables subtables = subDbc.getDatabase().getTables();
-
-      for (int i = 0; i < subtables.size(); i++) {
-        replaceTableConnection(subDbc, subtables.getTable(i), jndiName, connectionURL, driverName, username, password);
-      }
+    IStrings subReports = clientDoc.getSubreportController().getSubreportNames();
+    for (int i = 0; i < subReports.size(); i++) {
+      ISubreportClientDocument subDoc = clientDoc.getSubreportController().getSubreport(subReports.getString(i));
+      DatabaseController subDBC = subDoc.getDatabaseController();
+      applyDatabaseLocation(subDBC, config);
     }
 
     // Save the report with updated connection info (overwrite if exists)
     Path path = Path.of(reportPath, reportName + ".JDBC.rpt");
     try {
-      clientDoc.saveAs(reportName + ".JDBC.rpt", reportPath, 1);
+      IReportOptions opt = clientDoc.getReportOptions();
+      opt.setEnableSaveDataWithReport(false);
+
+      clientDoc.saveAs(reportName + ".JDBC.rpt", reportPath, ReportSaveAsOptions._overwriteExisting);
       log.info("Report saved: {}", path);
     } catch (ReportSDKExceptionBase | IOException e) {
       log.error("Failed to save report after connection change: {}", e.getMessage());
@@ -197,72 +200,53 @@ public class CRJavaHelper {
   }
 
   /**
-   * Builds connection info and replaces the table connection.
+   * Replaces ALL database connections in a report with the one from config.
+   *
+   * <p>
+   * Two-step approach: (1) replaceConnection to change Server Type from
+   * OLE DB to JDBC, then (2) setTableLocation to update per-table
+   * qualifiers. setTableLocation alone does NOT change Server Type —
+   * only replaceConnection can do that.
+   * </p>
    */
-  private static void replaceTableConnection(DatabaseController dbController, ITable table,
-      String jndiName, String connectionURL, String driverName, String username, String password)
+  private static void applyDatabaseLocation(DatabaseController dbc, DataSourceConfig config)
       throws ReportSDKException {
-    IConnectionInfo connectionInfo = buildConnectionInfo(jndiName, connectionURL, driverName, username, password);
+    Connection newConn = buildConnection(config);
+    int options = DBOptions._doNotVerifyDB | DBOptions._ignoreCurrentTableQualifiers;
 
-    Connection newConnection = new Connection();
-    newConnection.setConnectionInfo(connectionInfo);
-
-    dbController.replaceConnection(table.getConnection(), newConnection,
-        DBOptions._doNotVerifyDB | DBOptions._ignoreCurrentTableQualifiers);
-  }
-
-  /**
-   * Builds a new connection info with the specified JDBC properties.
-   */
-  private static IConnectionInfo buildConnectionInfo(String jndiName, String connectionURL, String driverName,
-      String username, String password) {
-    IConnectionInfo connectionInfo = new ConnectionInfo();
-    PropertyBag propertyBag = buildConnectionPropertyBag(jndiName, connectionURL, driverName, username, password);
-
-    connectionInfo.setAttributes(propertyBag);
-    connectionInfo.setUserName(username);
-    connectionInfo.setPassword(password);
-    return connectionInfo;
-  }
-
-  /**
-   * Builds a new connection info with the specified JDBC properties.
-   */
-  private static PropertyBag buildConnectionPropertyBag(String jndiName, String connectionURL, String driverName,
-      String username, String password) {
-    boolean useJNDI = jndiName != null && !jndiName.isEmpty();
-
-    PropertyBag propertyBag = new PropertyBag();
-    propertyBag.put("Server Type", useJNDI ? "JDBC (JNDI)" : "JDBC");
-    propertyBag.put("Connection URL", connectionURL);
-    propertyBag.put("Database Class Name", driverName);
-    propertyBag.put("Database DLL", "crdb_jdbc.dll");
-    if (useJNDI) {
-      propertyBag.put("JNDI Datasource Name", jndiName);
+    Connections conns = dbc.getDatabase().getConnections();
+    log.info("applyDatabaseLocation for {} connection(s)", conns.size());
+    for (int i = 0; i < conns.size(); i++) {
+      IConnection oldConn = conns.get(i);
+      dbc.replaceConnection(oldConn, newConn, options);
     }
-    return propertyBag;
+
+    // Oberverse the each table connection info, it should be same as the database
+    if (log.isDebugEnabled()) {
+      Tables tables = dbc.getDatabase().getTables();
+      log.info("setTableLocation for {} table(s)", tables.size());
+      for (int i = 0; i < tables.size(); i++) {
+        ITable oldTable = tables.getTable(i);
+        String oldQualifiedName = oldTable.getQualifiedName();
+        IConnectionInfo tInfo = oldTable.getConnectionInfo();
+        PropertyBag tBag = tInfo != null ? tInfo.getAttributes() : null;
+        log.debug("  Table[{}] name={} qualifiedName={} Server Type={}", i,
+            oldTable.getName(), oldQualifiedName,
+            tBag != null ? tBag.getStringValue("Server Type") : "null");
+      }
+    }
+
   }
 
   /**
    * Disconnect from the database by closing all matching connections.
-   * 
-   * @param clientDoc     The reportClientDocument representing the report being
-   *                      used
-   * @param username      The DB logon user name
-   * @param password      The DB logon password
-   * @param connectionURL The connection URL
-   * @param driverName    The driver Name
-   * @param jndiName      The JNDI name
-   * @throws ReportSDKException
+   * This is not supported when using JNDI datasource.
    */
-  public static void closeDatabaseConnection(ReportClientDocument clientDoc, String username, String password,
-      String connectionURL, String driverName, String jndiName) throws ReportSDKException {
+  public static void closeDatabaseConnection(ReportClientDocument clientDoc, DataSourceConfig config)
+      throws ReportSDKException {
 
+    Connection conn = buildConnection(config);
     DatabaseController dbc = clientDoc.getDatabaseController();
-    IConnectionInfo connectionInfo = buildConnectionInfo(jndiName, connectionURL, driverName, username, password);
-
-    Connection conn = new Connection();
-    conn.setConnectionInfo(connectionInfo);
     if (dbc.isConnectionOpen(conn)) {
       dbc.closeConnection(conn);
       log.info("Closed main report connection");
@@ -273,8 +257,7 @@ public class CRJavaHelper {
       DatabaseController subDbc = clientDoc.getSubreportController()
           .getSubreport(subNames.getString(subNum))
           .getDatabaseController();
-      Connection subConn = new Connection();
-      subConn.setConnectionInfo(connectionInfo);
+      Connection subConn = buildConnection(config);
       if (subDbc.isConnectionOpen(subConn)) {
         subDbc.closeConnection(subConn);
         log.info("Closed subreport connection: {}", subNames.getString(subNum));
@@ -616,65 +599,7 @@ public class CRJavaHelper {
   }
 
   /**
-   * Exports a report to PDF for a range of pages
-   *
-   * @param clientDoc  The reportClientDocument representing the report being
-   *                   used
-   * @param response   The HttpServletResponse object
-   * @param startPage  Starting page
-   * @param endPage    Ending page
-   * @param attachment true to prompts for open or save; false opens the report
-   *                   in the specified format after exporting.
-   * @throws ReportSDKExceptionBase
-   * @throws IOException
-   */
-  public static void exportPDF(
-      ReportClientDocument clientDoc,
-      HttpServerResponse response,
-      int startPage,
-      int endPage,
-      boolean attachment)
-      throws ReportSDKExceptionBase, IOException {
-    // PDF export allows page range export. The following routine ensures
-    // that the requested page range is valid
-    PDFExportFormatOptions pdfOptions = new PDFExportFormatOptions();
-    pdfOptions.setStartPageNumber(startPage);
-    pdfOptions.setEndPageNumber(endPage);
-    ExportOptions exportOptions = new ExportOptions();
-    exportOptions.setExportFormatType(ReportExportFormat.PDF);
-    exportOptions.setFormatOptions(pdfOptions);
-
-    export(clientDoc, exportOptions, response, attachment, "application/pdf", "pdf");
-  }
-
-  /**
-   * Exports a report to RTF
-   *
-   * @param clientDoc  The reportClientDocument representing the report being
-   *                   used
-   * @param response   The HttpServerResponse object
-   * @param attachment true to prompts for open or save; false opens the report
-   *                   in the specified format after exporting.
-   * @throws ReportSDKExceptionBase
-   * @throws IOException
-   */
-  public static void exportRTF(
-      ReportClientDocument clientDoc,
-      HttpServerResponse response,
-      boolean attachment)
-      throws ReportSDKExceptionBase, IOException {
-    // RTF export allows page range export. The following routine ensures
-    // that the requested page range is valid
-    RTFWordExportFormatOptions rtfOptions = new RTFWordExportFormatOptions();
-    ExportOptions exportOptions = new ExportOptions();
-    exportOptions.setExportFormatType(ReportExportFormat.RTF);
-    exportOptions.setFormatOptions(rtfOptions);
-
-    export(clientDoc, exportOptions, response, attachment, "text/rtf", "rtf");
-  }
-
-  /**
-   * Exports a report to RTF
+   * Exports a report to WORD
    *
    * @param clientDoc  The reportClientDocument representing the report being
    *                   used
@@ -689,9 +614,6 @@ public class CRJavaHelper {
       HttpServerResponse response,
       boolean attachment)
       throws ReportSDKExceptionBase, IOException {
-    // RTF export allows page range export. The following routine ensures
-    // that the requested page range is valid
-
     RTFWordExportFormatOptions rtfOptions = new RTFWordExportFormatOptions();
     ExportOptions exportOptions = new ExportOptions();
     exportOptions.setExportFormatType(ReportExportFormat.MSWord);
@@ -701,114 +623,21 @@ public class CRJavaHelper {
   }
 
   /**
-   * Exports a report to RTF for a range of pages
-   *
-   * @param clientDoc  The reportClientDocument representing the report being
-   *                   used
-   * @param response   The HttpServerResponse object
-   * @param startPage  Starting page
-   * @param endPage    Ending page.
-   * @param attachment true to prompts for open or save; false opens the report
-   *                   in the specified format after exporting.
+   * Exports a report to Excel
+   * 
+   * @param clientDoc The reportClientDocument representing the report being used
+   * @return An <code>InputStream</code> object containing the report document
+   *         exported to the
+   *         specified format.
    * @throws ReportSDKExceptionBase
    * @throws IOException
    */
-  public static void exportRTF(
-      ReportClientDocument clientDoc,
+  public static void exportExcel(ReportClientDocument clientDoc,
       HttpServerResponse response,
-      int startPage,
-      int endPage,
-      boolean attachment)
-      throws ReportSDKExceptionBase, IOException {
-    // RTF export allows page range export. The following routine ensures
-    // that the requested page range is valid
-    RTFWordExportFormatOptions rtfOptions = new RTFWordExportFormatOptions();
-    rtfOptions.setStartPageNumber(startPage);
-    rtfOptions.setEndPageNumber(endPage);
+      boolean attachment) throws ReportSDKExceptionBase, IOException {
     ExportOptions exportOptions = new ExportOptions();
-    exportOptions.setExportFormatType(ReportExportFormat.RTF);
-    exportOptions.setFormatOptions(rtfOptions);
-
-    export(clientDoc, exportOptions, response, attachment, "text/rtf", "rtf");
-  }
-
-  /**
-   * Exports a report to RTF
-   *
-   * @param clientDoc  The reportClientDocument representing the report being
-   *                   used
-   * @param response   The HttpServerResponse object
-   * @param attachment true to prompts for open or save; false opens the report
-   *                   in the specified format after exporting.
-   * @throws ReportSDKExceptionBase
-   * @throws IOException
-   */
-  public static void exportRTFEditable(
-      ReportClientDocument clientDoc,
-      HttpServerResponse response,
-      boolean attachment)
-      throws ReportSDKExceptionBase, IOException {
-    // RTF export allows page range export. The following routine ensures
-    // that the requested page range is valid
-    EditableRTFExportFormatOptions rtfOptions = new EditableRTFExportFormatOptions();
-    ExportOptions exportOptions = new ExportOptions();
-    exportOptions.setExportFormatType(ReportExportFormat.editableRTF);
-    exportOptions.setFormatOptions(rtfOptions);
-
-    export(clientDoc, exportOptions, response, attachment, "text/rtf", "rtf");
-  }
-
-  /**
-   * Exports a report to RTF for a range of pages
-   *
-   * @param clientDoc  The reportClientDocument representing the report being
-   *                   used
-   * @param response   The HttpServerResponse object
-   * @param startPage  Starting page
-   * @param endPage    Ending page.
-   * @param attachment true to prompts for open or save; false opens the report
-   *                   in the specified format after exporting.
-   * @throws ReportSDKExceptionBase
-   * @throws IOException
-   */
-  public static void exportRTFEditable(
-      ReportClientDocument clientDoc,
-      HttpServerResponse response,
-      int startPage,
-      int endPage,
-      boolean attachment)
-      throws ReportSDKExceptionBase, IOException {
-    // RTF export allows page range export. The following routine ensures
-    // that the requested page range is valid
-    EditableRTFExportFormatOptions rtfOptions = new EditableRTFExportFormatOptions();
-    rtfOptions.setStartPageNumber(startPage);
-    rtfOptions.setEndPageNumber(endPage);
-    ExportOptions exportOptions = new ExportOptions();
-    exportOptions.setExportFormatType(ReportExportFormat.editableRTF);
-    exportOptions.setFormatOptions(rtfOptions);
-
-    export(clientDoc, exportOptions, response, attachment, "text/rtf", "rtf");
-  }
-
-  /**
-   * Exports a report to Excel (Data Only)
-   *
-   * @param clientDoc  The reportClientDocument representing the report being
-   *                   used
-   * @param response   The HttpServerResponse object
-   * @param attachment true to prompts for open or save; false opens the report
-   *                   in the specified format after exporting.
-   * @throws ReportSDKExceptionBase
-   * @throws IOException
-   */
-  public static void exportExcelDataOnly(ReportClientDocument clientDoc,
-      HttpServerResponse response,
-      boolean attachment)
-      throws ReportSDKExceptionBase, IOException {
-    DataOnlyExcelExportFormatOptions excelOptions = new DataOnlyExcelExportFormatOptions();
-    ExportOptions exportOptions = new ExportOptions();
-    exportOptions.setExportFormatType(ReportExportFormat.recordToMSExcel);
-    exportOptions.setFormatOptions(excelOptions);
+    exportOptions.setExportFormatType(ReportExportFormat.MSExcel);
+    exportOptions.setFormatOptions(new ExcelExportFormatOptions());
 
     export(clientDoc, exportOptions, response, attachment, "application/excel", "xls");
   }
@@ -837,61 +666,6 @@ public class CRJavaHelper {
     exportOptions.setFormatOptions(csvOptions);
 
     export(clientDoc, exportOptions, response, attachment, "text/csv", "csv");
-  }
-
-  /**
-   * Exports a report to Excel
-   * 
-   * @param clientDoc The reportClientDocument representing the report being used
-   * @return An <code>InputStream</code> object containing the report document
-   *         exported to the
-   *         specified format.
-   * @throws ReportSDKException
-   */
-  public static InputStream exportExcel(ReportClientDocument clientDoc) throws ReportSDKException {
-    ExportOptions exportOptions = new ExportOptions();
-    exportOptions.setExportFormatType(ReportExportFormat.MSExcel);
-    exportOptions.setFormatOptions(new ExcelExportFormatOptions());
-
-    // Export the report using the export options.
-    return clientDoc.getPrintOutputController().export(exportOptions);
-  }
-
-  /**
-   * Exports a report to XML
-   * 
-   * @param clientDoc The reportClientDocument representing the report being used
-   * @return An <code>InputStream</code> object containing the report document
-   *         exported to the
-   *         specified format.
-   * @throws ReportSDKException
-   */
-  public static InputStream exportXML(ReportClientDocument clientDoc) throws ReportSDKException {
-    ExportOptions exportOptions = new ExportOptions();
-    exportOptions.setExportFormatType(ReportExportFormat.XML);
-    exportOptions.setFormatOptions(new XMLExportFormatOptions());
-
-    // Export the report using the export options.
-    return clientDoc.getPrintOutputController().export(exportOptions);
-  }
-
-  /**
-   * Exports a report to XML
-   * 
-   * @param clientDoc The reportClientDocument representing the report being used
-   * @return An <code>InputStream</code> object containing the report document
-   *         exported to the
-   *         specified format.
-   * @throws ReportSDKException
-   */
-  public static InputStream exportXML(ReportClientDocument clientDoc, int indexOfXmlFormats) throws ReportSDKException {
-    ExportOptions exportOptions = new ExportOptions();
-    exportOptions.setExportFormatType(ReportExportFormat.XML);
-    exportOptions.setFormatOptions(new XMLExportFormatOptions());
-    XMLExportFormatOptions formatOptions = new XMLExportFormatOptions(indexOfXmlFormats);
-    exportOptions.setFormatOptions(formatOptions);
-    // Export the report using the export options.
-    return clientDoc.getPrintOutputController().export(exportOptions);
   }
 
   /**
