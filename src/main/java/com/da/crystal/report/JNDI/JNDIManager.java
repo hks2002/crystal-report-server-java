@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2026-08-03 00:00:00                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-14 15:43:52                                *
+ * @LastEditDate          : 2026-08-16 17:58:30                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 
@@ -59,7 +59,7 @@ public class JNDIManager {
 
   private static void setupDataSource(JsonObject dsConfig) {
     try {
-      String jndiName = dsConfig.getString("jndiName", "");
+      String jndiName = dsConfig.getString("jndiName", "jdbc/crystal_report");
       HikariConfig hikariConfig = new HikariConfig();
 
       hikariConfig.setJdbcUrl(dsConfig.getString("url"));

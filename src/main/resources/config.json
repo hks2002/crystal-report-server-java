@@ -10,23 +10,25 @@
     "version": "@project.version@",
     "dependencies": "@project.dependencies@"
   },
+  "database": {
+    "url": "jdbc:sqlserver://127.0.0.1\\x3v12;DatabaseName=x3v12;TrustServerCertificate=true;",
+    "driverClassName": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+    "user": "",
+    "password": "",
+    "jndiName": "jdbc/crystal_report",
+    "sqlIntercept": true,
+    "pool": {
+      "poolName": "CrystalReportPool",
+      "maximumPoolSize": 10,
+      "minimumIdle": 1,
+      "connectionTimeout": 30000,
+      "idleTimeout": 600000,
+      "maxLifetime": 1800000,
+      "leakDetectionThreshold": 0
+    }
+  },
   "handler": {
     "report": {
-      "url": "jdbc:sqlserver://127.9.9.1\\x3v12;DatabaseName=x3v12;TrustServerCertificate=true;",
-      "driverClassName": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
-      "user": "",
-      "password": "",
-      "jndiName": "jdbc/crystal_report",
-      "sqlIntercept": true,
-      "pool": {
-        "poolName": "CrystalReportPool",
-        "maximumPoolSize": 10,
-        "minimumIdle": 1,
-        "connectionTimeout": 30000,
-        "idleTimeout": 600000,
-        "maxLifetime": 1800000,
-        "leakDetectionThreshold": 0
-      },
       "windows": {
         "reportsPath": "d:/Dev/crystal-report-server-java/reports"
       },

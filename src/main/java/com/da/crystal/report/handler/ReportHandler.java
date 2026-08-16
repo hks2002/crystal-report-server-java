@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2025-03-16 11:51:49                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-14 16:38:13                                *
+ * @LastEditDate          : 2026-08-16 18:06:42                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 
@@ -20,8 +20,9 @@ import com.crystaldecisions.sdk.occa.report.application.ReportClientDocument;
 import com.crystaldecisions.sdk.occa.report.document.ISummaryInfo;
 import com.crystaldecisions.sdk.occa.report.document.SummaryInfo;
 import com.crystaldecisions.sdk.occa.report.lib.ReportSDKExceptionBase;
+import com.da.crystal.report.AppConfig;
 import com.da.crystal.report.CR.CRJavaHelper;
-import com.da.crystal.report.CR.DataSourceConfig;
+import com.da.crystal.report.JNDI.DataSourceConfig;
 
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
@@ -38,18 +39,19 @@ public class ReportHandler implements Handler<RoutingContext> {
 
   ReportClientDocument clientDoc = new ReportClientDocument();
 
-  public ReportHandler(JsonObject config) {
-    JsonObject reportConfig = config.getJsonObject("report");
+  public ReportHandler() {
+    JsonObject reportConfig = AppConfig.config.getJsonObject("handler").getJsonObject("report");
+    JsonObject databaseConfig = AppConfig.config.getJsonObject("database");
 
     this.REPORTS_PATH = Utils.isWindows()
         ? reportConfig.getJsonObject("windows").getString("reportsPath", REPORTS_PATH)
         : reportConfig.getJsonObject("linux").getString("reportsPath", REPORTS_PATH);
     this.dbConfig = new DataSourceConfig(
-        reportConfig.getString("url", "jdbc:mysql://localhost:3306/crystal_report"),
-        reportConfig.getString("driverClassName", "com.mysql.cj.jdbc.Driver"),
-        reportConfig.getString("jndiName", "jdbc/crystal_report"),
-        reportConfig.getString("user", "crystal_report"),
-        reportConfig.getString("password", "crystal_report"));
+        databaseConfig.getString("url", "jdbc:mysql://localhost:3306/crystal_report"),
+        databaseConfig.getString("driverClassName", "com.mysql.cj.jdbc.Driver"),
+        databaseConfig.getString("jndiName", "jdbc/crystal_report"),
+        databaseConfig.getString("user", "crystal_report"),
+        databaseConfig.getString("password", "crystal_report"));
   }
 
   @Override
