@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2025-05-19 16:54:08                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-07-31 22:31:23                                *
+ * @LastEditDate          : 2026-08-16 17:56:18                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 package com.da.crystal.report;
@@ -93,12 +93,9 @@ public class VertxAppHooks implements VertxApplicationHooks {
 
   private void initJNDI() {
     try {
-      JsonObject handlerConfig = AppConfig.config.getJsonObject("handler");
-      if (handlerConfig != null) {
-        JsonObject reportConfig = handlerConfig.getJsonObject("report");
-        if (reportConfig != null) {
-          JNDIManager.init(reportConfig);
-        }
+      JsonObject databaseConfig = AppConfig.config.getJsonObject("database");
+      if (databaseConfig != null) {
+        JNDIManager.init(databaseConfig);
       }
     } catch (Exception e) {
       log.error("Failed to initialize JNDI", e);

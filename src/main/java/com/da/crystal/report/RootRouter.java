@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2026-02-14 21:15:24                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-07-31 21:15:50                                *
+ * @LastEditDate          : 2026-08-16 18:06:21                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 package com.da.crystal.report;
@@ -61,11 +61,9 @@ public class RootRouter {
   }
 
   public static Router create(Vertx vertx) {
-
-    var handlerConfig = AppConfig.config.getJsonObject("handler");
     Router api = Router.router(vertx);
 
-    api.route("/Report/*").handler(new ReportHandler(handlerConfig));
+    api.route("/Report/*").handler(new ReportHandler());
     api.route("/Report-api/server-info").handler(new ServerInfoHandler());
     print(api);
 
