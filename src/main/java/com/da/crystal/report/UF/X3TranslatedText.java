@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2026-08-11 18:27:57                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-16 15:37:40                                *
+ * @LastEditDate          : 2026-08-17 01:13:27                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 
@@ -97,10 +97,12 @@ public class X3TranslatedText implements FormulaFunction {
   private String getValFromDB(String lang, String oriText) throws Exception {
     DataSource ds = (DataSource) JNDIManager.lookup("jdbc/crystal_report");
     try (Connection conn = ds.getConnection()) {
-      String sql = "SELECT TOP 1 TEXTE_0 FROM EXPLOIT.ATEXTRA WHERE LANGUE_0 = ? AND IDENT1_0 = ?";
+      String sql = "SELECT TOP 1 TEXTE_0 FROM EXPLOIT.ATEXTRA WHERE CODFIC_0 = 'ITMMASTER' AND ZONE_0 = 'YITM_CMUTXT' AND LANGUE_0 = ? AND IDENT1_0 = ?";
       try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        String[] oriTextArray = oriText.split(",");
+        String ident1 = oriTextArray[2]; // PN
         ps.setString(1, lang);
-        ps.setString(2, oriText);
+        ps.setString(2, ident1);
         try (ResultSet rs = ps.executeQuery()) {
           return rs.next() ? rs.getString(1) : "";
         }
