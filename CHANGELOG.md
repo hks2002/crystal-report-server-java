@@ -1,5 +1,34 @@
 # Changelog
 
+## [2.1.0](https://github.com/hks2002/crystal-report-server-java/compare/v2.0.0...v2.1.0) (2026-08-17)
+
+
+### Features
+
+* ✨added two functions ([9d17fac](https://github.com/hks2002/crystal-report-server-java/commit/9d17fac3e390611ceadea8d717c5caed21c1954b))
+* ✨JNDI suport ([527c61d](https://github.com/hks2002/crystal-report-server-java/commit/527c61d99a8b8f1ccec16b58437f9d488722cc14))
+* ✨JNDI support ([b665ee9](https://github.com/hks2002/crystal-report-server-java/commit/b665ee963165cc7d72782dbe7e294cd82ba25e7c))
+* ✨rpt updated enable ([3601ea0](https://github.com/hks2002/crystal-report-server-java/commit/3601ea07272f80c1f3a49278b338f143ee5c7d3e))
+* ✨UFL support ([623fb69](https://github.com/hks2002/crystal-report-server-java/commit/623fb691045bfee2bb80d2bd6917d96f1fc82fd9))
+
+
+### Bug Fixes
+
+* 🐛update fun X3TranslatedText ([2dc0bb9](https://github.com/hks2002/crystal-report-server-java/commit/2dc0bb9833674207428d313cb65286d4760a8e5f))
+
+
+### Performance Improvements
+
+* 🚀add sql intercept to tracking the SQL ([661c22b](https://github.com/hks2002/crystal-report-server-java/commit/661c22bc94bbd629cfe5497448c9ac89cf795798))
+* 🚀improve performance ([51352d9](https://github.com/hks2002/crystal-report-server-java/commit/51352d98e576b7969dbfdb864f09fc597afb08ee))
+
+
+### Documentation
+
+* 📚 add document reference ([732204b](https://github.com/hks2002/crystal-report-server-java/commit/732204bbf2a31acf9ec9323138918394111da901))
+* 📚udate fonts setting way ([35cc653](https://github.com/hks2002/crystal-report-server-java/commit/35cc653346958375e39497b85a60527f43513840))
+* 📚update build status ([7274a15](https://github.com/hks2002/crystal-report-server-java/commit/7274a15c1bbbce82b9939fed71969ac53ad05b99))
+
 ## [2.0.0](https://github.com/hks2002/crystal-report-server-java/compare/v1.1.0...v2.0.0) (2026-08-02)
 
 
