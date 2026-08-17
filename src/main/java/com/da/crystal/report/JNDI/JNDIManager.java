@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2026-08-03 00:00:00                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-16 17:58:30                                *
+ * @LastEditDate          : 2026-08-17 19:29:29                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 
@@ -24,9 +24,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.NamingManager;
-
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 
 import io.vertx.core.json.JsonObject;
 import lombok.extern.log4j.Log4j2;
@@ -51,65 +48,12 @@ public class JNDIManager {
       initialized = true;
       log.info("JNDI InitialContextFactory registered");
 
-      setupDataSource(dsConfig);
-    } catch (NamingException e) {
-      log.error("Failed to initialize JNDI", e);
-    }
-  }
-
-  private static void setupDataSource(JsonObject dsConfig) {
-    try {
-      String jndiName = dsConfig.getString("jndiName", "jdbc/crystal_report");
-      HikariConfig hikariConfig = new HikariConfig();
-
-      hikariConfig.setJdbcUrl(dsConfig.getString("url"));
-      hikariConfig.setDriverClassName(dsConfig.getString("driverClassName"));
-      hikariConfig.setUsername(dsConfig.getString("user"));
-      hikariConfig.setPassword(dsConfig.getString("password"));
-
-      JsonObject pool = dsConfig.getJsonObject("pool");
-      if (pool != null) {
-        if (pool.containsKey("maximumPoolSize")) {
-          hikariConfig.setMaximumPoolSize(pool.getInteger("maximumPoolSize"));
-        }
-        if (pool.containsKey("minimumIdle")) {
-          hikariConfig.setMinimumIdle(pool.getInteger("minimumIdle"));
-        }
-        if (pool.containsKey("connectionTimeout")) {
-          hikariConfig.setConnectionTimeout(pool.getLong("connectionTimeout"));
-        }
-        if (pool.containsKey("idleTimeout")) {
-          hikariConfig.setIdleTimeout(pool.getLong("idleTimeout"));
-        }
-        if (pool.containsKey("maxLifetime")) {
-          hikariConfig.setMaxLifetime(pool.getLong("maxLifetime"));
-        }
-        if (pool.containsKey("leakDetectionThreshold")) {
-          hikariConfig.setLeakDetectionThreshold(pool.getLong("leakDetectionThreshold"));
-        }
-        if (pool.containsKey("poolName")) {
-          hikariConfig.setPoolName(pool.getString("poolName"));
-        }
-      }
-
-      HikariDataSource hikariDataSource = new HikariDataSource(hikariConfig);
-
-      boolean sqlIntercept = dsConfig.getBoolean("sqlIntercept", false);
-      if (sqlIntercept) {
-        DataSourceProxy dataSource = new DataSourceProxy(hikariDataSource, sql -> sql);
-        bind(jndiName, dataSource);
-        log.info("SQL intercept ENABLED");
-      } else {
-        bind(jndiName, hikariDataSource);
-        log.info("SQL intercept disabled");
-      }
-
+      javax.sql.DataSource ds = DataSourceManager.setup(dsConfig);
+      String jndiName = "jdbc/crystal_report";
+      bind(jndiName, ds);
       log.info("HikariCP DataSource bound to JNDI: {}", jndiName);
-      log.info("URL: {}", hikariConfig.getJdbcUrl());
-      log.info("MaxPoolSize: {}", hikariConfig.getMaximumPoolSize());
-      log.info("MinIdle: {}", hikariConfig.getMinimumIdle());
     } catch (Exception e) {
-      log.error("Failed to setup HikariCP DataSource in JNDI", e);
+      log.error("Failed to initialize JNDI", e);
     }
   }
 
@@ -123,14 +67,7 @@ public class JNDIManager {
   }
 
   public static void shutdown() {
-    for (Object obj : store.values()) {
-      if (obj instanceof DataSourceProxy) {
-        ((HikariDataSource) ((DataSourceProxy) obj).getTarget()).close();
-      } else if (obj instanceof HikariDataSource) {
-        ((HikariDataSource) obj).close();
-      }
-      log.info("HikariCP DataSource closed");
-    }
+    DataSourceManager.shutdown();
     store.clear();
   }
 
@@ -159,17 +96,16 @@ public class JNDIManager {
 
     @Override
     public Object lookup(String name) throws NamingException {
-      log.info("JNDI lookup: {}", name);
       Object result = bindings.get(name);
       if (result != null) {
-        log.info("JNDI found: {} -> {}", name, result.getClass().getName());
+        log.debug("JNDI found: {} -> {}", name, result.getClass().getName());
         return result;
       }
 
       if (name.startsWith("java:comp/env/")) {
         result = bindings.get(name.substring("java:comp/env/".length()));
         if (result != null) {
-          log.info("JNDI found (stripped prefix): {} -> {}", name, result.getClass().getName());
+          log.debug("JNDI found (stripped prefix): {} -> {}", name, result.getClass().getName());
           return result;
         }
       }

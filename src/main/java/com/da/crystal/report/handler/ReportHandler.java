@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2025-03-16 11:51:49                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-16 18:06:42                                *
+ * @LastEditDate          : 2026-08-17 19:31:59                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 
@@ -49,7 +49,6 @@ public class ReportHandler implements Handler<RoutingContext> {
     this.dbConfig = new DataSourceConfig(
         databaseConfig.getString("url", "jdbc:mysql://localhost:3306/crystal_report"),
         databaseConfig.getString("driverClassName", "com.mysql.cj.jdbc.Driver"),
-        databaseConfig.getString("jndiName", "jdbc/crystal_report"),
         databaseConfig.getString("user", "crystal_report"),
         databaseConfig.getString("password", "crystal_report"));
   }
@@ -110,23 +109,23 @@ public class ReportHandler implements Handler<RoutingContext> {
 
   private File findReportFile(String report) {
     log.debug(REPORTS_PATH);
-    File JDBC_rpt = new File(REPORTS_PATH + '/' + report + ".JDBC.rpt");
+    File JNDI_rpt = new File(REPORTS_PATH + '/' + report + ".JNDI.rpt");
     File original_rpt = new File(REPORTS_PATH + '/' + report + ".rpt");
 
-    // If the original .rpt is newer than the cached .JDBC.rpt, the original
-    // report was modified after the JDBC version was generated. Delete the
-    // stale JDBC file so changeDataSource() regenerates it with fresh content.
-    if (JDBC_rpt.exists() && original_rpt.exists() && original_rpt.lastModified() > JDBC_rpt.lastModified()) {
-      log.info("Original report newer than JDBC cache, deleting stale cache: {}", JDBC_rpt.getName());
-      if (!JDBC_rpt.delete()) {
-        log.warn("Failed to delete stale JDBC report cache: {}", JDBC_rpt.getPath());
+    // If the original .rpt is newer than the cached .JNDI.rpt, the original
+    // report was modified after the JNDI version was generated. Delete the
+    // stale JNDI file so changeDataSource() regenerates it with fresh content.
+    if (JNDI_rpt.exists() && original_rpt.exists() && original_rpt.lastModified() > JNDI_rpt.lastModified()) {
+      log.info("Original report newer than JNDI cache, deleting stale cache: {}", JNDI_rpt.getName());
+      if (!JNDI_rpt.delete()) {
+        log.warn("Failed to delete stale JNDI report cache: {}", JNDI_rpt.getPath());
       }
       return original_rpt;
     }
 
-    if (JDBC_rpt.exists()) {
-      log.debug("Using cached report: {}", JDBC_rpt.getPath());
-      return JDBC_rpt;
+    if (JNDI_rpt.exists()) {
+      log.debug("Using cached report: {}", JNDI_rpt.getPath());
+      return JNDI_rpt;
     }
     return original_rpt.exists() ? original_rpt : null;
 
@@ -164,7 +163,10 @@ public class ReportHandler implements Handler<RoutingContext> {
 
     context.vertx().executeBlocking(() -> {
       try {
-        setDatabaseConnection(clientDoc, report);
+        File JNDI_rpt = new File(REPORTS_PATH + '/' + report + ".JNDI.rpt");
+        if (!JNDI_rpt.exists()) {
+          setDatabaseConnection(clientDoc, report);
+        }
         setReportParameters(clientDoc, reqParams);
 
         if (log.isDebugEnabled()) {

@@ -1,1 +1,5 @@
-{}
+{
+  "maxEventLoopExecuteTime": 30000000000,
+  "warningExceptionTime": 30000000000,
+  "maxWorkerExecuteTime": 30000000000
+}
