@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2023-03-07 00:03:27                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-16 17:54:05                                *
+ * @LastEditDate          : 2026-08-17 19:39:12                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 
@@ -188,12 +188,12 @@ public class CRJavaHelper {
     }
 
     // Save the report with updated connection info (overwrite if exists)
-    Path path = Path.of(reportPath, reportName + ".JDBC.rpt");
+    Path path = Path.of(reportPath, reportName + ".JNDI.rpt");
     try {
       IReportOptions opt = clientDoc.getReportOptions();
       opt.setEnableSaveDataWithReport(false);
 
-      clientDoc.saveAs(reportName + ".JDBC.rpt", reportPath, ReportSaveAsOptions._overwriteExisting);
+      clientDoc.saveAs(reportName + ".JNDI.rpt", reportPath, ReportSaveAsOptions._overwriteExisting);
       log.info("Report saved: {}", path);
     } catch (ReportSDKExceptionBase | IOException e) {
       log.error("Failed to save report after connection change: {}", e.getMessage());

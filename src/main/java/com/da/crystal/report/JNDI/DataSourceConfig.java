@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                      *
  * @CreatedDate           : 2026-08-12 09:59:17                                *
  * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-16 17:53:47                                *
+ * @LastEditDate          : 2026-08-17 18:50:48                                *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
  ******************************************************************************/
 
@@ -16,15 +16,15 @@ import lombok.Data;
 public class DataSourceConfig {
   private final String connectionURL;
   private final String driverName;
-  private final String jndiName;
+  private final String jndiName = "jdbc/crystal_report";
   private final String username;
   private final String password;
 
   public boolean useJNDI() {
-    return jndiName != null && !jndiName.isEmpty();
+    return true;
   }
 
   public String getServerType() {
-    return useJNDI() ? "JDBC (JNDI)" : "JDBC";
+    return "JDBC (JNDI)";
   }
 }

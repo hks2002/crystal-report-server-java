@@ -15,7 +15,6 @@
     "driverClassName": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
     "user": "",
     "password": "",
-    "jndiName": "jdbc/crystal_report",
     "sqlIntercept": true,
     "pool": {
       "poolName": "CrystalReportPool",
