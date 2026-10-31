@@ -1,10 +1,10 @@
-/*******************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                      *
- * @CreatedDate           : 2026-08-11 18:27:43                                *
- * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-17 18:40:22                                *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
- ******************************************************************************/
+/***********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                              *
+ * @CreatedDate           : 2026-08-11 18:27:43                                                                        *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
+ * @LastEditDate          : 2026-10-31 14:00:03                                                                        *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
+ **********************************************************************************************************************/
 
 package com.da.crystal.report.UF;
 
@@ -36,7 +36,7 @@ public class TextOfChapter implements FormulaFunction {
 
   // Crystal Reports requires Java UFL identifiers to be lower-case only.
   // FormulaParser converts function names to lower-case before lookup
-  private static final String FUNCTION_NAME = "textofchapter";
+  private static final String FUNCTION_NAME = "textOfChapter";
 
   @SuppressWarnings("null")
   private static final Cache<String, String> cache = Caffeine.newBuilder()
