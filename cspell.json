@@ -7,12 +7,12 @@
     {
       "addWords": true,
       "name": "project-words",
-      "path": "./cspell.project-words.txt"
+      "path": ".cspell/project-words.txt"
     }
   ],
   "ignorePaths": [
     "node_modules",
-    "/cspell.project-words.txt",
+    ".cspell",
     ".gitignore"
   ],
   "version": "0.2"
