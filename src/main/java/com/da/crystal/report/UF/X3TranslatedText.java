@@ -1,10 +1,10 @@
-/*******************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                      *
- * @CreatedDate           : 2026-08-11 18:27:57                                *
- * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-17 18:04:25                                *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
- ******************************************************************************/
+/***********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                              *
+ * @CreatedDate           : 2026-08-11 18:27:57                                                                        *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
+ * @LastEditDate          : 2026-10-31 14:13:19                                                                        *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
+ **********************************************************************************************************************/
 
 package com.da.crystal.report.UF;
 
@@ -33,8 +33,8 @@ public class X3TranslatedText implements FormulaFunction {
 
   // Crystal Reports requires Java UFL identifiers to be lower-case only.
   // FormulaParser converts function names to lower-case before lookup,
-  // so 'TextOfChapter' in the report will match 'textofchapter' here.
-  private static final String FUNCTION_NAME = "x3translatedtext";
+  // so 'X3TranslatedText' in the report will match 'x3TranslatedText' here.T
+  private static final String FUNCTION_NAME = "x3TranslatedText";
 
   private final FormulaFunctionArgumentDefinition[] arguments;
   private final CrystalResourcesFactory message = new CrystalResourcesFactory("message");
@@ -100,12 +100,12 @@ public class X3TranslatedText implements FormulaFunction {
       String[] oriTextArray = oriText.split("~");
       String table = oriTextArray[0];
       String field = oriTextArray[1];
-      String ident1 = oriTextArray[2]; 
+      String ident1 = oriTextArray[2];
       String sql = "SELECT TOP 1 TEXTE_0 FROM EXPLOIT.ATEXTRA WHERE CODFIC_0 = ? AND ZONE_0 = ? AND IDENT1_0 = ? AND LANGUE_0 = ?";
-      
+
       try (PreparedStatement ps = conn.prepareStatement(sql)) {
         ps.setString(0, table);
-        ps.setString(1, field);      
+        ps.setString(1, field);
         ps.setString(2, ident1);
         ps.setString(3, lang);
         try (ResultSet rs = ps.executeQuery()) {

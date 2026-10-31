@@ -1,10 +1,10 @@
-/*******************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                      *
- * @CreatedDate           : 2026-08-11 18:27:02                                *
- * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-11 18:27:23                                *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
- ******************************************************************************/
+/***********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                              *
+ * @CreatedDate           : 2026-08-11 18:27:02                                                                        *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
+ * @LastEditDate          : 2026-10-31 13:59:33                                                                        *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
+ **********************************************************************************************************************/
 
 package com.da.crystal.report.UF;
 
@@ -33,8 +33,8 @@ public class SampleFn implements FormulaFunction {
 
   // Crystal Reports requires Java UFL identifiers to be lower-case only.
   // FormulaParser converts function names to lower-case before lookup,
-  // so 'SampleFn' in the report will match 'samplefn' here.
-  private static final String FUNCTION_NAME = "samplefn";
+  // so 'SampleFn' in the report will match 'sampleFn' here.
+  private static final String FUNCTION_NAME = "sampleFn";
 
   private final FormulaFunctionArgumentDefinition[] arguments;
 
