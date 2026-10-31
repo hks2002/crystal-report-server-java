@@ -97,12 +97,17 @@ public class X3TranslatedText implements FormulaFunction {
   private String getValFromDB(String lang, String oriText) throws Exception {
     DataSource ds = (DataSource) JNDIManager.lookup("jdbc/crystal_report");
     try (Connection conn = ds.getConnection()) {
-      String sql = "SELECT TOP 1 TEXTE_0 FROM EXPLOIT.ATEXTRA WHERE CODFIC_0 = 'ITMMASTER' AND ZONE_0 = 'YITM_CMUTXT' AND LANGUE_0 = ? AND IDENT1_0 = ?";
+      String[] oriTextArray = oriText.split("~");
+      String table = oriTextArray[0];
+      String field = oriTextArray[1];
+      String ident1 = oriTextArray[2]; 
+      String sql = "SELECT TOP 1 TEXTE_0 FROM EXPLOIT.ATEXTRA WHERE CODFIC_0 = ? AND ZONE_0 = ? AND IDENT1_0 = ? AND LANGUE_0 = ?";
+      
       try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        String[] oriTextArray = oriText.split("~");
-        String ident1 = oriTextArray[2]; // PN
-        ps.setString(1, lang);
+        ps.setString(0, table);
+        ps.setString(1, field);      
         ps.setString(2, ident1);
+        ps.setString(3, lang);
         try (ResultSet rs = ps.executeQuery()) {
           return rs.next() ? rs.getString(1) : "";
         }
