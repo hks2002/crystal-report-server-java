@@ -254,8 +254,17 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.11.0</version>
         <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
+          <release>${java.version}</release>
+          <!-- Explicitly declare Lombok as annotation processor:
+               on JDK 24+ javac no longer auto-discovers annotation processors
+               from the classpath, so without this Lombok is silently skipped. -->
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>1.18.46</version>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
       <!-- skip test -->
