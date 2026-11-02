@@ -1,23 +1,32 @@
+
+/***********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                              *
+ * @CreatedDate           : 2026-11-02 09:09:55                                                                        *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
+ * @LastEditDate          : 2026-11-02 09:10:59                                                                        *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
+ **********************************************************************************************************************/
+/**
+* UflRegistrar
+*
+* Registers Java UFL functions with Crystal Reports engine programmatically
+*
+* <p>
+* Crystal Reports loads Java UFL class names from the ConfigurationManager
+* under the key {@code ExternalFunctionLibraryClassNames.classname}. This is
+* the same mechanism that CRConfig.xml uses, but done in code so no XML file
+* is needed.
+* </p>
+*
+*/
+
 package com.da.crystal.report.UFL;
 
-import com.crystaldecisions.reports.common.engine.ConfigurationManager;
-import com.crystaldecisions.reports.common.engine.Engine;
+import com.crystaldecisions12.reports.common.engine.ConfigurationManager;
+import com.crystaldecisions12.reports.common.engine.Engine;
 
 import lombok.extern.log4j.Log4j2;
 
-/**
- * UflRegistrar
- *
- * Registers Java UFL functions with Crystal Reports engine programmatically
- *
- * <p>
- * Crystal Reports loads Java UFL class names from the ConfigurationManager
- * under the key {@code ExternalFunctionLibraryClassNames.classname}. This is
- * the same mechanism that CRConfig.xml uses, but done in code so no XML file
- * is needed.
- * </p>
- *
- */
 @Log4j2
 public class UflRegistrar {
 
