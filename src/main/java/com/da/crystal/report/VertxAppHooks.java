@@ -1,10 +1,10 @@
-/*******************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                      *
- * @CreatedDate           : 2025-05-19 16:54:08                                *
- * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-16 17:56:18                                *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
- ******************************************************************************/
+/***********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                              *
+ * @CreatedDate           : 2025-05-19 16:54:08                                                                        *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
+ * @LastEditDate          : 2026-11-11 22:03:16                                                                        *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
+ **********************************************************************************************************************/
 package com.da.crystal.report;
 
 import com.da.crystal.report.JNDI.JNDIManager;
@@ -82,16 +82,10 @@ public class VertxAppHooks implements VertxApplicationHooks {
       if (hasConfigArg && configArg != null) {
         AppConfig.setupPeriod(context.vertx(), configArg);
       }
-
-      initJNDI();
-      registerUFLs();
-
     } catch (Exception e) {
       log.error("{}", e.getMessage());
     }
-  }
 
-  private void initJNDI() {
     try {
       JsonObject databaseConfig = AppConfig.config.getJsonObject("database");
       if (databaseConfig != null) {
@@ -100,14 +94,13 @@ public class VertxAppHooks implements VertxApplicationHooks {
     } catch (Exception e) {
       log.error("Failed to initialize JNDI", e);
     }
-  }
 
-  private void registerUFLs() {
     try {
-      UflRegistrar.registerUfls();
-    } catch (UflRegistrar.UflRegistrationException e) {
+      UflRegistrar.registerUFLs();
+    } catch (RuntimeException e) {
       log.warn("Failed to register custom Java UFL functions: {}", e.getMessage());
     }
+
   }
 
   @Override
@@ -117,7 +110,7 @@ public class VertxAppHooks implements VertxApplicationHooks {
 
   @Override
   public void afterVerticleDeployed(HookContext context) {
-    log.debug("afterVertxStarted");
+    log.debug("afterVerticleDeployed");
   }
 
   @Override
