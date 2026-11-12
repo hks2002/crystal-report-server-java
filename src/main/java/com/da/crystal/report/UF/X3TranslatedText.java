@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                              *
  * @CreatedDate           : 2026-08-11 18:27:57                                                                        *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
- * @LastEditDate          : 2026-11-12 13:51:22                                                                        *
+ * @LastEditDate          : 2026-11-12 16:22:31                                                                        *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
  **********************************************************************************************************************/
 
@@ -11,6 +11,7 @@ package com.da.crystal.report.UF;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.Duration;
 
 import javax.sql.DataSource;
 
@@ -24,11 +25,17 @@ import com.crystaldecisions.reports.formulas.FormulaValueReference;
 import com.crystaldecisions.reports.formulas.SimpleFormulaFunctionArgumentDefinition;
 import com.da.crystal.report.JNDI.JNDIManager;
 import com.da.crystal.report.UFL.ArgUtils;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class X3TranslatedText implements FormulaFunction {
+  @SuppressWarnings("null")
+  private static final Cache<String, String> cache = Caffeine.newBuilder()
+      .expireAfterWrite(Duration.ofDays(1))
+      .build();
 
   private final FormulaFunctionArgumentDefinition[] arguments;
 
@@ -75,6 +82,7 @@ public class X3TranslatedText implements FormulaFunction {
       String oriText = ArgUtils.getArgString(args, 2);
 
       String text = getValFromDB(lang, oriText);
+      log.debug("X3TranslatedText.evaluate: text: {}", text);
       return StringValue.fromString(text);
     } catch (Exception e) {
       log.warn("X3TranslatedText.evaluate failed: {}", e.getMessage());
@@ -83,6 +91,13 @@ public class X3TranslatedText implements FormulaFunction {
   }
 
   private String getValFromDB(String lang, String oriText) throws Exception {
+    String key = lang + "|" + oriText;
+    String cached = cache.getIfPresent(key);
+
+    if (cached != null) {
+      return cached;
+    }
+
     DataSource ds = (DataSource) JNDIManager.lookup("jdbc/crystal_report");
     try (Connection conn = ds.getConnection()) {
       String[] oriTextArray = oriText.split("~");
@@ -92,12 +107,16 @@ public class X3TranslatedText implements FormulaFunction {
       String sql = "SELECT TOP 1 TEXTE_0 FROM EXPLOIT.ATEXTRA WHERE CODFIC_0 = ? AND ZONE_0 = ? AND IDENT1_0 = ? AND LANGUE_0 = ?";
 
       try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(0, table);
-        ps.setString(1, field);
-        ps.setString(2, ident1);
-        ps.setString(3, lang);
+        // Start from 1, not 0
+        ps.setString(1, table);
+        ps.setString(2, field);
+        ps.setString(3, ident1);
+        ps.setString(4, lang);
         try (ResultSet rs = ps.executeQuery()) {
-          return rs.next() ? rs.getString(1) : "";
+          String result = rs.next() ? rs.getString(1) : "";
+          cache.put(key, result);
+          log.debug("getValFromDB: lang={}, oriText={}, result={}", lang, oriText, result);
+          return result;
         }
       }
     }

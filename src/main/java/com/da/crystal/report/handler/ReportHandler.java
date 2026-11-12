@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                              *
  * @CreatedDate           : 2025-03-16 11:51:49                                                                        *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
- * @LastEditDate          : 2026-11-12 11:09:09                                                                        *
+ * @LastEditDate          : 2026-11-12 15:26:49                                                                        *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
  **********************************************************************************************************************/
 
@@ -201,14 +201,9 @@ public class ReportHandler implements Handler<RoutingContext> {
       throws ReportSDKExceptionBase {
     List<String> reportParams = CRJavaHelper.getTopParams(clientDoc);
     for (String param : reportParams) {
-      log.debug("Report Parameter: {}", param);
       if (!reqParams.contains(param)) {
-        if (CRJavaHelper.isParameterRequired(clientDoc, param)) {
-          log.warn("Request Parameter: {} missing", param);
-          throw new IllegalArgumentException("Report param [" + param + "] not found in request!");
-        }
-        log.debug("Request Parameter: {} missing but optional or has a default value, skipping", param);
-        continue;
+        log.warn("Request Parameter: {} missing", param);
+        throw new IllegalArgumentException("Report param [" + param + "] not found in request!");
       }
       String value = reqParams.getAll(param).get(0);
       if (value != null && !value.isEmpty()) {

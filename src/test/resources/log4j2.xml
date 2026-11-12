@@ -19,7 +19,7 @@
   </Appenders>
   <Loggers>
     <!-- default level -->
-    <Root level="INFO">
+    <Root level="DEBUG">
       <AppenderRef ref="Console" />
     </Root>
     <!-- Customer level bellow  -->

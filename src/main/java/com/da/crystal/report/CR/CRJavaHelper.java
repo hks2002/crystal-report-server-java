@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                              *
  * @CreatedDate           : 2023-03-07 00:03:27                                                                        *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
- * @LastEditDate          : 2026-11-12 11:19:20                                                                        *
+ * @LastEditDate          : 2026-11-12 15:25:06                                                                        *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
  **********************************************************************************************************************/
 
@@ -313,29 +313,6 @@ public class CRJavaHelper {
   }
 
   /**
-   * Passes a single discrete parameter value to a report parameter
-   *
-   * @param clientDoc     The reportClientDocument representing the report being
-   *                      used
-   * @param parameterName The name of the parameter
-   * @throws ReportSDKException
-   */
-  public static boolean isParameterExists(
-      ReportClientDocument clientDoc,
-      String parameterName)
-      throws ReportSDKException {
-    Fields<IParameterField> parameterFields = clientDoc.getDataDefinition().getParameterFields();
-    for (int i = 0; i < parameterFields.size(); i++) {
-      IParameterField paramToChange = (IParameterField) parameterFields.getField(i);
-      String field = paramToChange.getName();
-      if (field.equals(parameterName)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
    * Get all top level parameters name.
    * 
    * @param clientDoc
@@ -347,8 +324,13 @@ public class CRJavaHelper {
     List<String> topParams = new ArrayList<String>();
     Fields<IParameterField> parameterFields = clientDoc.getDataDefinition().getParameterFields();
     for (int i = 0; i < parameterFields.size(); i++) {
-      IParameterField paramToChange = (IParameterField) parameterFields.getField(i);
-      topParams.add(paramToChange.getName());
+      IParameterField param = (IParameterField) parameterFields.getField(i);
+      topParams.add(param.getName());
+      log.debug(
+          "Report Parameter: {}, type: {},  isOptionalPrompt: {}",
+          param.getName(),
+          param.getType().toString(),
+          param.getIsOptionalPrompt());
     }
     return topParams;
   }
