@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                              *
  * @CreatedDate           : 2026-08-11 18:27:43                                                                        *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
- * @LastEditDate          : 2026-10-31 14:00:03                                                                        *
+ * @LastEditDate          : 2026-11-12 13:50:51                                                                        *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
  **********************************************************************************************************************/
 
@@ -15,7 +15,6 @@ import java.time.Duration;
 
 import javax.sql.DataSource;
 
-import com.crystaldecisions.reports.common.CrystalResourcesFactory;
 import com.crystaldecisions.reports.common.value.FormulaValue;
 import com.crystaldecisions.reports.common.value.FormulaValueType;
 import com.crystaldecisions.reports.common.value.StringValue;
@@ -34,17 +33,12 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class TextOfChapter implements FormulaFunction {
 
-  // Crystal Reports requires Java UFL identifiers to be lower-case only.
-  // FormulaParser converts function names to lower-case before lookup
-  private static final String FUNCTION_NAME = "textOfChapter";
-
   @SuppressWarnings("null")
   private static final Cache<String, String> cache = Caffeine.newBuilder()
       .expireAfterWrite(Duration.ofDays(1))
       .build();
 
   private final FormulaFunctionArgumentDefinition[] arguments;
-  private final CrystalResourcesFactory message = new CrystalResourcesFactory("message");
 
   public TextOfChapter() {
     this.arguments = new FormulaFunctionArgumentDefinition[] {
@@ -57,7 +51,7 @@ public class TextOfChapter implements FormulaFunction {
 
   @Override
   public String getIdentifier() {
-    return FUNCTION_NAME;
+    return this.getClass().getSimpleName().toLowerCase();
   }
 
   @Override
@@ -93,12 +87,8 @@ public class TextOfChapter implements FormulaFunction {
       String text = getValFromDB(lang, lanChapter, lanNum);
       return StringValue.fromString(text);
     } catch (Exception e) {
-      throw new FormulaFunctionCallException(
-          FUNCTION_NAME,
-          "JavaUFL",
-          message,
-          ArgUtils.argsToString(args),
-          e);
+      log.error("TextOfChapter.evaluate failed {}", e.getMessage());
+      return StringValue.fromString("");
     }
   }
 
