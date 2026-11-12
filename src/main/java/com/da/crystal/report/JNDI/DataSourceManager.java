@@ -1,12 +1,14 @@
-/*******************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                      *
- * @CreatedDate           : 2026-08-17 00:00:00                                *
- * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-17 19:01:00                                *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
- ******************************************************************************/
+/***********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                              *
+ * @CreatedDate           : 2026-08-17 00:00:00                                                                        *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
+ * @LastEditDate          : 2026-11-12 10:49:01                                                                        *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
+ **********************************************************************************************************************/
 
 package com.da.crystal.report.JNDI;
+
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
@@ -15,12 +17,11 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import io.vertx.core.json.JsonObject;
 import lombok.extern.log4j.Log4j2;
+import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 
 @Log4j2
 public class DataSourceManager {
-
-  private static volatile HikariDataSource hikariDataSource;
-  private static volatile DataSource dataSource;
+  private static volatile DataSource ds;
 
   private DataSourceManager() {
   }
@@ -58,36 +59,44 @@ public class DataSourceManager {
       }
     }
 
-    hikariDataSource = new HikariDataSource(hikariConfig);
+    log.info("HikariConfig: {}", hikariConfig);
 
-    boolean sqlIntercept = dsConfig.getBoolean("sqlIntercept", false);
-    if (sqlIntercept) {
-      dataSource = new DataSourceProxy(hikariDataSource, sql -> sql);
-      log.info("SQL intercept ENABLED");
+    boolean sqlLog = dsConfig.getBoolean("sqlLog", false);
+    if (sqlLog) {
+      log.info("SQL logging ENABLED");
+      ProxyDataSourceBuilder builder = ProxyDataSourceBuilder.create(new HikariDataSource(hikariConfig))
+          .name("CR")
+          .logQueryBySlf4j()
+          .logSlowQueryBySlf4j(5, TimeUnit.SECONDS)
+          .multiline();
+
+      ds = builder.build();
     } else {
-      dataSource = hikariDataSource;
-      log.info("SQL intercept disabled");
+      log.info("SQL logging disabled, set it to true in the config if you want to observe the SQL statements");
+      ds = new HikariDataSource(hikariConfig);
     }
 
-    log.info("HikariCP DataSource created");
-    log.info("URL: {}", hikariConfig.getJdbcUrl());
-    log.info("MaxPoolSize: {}", hikariConfig.getMaximumPoolSize());
-    log.info("MinIdle: {}", hikariConfig.getMinimumIdle());
-
-    return dataSource;
+    return ds;
   }
 
-  public static DataSource getDataSource() {
-    return dataSource;
+  public static DataSource getDs() {
+    return ds;
   }
 
   public static void shutdown() {
-    if (hikariDataSource != null) {
-      hikariDataSource.close();
-      log.info("HikariCP DataSource closed");
+    if (ds != null) {
+      try {
+        if (ds instanceof AutoCloseable) {
+          ((AutoCloseable) ds).close();
+          log.info("DataSource closed");
+        } else {
+          log.warn("DataSource is not AutoCloseable, nothing to close");
+        }
+      } catch (Exception e) {
+        log.error("Failed to close DataSource: {}", e.getMessage(), e);
+      }
+      ds = null;
     }
-    hikariDataSource = null;
-    dataSource = null;
   }
 
 }
