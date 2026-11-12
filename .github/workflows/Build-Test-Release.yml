@@ -1,62 +1,59 @@
 on:
-    workflow_dispatch:
-    push:
-        branches:
-            - 'master'
+  workflow_dispatch:
+  push:
+    branches:
+      - "master"
 
 # https://github.com/OWNER/REPO/settings/actions
 # MUST CHANGE GITHUB_TOKEN PERMISSION FROM READ TO WRITE
 # MUST CHANGE GITHUB_TOKEN PERMISSION ALLOW PULL REQUESTS
 # ⚠ ⚠ ⚠ You need merge pull request manually ⚠ ⚠ ⚠
 permissions:
-    contents: write
-    pull-requests: write
-    issues: write
+  contents: write
+  pull-requests: write
+  issues: write
 
 jobs:
-    build-test-release:
-        strategy:
-            matrix:
-                os: [ubuntu-latest]
-        runs-on: ${{ matrix.os }}
-        services:
-            postgres:
-                image: postgres:13
-                env:
-                    POSTGRES_USER: postgres
-                    POSTGRES_PASSWORD: postgres
-                    POSTGRES_DB: postgres
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+  build-test-release:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v7
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
 
-            - name: Prepare database
-              run: PGPASSWORD=postgres psql -h localhost -U postgres -p 5432 -f './src/test/resources/TEST.sql'
+      - name: Prepare database
+        run: PGPASSWORD=postgres psql -h localhost -U postgres -p 5432 -f './src/test/resources/TEST.sql'
 
-            - name: Install JDK
-              uses: actions/setup-java@v5
-              with:
-                  java-version: 21
-                  distribution: 'adopt'
-                  cache: 'maven'
+      - name: Install JDK
+        uses: actions/setup-java@v6
+        with:
+          java-version: 21
+          distribution: "temurin"
+          cache: "maven"
 
-            - name: Install local dependencies
-              run: |
-                  chmod +x install-libs.sh mvnw
-                  ./install-libs.sh
+      - name: Install local dependencies
+        run: |
+          chmod +x install-libs.sh mvnw
+          ./install-libs.sh
 
-            - name: Run tests
-              run: ./mvnw test
-              
-            - uses: google-github-actions/release-please-action@v3
-              with:
-                  release-type: maven
-                  #package-name: release-please-action
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  extra-files: |
-                    README.md
-                    CHANGELOG.md
+      - name: Run tests
+        run: ./mvnw test
+
+      - uses: googleapis/release-please-action@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: .release-please.json
+          manifest-file: .release-please.manifest
