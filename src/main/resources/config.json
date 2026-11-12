@@ -32,11 +32,5 @@
         "reportsPath": "/usr/share/java/crystal-report-server-java/reports"
       }
     }
-  },
-  "ufl": {
-    "scanPath": "com.da.crystal.report.UF",
-    "classNames": [
-      "com.da.crystal.report.UFL.JavaUFL"
-    ]
   }
 }

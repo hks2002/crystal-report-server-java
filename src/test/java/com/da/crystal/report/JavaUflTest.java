@@ -2,25 +2,22 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                              *
  * @CreatedDate           : 2026-08-11 18:23:59                                                                        *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
- * @LastEditDate          : 2026-11-12 09:08:52                                                                        *
+ * @LastEditDate          : 2026-11-12 13:56:29                                                                        *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
  **********************************************************************************************************************/
 package com.da.crystal.report;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.crystaldecisions.reports.formulas.FormulaFunctionLibrary;
 import com.crystaldecisions.reports.formulas.FormulaFunctionSetupException;
 import com.da.crystal.report.UF.SampleFn;
 import com.da.crystal.report.UFL.JavaUFL;
-import com.da.crystal.report.UFL.UflRegistrar;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -37,7 +34,7 @@ class JavaUflTest {
     SampleFn function = new SampleFn();
 
     // Test identifier
-    assertEquals("sampleFn", function.getIdentifier());
+    assertEquals("samplefn", function.getIdentifier());
 
     // Test arguments
     assertNotNull(function.getArguments());
@@ -46,7 +43,7 @@ class JavaUflTest {
     // Test return type
     assertNotNull(function.getReturnType());
 
-    log.info("TextOfChapterFunction basic functionality verified");
+    log.info("samplefn basic functionality verified");
   }
 
   @Test
@@ -57,16 +54,6 @@ class JavaUflTest {
     assertTrue(library.size() > 0, "JavaUFL library should contain at least one function");
 
     log.info("JavaUFL library created successfully with {} function(s)", library.size());
-  }
-
-  @Test
-  @DisplayName("Test UFL registration via ConfigurationManager")
-  void testUflRegistration() {
-    assertDoesNotThrow(() -> {
-      UflRegistrar.registerUFLs();
-    }, "UFL registration should not throw exception");
-
-    log.info("UFL registration test passed via ConfigurationManager");
   }
 
 }

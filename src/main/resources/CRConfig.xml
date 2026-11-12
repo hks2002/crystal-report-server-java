@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CrystalReportEngine-configuration>
+  <ExternalFunctionLibraryClassNames>
+    <classname>
+      com.da.crystal.report.UFL.JavaUFL
+    </classname>
+  </ExternalFunctionLibraryClassNames>
+</CrystalReportEngine-configuration>

@@ -46,3 +46,8 @@
 
 > 说明：`{ReportTemplateName}` 是报表模板文件名，不包含扩展名；`{format}` 是报表格式，如 `pdf` `doc` `xls`；`param0` 和 `param1` 是报表参数，如果有一个参数名包含 `filename`，则该参数值将作为文件名。
 > 建议：使用`Command SQL`代替`Table Link`,可以获得更快的报表生成速度。
+
+### 自定义 UFL 函数
+1. 实现`FormulaFunction`, 定义自己的UF类。
+2. 实现`FormulaFunctionLibrary`， 定义自己的UFL类, 
+3. 在CRConfig.xml中配置自己的UFL类。

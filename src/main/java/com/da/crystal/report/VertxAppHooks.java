@@ -2,13 +2,12 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                              *
  * @CreatedDate           : 2025-05-19 16:54:08                                                                        *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
- * @LastEditDate          : 2026-11-11 22:03:16                                                                        *
+ * @LastEditDate          : 2026-11-12 13:56:45                                                                        *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
  **********************************************************************************************************************/
 package com.da.crystal.report;
 
 import com.da.crystal.report.JNDI.JNDIManager;
-import com.da.crystal.report.UFL.UflRegistrar;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxBuilder;
@@ -94,13 +93,6 @@ public class VertxAppHooks implements VertxApplicationHooks {
     } catch (Exception e) {
       log.error("Failed to initialize JNDI", e);
     }
-
-    try {
-      UflRegistrar.registerUFLs();
-    } catch (RuntimeException e) {
-      log.warn("Failed to register custom Java UFL functions: {}", e.getMessage());
-    }
-
   }
 
   @Override
