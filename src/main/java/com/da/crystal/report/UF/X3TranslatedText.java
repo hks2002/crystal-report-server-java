@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                              *
  * @CreatedDate           : 2026-08-11 18:27:57                                                                        *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
- * @LastEditDate          : 2026-10-31 14:13:19                                                                        *
+ * @LastEditDate          : 2026-11-12 13:51:22                                                                        *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
  **********************************************************************************************************************/
 
@@ -14,7 +14,6 @@ import java.sql.ResultSet;
 
 import javax.sql.DataSource;
 
-import com.crystaldecisions.reports.common.CrystalResourcesFactory;
 import com.crystaldecisions.reports.common.value.FormulaValue;
 import com.crystaldecisions.reports.common.value.FormulaValueType;
 import com.crystaldecisions.reports.common.value.StringValue;
@@ -31,13 +30,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class X3TranslatedText implements FormulaFunction {
 
-  // Crystal Reports requires Java UFL identifiers to be lower-case only.
-  // FormulaParser converts function names to lower-case before lookup,
-  // so 'X3TranslatedText' in the report will match 'x3TranslatedText' here.T
-  private static final String FUNCTION_NAME = "x3TranslatedText";
-
   private final FormulaFunctionArgumentDefinition[] arguments;
-  private final CrystalResourcesFactory message = new CrystalResourcesFactory("message");
 
   public X3TranslatedText() {
     this.arguments = new FormulaFunctionArgumentDefinition[] {
@@ -49,7 +42,7 @@ public class X3TranslatedText implements FormulaFunction {
 
   @Override
   public String getIdentifier() {
-    return FUNCTION_NAME;
+    return this.getClass().getSimpleName().toLowerCase();
   }
 
   @Override
@@ -78,19 +71,14 @@ public class X3TranslatedText implements FormulaFunction {
   public FormulaValue evaluate(FormulaValueReference[] args)
       throws FormulaFunctionCallException {
     try {
-
       String lang = ArgUtils.getArgString(args, 1);
       String oriText = ArgUtils.getArgString(args, 2);
 
       String text = getValFromDB(lang, oriText);
       return StringValue.fromString(text);
     } catch (Exception e) {
-      throw new FormulaFunctionCallException(
-          FUNCTION_NAME,
-          "JavaUFL",
-          message,
-          ArgUtils.argsToString(args),
-          e);
+      log.warn("X3TranslatedText.evaluate failed: {}", e.getMessage());
+      return StringValue.fromString("");
     }
   }
 

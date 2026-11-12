@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                              *
  * @CreatedDate           : 2026-08-11 18:27:02                                                                        *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
- * @LastEditDate          : 2026-10-31 13:59:33                                                                        *
+ * @LastEditDate          : 2026-11-12 13:24:56                                                                        *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
  **********************************************************************************************************************/
 
@@ -18,23 +18,21 @@ import com.crystaldecisions.reports.formulas.FormulaValueReference;
 import com.crystaldecisions.reports.formulas.SimpleFormulaFunctionArgumentDefinition;
 import com.da.crystal.report.UFL.ArgUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * SampleFn UFL Function.
  * 
  * <pre>
- * SampleFn(myparam)
+ * SampleFn(param)
  * </pre>
  * 
  * <p>
  * It return the first argument as a string.
  * </p>
  */
+@Slf4j
 public class SampleFn implements FormulaFunction {
-
-  // Crystal Reports requires Java UFL identifiers to be lower-case only.
-  // FormulaParser converts function names to lower-case before lookup,
-  // so 'SampleFn' in the report will match 'sampleFn' here.
-  private static final String FUNCTION_NAME = "sampleFn";
 
   private final FormulaFunctionArgumentDefinition[] arguments;
 
@@ -46,7 +44,7 @@ public class SampleFn implements FormulaFunction {
 
   @Override
   public String getIdentifier() {
-    return FUNCTION_NAME;
+    return this.getClass().getSimpleName().toLowerCase();
   }
 
   @Override
@@ -81,12 +79,8 @@ public class SampleFn implements FormulaFunction {
     try {
       return StringValue.fromString(ArgUtils.getArgString(args, 0));
     } catch (Exception e) {
-      throw new FormulaFunctionCallException(
-          FUNCTION_NAME,
-          "JavaUFL",
-          new com.crystaldecisions.reports.common.CrystalResourcesFactory("Messages"),
-          FUNCTION_NAME + "(" + ArgUtils.argsToString(args) + ")",
-          e);
+      log.error("{}", e.getMessage());
+      return StringValue.fromString("Error: " + e.getMessage());
     }
   }
 
