@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.1.1](https://github.com/hks2002/crystal-report-server-java/compare/v2.1.0...v2.1.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* 🐛fix the test bug ([97efecf](https://github.com/hks2002/crystal-report-server-java/commit/97efecf09a57469d0b8b7536093c9bca7fad0591))
+* 🐛fix UF bugs ([583f031](https://github.com/hks2002/crystal-report-server-java/commit/583f031b4f263cf5a4663fcdfeed0d11a31b05b2))
+* 🐛ufl name using lowercase ([0b1e4d2](https://github.com/hks2002/crystal-report-server-java/commit/0b1e4d2d55cbd338c616f1b5c94d3489013c4a37))
+* 🐛update sql error ([a8e6094](https://github.com/hks2002/crystal-report-server-java/commit/a8e60947a54ece8e3600ff8f64666996c9106059))
+
 ## [2.1.0](https://github.com/hks2002/crystal-report-server-java/compare/v2.0.0...v2.1.0) (2026-08-17)
 
 
