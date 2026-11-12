@@ -1,10 +1,10 @@
-/*******************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                      *
- * @CreatedDate           : 2026-08-03 00:00:00                                *
- * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-17 19:29:29                                *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
- ******************************************************************************/
+/***********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                              *
+ * @CreatedDate           : 2026-08-03 00:00:00                                                                        *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
+ * @LastEditDate          : 2026-11-12 09:30:13                                                                        *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
+ **********************************************************************************************************************/
 
 package com.da.crystal.report.JNDI;
 
@@ -37,6 +37,9 @@ public class JNDIManager {
   private JNDIManager() {
   }
 
+  /**
+   * Initialize JNDI context factory and bind HikariCP DataSource to JNDI name.
+   */
   public static synchronized void init(JsonObject dsConfig) {
     if (initialized) {
       log.warn("JNDIManager already initialized, skipping");

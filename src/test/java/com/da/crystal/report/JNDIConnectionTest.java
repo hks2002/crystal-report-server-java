@@ -37,7 +37,7 @@ public class JNDIConnectionTest {
 
     JNDIManager.init(reportConfig);
 
-    DataSource ds = DataSourceManager.getDataSource();
+    DataSource ds = DataSourceManager.getDs();
     assert ds != null : "DataSource should not be null";
 
     try (Connection conn = ds.getConnection()) {
