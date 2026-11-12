@@ -1,0 +1,36 @@
+{
+  "http": {
+    "port": 8091,
+    "compressionSupported": false,
+    "compressionLevel": 6,
+    "decompressionSupported": true
+  },
+  "srvInfo": {
+    "name": "@project.name@",
+    "version": "@project.version@",
+    "dependencies": "@project.dependencies@"
+  },
+  "database": {
+    "url": "jdbc:sqlserver://192.168.10.60\\SAGEX3PRD;DatabaseName=x3prd;TrustServerCertificate=true;applicationName=CystalReportServerJava;",
+    "driverClassName": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+    "user": "BI",
+    "password": "BIDEDIENNE",
+    "sqlLog": true,
+    "pool": {
+      "poolName": "CrystalReportPool",
+      "maximumPoolSize": 5,
+      "minimumIdle": 1,
+      "connectionTimeout": 30000
+    }
+  },
+  "handler": {
+    "report": {
+      "windows": {
+        "reportsPath": "d:/Dev/crystal-report-server-java/reports"
+      },
+      "linux": {
+        "reportsPath": "/usr/share/java/crystal-report-server/reports"
+      }
+    }
+  }
+}

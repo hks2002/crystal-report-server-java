@@ -46,3 +46,9 @@ A Crystal Report server run in java.
 
 > Note: `{ReportTemplateName}` is the name of your report template file without extension, `{format}` is the format you want, such as `pdf` `doc` `xls`, `param0` and `param1` are the parameters of your report, give a param named with `filename`, this param value will be used as the file name.
 > Suggestion: Using `Command SQL` instead of `Table Link` for better performance, reduce the report generation duration.
+
+### Custom UFL Functions
+
+1. Implement `FormulaFunction` to define your own UF class (one function per class).
+2. Implement `FormulaFunctionLibrary` to define your own UFL class, which aggregates the UF classes into a library.
+3. Register your UFL class in `CRConfig.xml`.
