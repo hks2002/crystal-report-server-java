@@ -1,10 +1,10 @@
-/*******************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                      *
- * @CreatedDate           : 2026-08-03 00:00:00                                *
- * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-17 11:57:56                                *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
- ******************************************************************************/
+/***********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                              *
+ * @CreatedDate           : 2026-08-03 00:00:00                                                                        *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
+ * @LastEditDate          : 2026-11-12 13:11:14                                                                        *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
+ **********************************************************************************************************************/
 
 package com.da.crystal.report;
 
@@ -31,11 +31,11 @@ public class JNDIConnectionTest {
   void jndiConnectionTest() throws Exception {
     JsonObject config = new JsonObject(
         new String(java.nio.file.Files.readAllBytes(
-            java.nio.file.Path.of("src/main/resources/config-prod.json"))));
+            java.nio.file.Path.of("src/main/resources/config-dev.json"))));
 
-    JsonObject reportConfig = config.getJsonObject("handler").getJsonObject("report");
+    JsonObject dbConfig = config.getJsonObject("database");
 
-    JNDIManager.init(reportConfig);
+    JNDIManager.init(dbConfig);
 
     DataSource ds = DataSourceManager.getDs();
     assert ds != null : "DataSource should not be null";
