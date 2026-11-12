@@ -106,6 +106,7 @@ public class TextOfChapter implements FormulaFunction {
       String sql = "SELECT TOP 1 LANMES_0 FROM EXPLOIT.APLSTD WHERE LAN_0 = ? AND LANCHP_0 = ? AND LANNUM_0 = ?";
 
       try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        // Start from 1, not 0
         ps.setString(1, lang);
         ps.setString(2, lanChapter);
         ps.setString(3, lanNum);
