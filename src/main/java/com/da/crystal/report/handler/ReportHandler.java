@@ -1,10 +1,10 @@
-/*******************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                      *
- * @CreatedDate           : 2025-03-16 11:51:49                                *
- * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-17 19:31:59                                *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
- ******************************************************************************/
+/***********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                              *
+ * @CreatedDate           : 2025-03-16 11:51:49                                                                        *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
+ * @LastEditDate          : 2026-11-12 11:09:09                                                                        *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
+ **********************************************************************************************************************/
 
 package com.da.crystal.report.handler;
 
@@ -22,36 +22,16 @@ import com.crystaldecisions.sdk.occa.report.document.SummaryInfo;
 import com.crystaldecisions.sdk.occa.report.lib.ReportSDKExceptionBase;
 import com.da.crystal.report.AppConfig;
 import com.da.crystal.report.CR.CRJavaHelper;
-import com.da.crystal.report.JNDI.DataSourceConfig;
 
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.impl.Utils;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class ReportHandler implements Handler<RoutingContext> {
-  String REPORTS_PATH = "/usr/share/java/crystal-report-server/reports";
-  DataSourceConfig dbConfig;
-
   ReportClientDocument clientDoc = new ReportClientDocument();
-
-  public ReportHandler() {
-    JsonObject reportConfig = AppConfig.config.getJsonObject("handler").getJsonObject("report");
-    JsonObject databaseConfig = AppConfig.config.getJsonObject("database");
-
-    this.REPORTS_PATH = Utils.isWindows()
-        ? reportConfig.getJsonObject("windows").getString("reportsPath", REPORTS_PATH)
-        : reportConfig.getJsonObject("linux").getString("reportsPath", REPORTS_PATH);
-    this.dbConfig = new DataSourceConfig(
-        databaseConfig.getString("url", "jdbc:mysql://localhost:3306/crystal_report"),
-        databaseConfig.getString("driverClassName", "com.mysql.cj.jdbc.Driver"),
-        databaseConfig.getString("user", "crystal_report"),
-        databaseConfig.getString("password", "crystal_report"));
-  }
 
   @Override
   public void handle(RoutingContext context) {
@@ -108,9 +88,9 @@ public class ReportHandler implements Handler<RoutingContext> {
   }
 
   private File findReportFile(String report) {
-    log.debug(REPORTS_PATH);
-    File JNDI_rpt = new File(REPORTS_PATH + '/' + report + ".JNDI.rpt");
-    File original_rpt = new File(REPORTS_PATH + '/' + report + ".rpt");
+    log.debug(AppConfig.report_path);
+    File JNDI_rpt = new File(AppConfig.report_path + '/' + report + ".JNDI.rpt");
+    File original_rpt = new File(AppConfig.report_path + '/' + report + ".rpt");
 
     // If the original .rpt is newer than the cached .JNDI.rpt, the original
     // report was modified after the JNDI version was generated. Delete the
@@ -163,7 +143,7 @@ public class ReportHandler implements Handler<RoutingContext> {
 
     context.vertx().executeBlocking(() -> {
       try {
-        File JNDI_rpt = new File(REPORTS_PATH + '/' + report + ".JNDI.rpt");
+        File JNDI_rpt = new File(AppConfig.report_path + '/' + report + ".JNDI.rpt");
         if (!JNDI_rpt.exists()) {
           setDatabaseConnection(clientDoc, report);
         }
@@ -190,10 +170,10 @@ public class ReportHandler implements Handler<RoutingContext> {
 
   private void setDatabaseConnection(ReportClientDocument clientDoc, String report)
       throws ReportSDKExceptionBase {
-    if (!CRJavaHelper.isSameDataSource(clientDoc, dbConfig)) {
-      CRJavaHelper.changeDataSource(clientDoc, dbConfig, report, REPORTS_PATH);
+    if (!CRJavaHelper.isSameDataSource(clientDoc, AppConfig.dbConfig)) {
+      CRJavaHelper.changeDataSource(clientDoc, AppConfig.dbConfig, report, AppConfig.report_path);
     }
-    CRJavaHelper.logonDataSource(clientDoc, dbConfig.getUsername(), dbConfig.getPassword());
+    CRJavaHelper.logonDataSource(clientDoc, AppConfig.dbConfig.getUsername(), AppConfig.dbConfig.getPassword());
   }
 
   private void logSelectionFormula(ReportClientDocument clientDoc, String phase) {
@@ -223,8 +203,12 @@ public class ReportHandler implements Handler<RoutingContext> {
     for (String param : reportParams) {
       log.debug("Report Parameter: {}", param);
       if (!reqParams.contains(param)) {
-        log.warn("Request Parameter: {} missing", param);
-        throw new IllegalArgumentException("Report param [" + param + "] not found in request!");
+        if (CRJavaHelper.isParameterRequired(clientDoc, param)) {
+          log.warn("Request Parameter: {} missing", param);
+          throw new IllegalArgumentException("Report param [" + param + "] not found in request!");
+        }
+        log.debug("Request Parameter: {} missing but optional or has a default value, skipping", param);
+        continue;
       }
       String value = reqParams.getAll(param).get(0);
       if (value != null && !value.isEmpty()) {

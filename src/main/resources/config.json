@@ -15,15 +15,12 @@
     "driverClassName": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
     "user": "",
     "password": "",
-    "sqlIntercept": true,
+    "sqlLog": false,
     "pool": {
       "poolName": "CrystalReportPool",
-      "maximumPoolSize": 10,
+      "maximumPoolSize": 5,
       "minimumIdle": 1,
-      "connectionTimeout": 30000,
-      "idleTimeout": 600000,
-      "maxLifetime": 1800000,
-      "leakDetectionThreshold": 0
+      "connectionTimeout": 30000
     }
   },
   "handler": {
@@ -35,5 +32,11 @@
         "reportsPath": "/usr/share/java/crystal-report-server-java/reports"
       }
     }
+  },
+  "ufl": {
+    "scanPath": "com.da.crystal.report.UF",
+    "classNames": [
+      "com.da.crystal.report.UFL.JavaUFL"
+    ]
   }
 }
