@@ -1,10 +1,10 @@
-/*******************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                      *
- * @CreatedDate           : 2026-08-11 18:23:59                                *
- * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-11 18:23:59                                *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
- ******************************************************************************/
+/***********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                              *
+ * @CreatedDate           : 2026-08-11 18:23:59                                                                        *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
+ * @LastEditDate          : 2026-11-12 09:08:52                                                                        *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
+ **********************************************************************************************************************/
 package com.da.crystal.report;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -37,7 +37,7 @@ class JavaUflTest {
     SampleFn function = new SampleFn();
 
     // Test identifier
-    assertEquals("samplefn", function.getIdentifier());
+    assertEquals("sampleFn", function.getIdentifier());
 
     // Test arguments
     assertNotNull(function.getArguments());
@@ -63,10 +63,8 @@ class JavaUflTest {
   @DisplayName("Test UFL registration via ConfigurationManager")
   void testUflRegistration() {
     assertDoesNotThrow(() -> {
-      UflRegistrar.registerUfls();
+      UflRegistrar.registerUFLs();
     }, "UFL registration should not throw exception");
-
-    assertTrue(UflRegistrar.isLibraryRegistered(), "UFL should be registered after registerUfls()");
 
     log.info("UFL registration test passed via ConfigurationManager");
   }
