@@ -18,7 +18,7 @@
     </Console>
   </Appenders>
   <Loggers>
-    <!-- deault level -->
+    <!-- default level -->
     <Root level="INFO">
       <AppenderRef ref="Console" />
     </Root>
@@ -43,6 +43,10 @@
     </Logger>
     <!-- Database connection pool -->
     <Logger name="com.zaxxer.hikari" level="DEBUG" additivity="false">
+      <AppenderRef ref="Console" />
+    </Logger>
+    <!-- datasource-proxy SQL query logging (SqlLogger / logQueryBySlf4j) -->
+    <Logger name="net.ttddyy.dsproxy" level="DEBUG" additivity="false">
       <AppenderRef ref="Console" />
     </Logger>
   </Loggers>
