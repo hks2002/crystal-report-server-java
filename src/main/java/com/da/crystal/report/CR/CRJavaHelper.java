@@ -1,10 +1,10 @@
-/*******************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                      *
- * @CreatedDate           : 2023-03-07 00:03:27                                *
- * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-17 19:39:12                                *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
- ******************************************************************************/
+/***********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                              *
+ * @CreatedDate           : 2023-03-07 00:03:27                                                                        *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
+ * @LastEditDate          : 2026-11-12 11:19:20                                                                        *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
+ **********************************************************************************************************************/
 
 /**
  * This sample code is an example of how to use the Business Objects APIs.
@@ -222,7 +222,7 @@ public class CRJavaHelper {
       dbc.replaceConnection(oldConn, newConn, options);
     }
 
-    // Oberverse the each table connection info, it should be same as the database
+    // Obverse the each table connection info, it should be same as the database
     if (log.isDebugEnabled()) {
       Tables tables = dbc.getDatabase().getTables();
       log.info("setTableLocation for {} table(s)", tables.size());
@@ -267,11 +267,11 @@ public class CRJavaHelper {
   }
 
   /**
-   * Passes a populated java.sql.Resultset object to a Table object
+   * Passes a populated java.sql.ResultSet object to a Table object
    * 
    * @param clientDoc     The reportClientDocument representing the report being
    *                      used
-   * @param rs            The java.sql.Resultset used to populate the Table
+   * @param rs            The java.sql.ResultSet used to populate the Table
    * @param tableName     The name of the table
    * @param subreportName The name of the subreport. If tables in the main report
    *                      is to be used, "" should be passed
@@ -351,6 +351,32 @@ public class CRJavaHelper {
       topParams.add(paramToChange.getName());
     }
     return topParams;
+  }
+
+  /**
+   * Determines whether the given top level parameter MUST be provided. A
+   * parameter is considered optional (can be omitted) when the report marks its
+   * prompt as optional, or when it defines one or more default values.
+   *
+   * @param clientDoc     The reportClientDocument representing the report being
+   *                      used
+   * @param parameterName The name of the parameter
+   * @return true if the parameter is required and must be supplied
+   * @throws ReportSDKException
+   */
+  public static boolean isParameterRequired(ReportClientDocument clientDoc, String parameterName)
+      throws ReportSDKException {
+    Fields<IParameterField> parameterFields = clientDoc.getDataDefinition().getParameterFields();
+    for (int i = 0; i < parameterFields.size(); i++) {
+      IParameterField paramField = (IParameterField) parameterFields.getField(i);
+      if (paramField.getName().equals(parameterName)) {
+        Values defaults = paramField.getDefaultValues();
+        boolean hasDefault = defaults != null && defaults.size() > 0;
+        return !paramField.getIsOptionalPrompt() && !hasDefault;
+      }
+    }
+    // Field not found — treat conservatively as required
+    return true;
   }
 
   /**
