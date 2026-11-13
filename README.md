@@ -12,24 +12,11 @@ A Crystal Report server run in java.
 
 ### Linux System Prepare
 
-1. Copy fonts to`$JAVA_HOME/lib/fonts`(Recommended), and set permission to this folder
+1. Copy fonts used in report templates to`$JAVA_HOME/lib/fonts`(Recommended), and set permission to this folder
     ```
     sudo chmod -R $JAVA_HOME/lib/fonts 755
     ```
-2. Create fonts index, and update fonts cache (As Required)
-    - CentOS
-    ```
-    yum install -y fontconfig mkfontscale
-    mkfontscale && mkfontdir && fc-cache -fv
-    fc-list
-    ```
-    - Ubuntu
-    ```
-    sudo apt-get -y install fontconfig xfonts-utils
-    mkfontscale && mkfontdir && fc-cache -fv
-    fc-list
-    ```
-3. Allow the TLS disabled algorithms (As Required)
+2. Allow the TLS disabled algorithms (As Required)
    If the connect database version is too old, and the running Linux system is new, you maybe will have the TLS connection issue by disabled algorithms.
 
    Edit`JAVA_HOME/conf/security/java.security`, Delete `jdk.tls.disabledAlgorithms`disabled algorithms value；
