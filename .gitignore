@@ -176,3 +176,4 @@ nbdist/
 ### this project configuration ###
 src/main/resources/config-prod.json
 src/main/resources/config-test.json
+src/main/resources/config-dev.json
