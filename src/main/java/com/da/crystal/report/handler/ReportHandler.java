@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                              *
  * @CreatedDate           : 2025-03-16 11:51:49                                                                        *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
- * @LastEditDate          : 2026-11-12 15:26:49                                                                        *
+ * @LastEditDate          : 2026-11-13 11:10:36                                                                        *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
  **********************************************************************************************************************/
 
@@ -149,10 +149,6 @@ public class ReportHandler implements Handler<RoutingContext> {
         }
         setReportParameters(clientDoc, reqParams);
 
-        if (log.isDebugEnabled()) {
-          logSelectionFormula(clientDoc, "");
-        }
-
         setSummaryInfo(clientDoc, author, reportFileName);
         resp.setChunked(true);
         exportReport(clientDoc, resp, format, reportFileName);
@@ -174,27 +170,6 @@ public class ReportHandler implements Handler<RoutingContext> {
       CRJavaHelper.changeDataSource(clientDoc, AppConfig.dbConfig, report, AppConfig.report_path);
     }
     CRJavaHelper.logonDataSource(clientDoc, AppConfig.dbConfig.getUsername(), AppConfig.dbConfig.getPassword());
-  }
-
-  private void logSelectionFormula(ReportClientDocument clientDoc, String phase) {
-    try {
-      Object dataDef = clientDoc.getDataDefController().getDataDefinition();
-      Object recordFilter = dataDef.getClass().getMethod("getRecordFilter").invoke(dataDef);
-      if (recordFilter == null) {
-        log.debug("Selection formula {}: <null>", phase);
-        return;
-      }
-      String formula = (String) recordFilter.getClass()
-          .getMethod("getFreeEditingText").invoke(recordFilter);
-      log.debug("Selection formula {}: \n{}", phase, formula);
-      if (formula != null && formula.contains(":=")) {
-        log.warn(
-            "Too complex formula will cause performance issue!, [WHERE] clause will probably not generated in the SQL statements");
-      }
-
-    } catch (Exception e) {
-      log.warn("Selection formula {}: <error: {}>", phase, e.getMessage());
-    }
   }
 
   private void setReportParameters(ReportClientDocument clientDoc, MultiMap reqParams)
