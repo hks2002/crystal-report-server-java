@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.2.0](https://github.com/hks2002/crystal-report-server-java/compare/v2.1.1...v2.2.0) (2026-11-13)
+
+
+### Features
+
+* ✨add rpt fonts used info when export error ([0138f84](https://github.com/hks2002/crystal-report-server-java/commit/0138f84c8fc28559ad8008aa9b67a25b8794dd94))
+
+
+### Performance Improvements
+
+* 🚀remove ufl formula log ([ccf0443](https://github.com/hks2002/crystal-report-server-java/commit/ccf0443a28c6ebf11ac2973be54e1e8aa168ea5d))
+
 ## [2.1.1](https://github.com/hks2002/crystal-report-server-java/compare/v2.1.0...v2.1.1) (2026-11-12)
 
 
