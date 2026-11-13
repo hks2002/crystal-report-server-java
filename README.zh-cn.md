@@ -12,25 +12,11 @@
 
 ### Linux 系统环境准备
 
-1. 将需要到字体复制到`$JAVA_HOME/lib/fonts`目录中(推荐), 并设置好权限。
+1. 将报表需要的字体复制到`$JAVA_HOME/lib/fonts`目录中(推荐), 并设置好权限。
     ```
     sudo chmod -R $JAVA_HOME/lib/fonts 755
     ```
-2. 建立字体索引信息，更新字体缓存, 验证字体是否加载成功（按需）。
-    - CentOS
-    ```
-    yum install -y fontconfig mkfontscale
-    mkfontscale && mkfontdir && fc-cache -fv
-    fc-list
-    ```
-    - Ubuntu
-    ```
-    sudo apt-get -y install fontconfig xfonts-utils
-    mkfontscale && mkfontdir && fc-cache -fv
-    fc-list
-   ```
-   yan。
-3. 放开TLS传输层加密算法限制（按需）。
+2. 放开TLS传输层加密算法限制（按需）。
    如果你连接的数据库版本比较旧，而Linux系统比较新，可能会遇到TLS传输层算法限制的问题，
 
    编辑`JAVA_HOME/conf/security/java.security`, 删掉`jdk.tls.disabledAlgorithms`后面的特定的限制算法；
