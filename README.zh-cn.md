@@ -12,22 +12,24 @@
 
 ### Linux 系统环境准备
 
-1. 将需要到字体复制到`$JAVA_HOME/lib/fonts`目录中, 并设置好权限。
+1. 将需要到字体复制到`$JAVA_HOME/lib/fonts`目录中(推荐), 并设置好权限。
     ```
     sudo chmod -R $JAVA_HOME/lib/fonts 755
     ```
-2. 建立字体索引信息，更新字体缓存(按需）。
+2. 建立字体索引信息，更新字体缓存, 验证字体是否加载成功（按需）。
     - CentOS
     ```
     yum install -y fontconfig mkfontscale
     mkfontscale && mkfontdir && fc-cache -fv
+    fc-list
     ```
     - Ubuntu
     ```
     sudo apt-get -y install fontconfig xfonts-utils
     mkfontscale && mkfontdir && fc-cache -fv
+    fc-list
    ```
-   或者直接在JAVA_HOME/lib/fonts目录下复制字体文件(推荐)。
+   yan。
 3. 放开TLS传输层加密算法限制（按需）。
    如果你连接的数据库版本比较旧，而Linux系统比较新，可能会遇到TLS传输层算法限制的问题，
 
