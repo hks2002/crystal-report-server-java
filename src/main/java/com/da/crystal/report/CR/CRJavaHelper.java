@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                              *
  * @CreatedDate           : 2023-03-07 00:03:27                                                                        *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
- * @LastEditDate          : 2026-11-12 15:25:06                                                                        *
+ * @LastEditDate          : 2026-11-13 11:51:39                                                                        *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
  **********************************************************************************************************************/
 
@@ -20,8 +20,10 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import com.crystaldecisions.sdk.occa.report.application.DBOptions;
 import com.crystaldecisions.sdk.occa.report.application.DataDefController;
@@ -29,6 +31,7 @@ import com.crystaldecisions.sdk.occa.report.application.DatabaseController;
 import com.crystaldecisions.sdk.occa.report.application.ISubreportClientDocument;
 import com.crystaldecisions.sdk.occa.report.application.ParameterFieldController;
 import com.crystaldecisions.sdk.occa.report.application.ReportClientDocument;
+import com.crystaldecisions.sdk.occa.report.application.ReportDefController;
 import com.crystaldecisions.sdk.occa.report.application.ReportSaveAsOptions;
 import com.crystaldecisions.sdk.occa.report.application.SubreportController;
 import com.crystaldecisions.sdk.occa.report.data.Connection;
@@ -46,6 +49,7 @@ import com.crystaldecisions.sdk.occa.report.data.ParameterFieldRangeValue;
 import com.crystaldecisions.sdk.occa.report.data.RangeValueBoundType;
 import com.crystaldecisions.sdk.occa.report.data.Tables;
 import com.crystaldecisions.sdk.occa.report.data.Values;
+import com.crystaldecisions.sdk.occa.report.definition.IReportObject;
 import com.crystaldecisions.sdk.occa.report.document.IReportOptions;
 import com.crystaldecisions.sdk.occa.report.document.PaperSize;
 import com.crystaldecisions.sdk.occa.report.document.PaperSource;
@@ -778,5 +782,114 @@ public class CRJavaHelper {
 
     // Print report
     clientDoc.getPrintOutputController().printReport(printOptions);
+  }
+
+  /**
+   * Collects every distinct font <em>name</em> used anywhere in the report,
+   * including all subreports.
+   *
+   * @param clientDoc The reportClientDocument representing the report being used
+   * @return a set of distinct font names
+   * @throws ReportSDKException
+   */
+  public static Set<String> collectFontNames(ReportClientDocument clientDoc) throws ReportSDKException {
+    Set<String> fontNames = new LinkedHashSet<String>();
+
+    collectFontNamesFromDef(clientDoc.getReportDefController(), fontNames);
+
+    // Also inspect every subreport, since fonts there are not part of the main doc
+    IStrings subNames = clientDoc.getSubreportController().getSubreportNames();
+    for (int i = 0; i < subNames.size(); i++) {
+      ISubreportClientDocument subDoc = clientDoc.getSubreportController().getSubreport(subNames.getString(i));
+      collectFontNamesFromDef(subDoc.getReportDefController(), fontNames);
+    }
+
+    return fontNames;
+  }
+
+  private static final java.util.regex.Pattern FONT_NAME_PATTERN = java.util.regex.Pattern
+      .compile("<Font[^>]*>\\s*<Name>([^<]+)</Name>");
+  private static final java.util.regex.Pattern FONT_BLOCK_PATTERN = java.util.regex.Pattern
+      .compile("<Font[^>]*>(.*?)</Font>", java.util.regex.Pattern.DOTALL);
+
+  private static void collectFontNamesFromDef(ReportDefController controller, Set<String> fontNames) {
+    for (IReportObject obj : controller.getReportObjectController().getAllReportObjects()) {
+      collectFontNamesFromObject(obj, fontNames);
+    }
+  }
+
+  private static void collectFontNamesFromObject(Object obj, Set<String> fontNames) {
+    String xml = serializeReportObjectToXml(obj);
+    if (xml == null) {
+      return;
+    }
+    java.util.regex.Matcher matcher = FONT_NAME_PATTERN.matcher(xml);
+    while (matcher.find()) {
+      fontNames.add(matcher.group(1).trim());
+    }
+  }
+
+  private static void collectFontsFromDef(ReportDefController controller, Set<String> fonts) {
+    for (IReportObject obj : controller.getReportObjectController().getAllReportObjects()) {
+      collectFontsFromObject(obj, fonts);
+    }
+  }
+
+  private static void collectFontsFromObject(Object obj, Set<String> fonts) {
+    String xml = serializeReportObjectToXml(obj);
+    if (xml == null) {
+      return;
+    }
+    java.util.regex.Matcher blockMatcher = FONT_BLOCK_PATTERN.matcher(xml);
+    while (blockMatcher.find()) {
+      String block = blockMatcher.group(1);
+      String name = xmlValue(block, "Name");
+      if (name == null) {
+        continue;
+      }
+      fonts.add(String.valueOf(name));
+    }
+  }
+
+  private static String xmlValue(String xml, String tag) {
+    java.util.regex.Matcher m = java.util.regex.Pattern.compile("<" + tag + ">([^<]*)</" + tag + ">").matcher(xml);
+    return m.find() ? m.group(1).trim() : null;
+  }
+
+  /**
+   * Serializes a single report object to XML and returns the resulting document.
+   *
+   * <p>
+   * The repackaged Crystal Reports SDK does not expose the font face name through
+   * its public
+   * object model, but its own {@code save(XMLWriter, XMLSerializationContext)}
+   * round-trip
+   * serializer does emit the full {@code <Font><Name>...</Name></Font>} metadata.
+   * Serializing
+   * each object is therefore the only reliable way to obtain the fonts actually
+   * used.
+   *
+   * @return the serialized XML, or {@code null} if the object cannot be
+   *         serialized
+   */
+  private static String serializeReportObjectToXml(Object obj) {
+    if (obj == null) {
+      return null;
+    }
+    try {
+      java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+      Class<?> saveOptionCls = Class.forName("com.crystaldecisions.xml.serialization.SaveOption");
+      Object saveOption = saveOptionCls.getConstructor().newInstance();
+      Class<?> writerCls = Class.forName("com.crystaldecisions.xml.serialization.XMLWriter");
+      Object writer = writerCls.getConstructor(java.io.OutputStream.class, saveOptionCls).newInstance(out, saveOption);
+      Class<?> ctxCls = Class.forName("com.crystaldecisions.xml.serialization.XMLSerializationContext");
+      Object ctx = ctxCls.getConstructor().newInstance();
+      java.lang.reflect.Method save = obj.getClass().getMethod("save", writerCls, ctxCls);
+      save.invoke(obj, writer, ctx);
+      writerCls.getMethod("flush").invoke(writer);
+      return out.toString("UTF-8");
+    } catch (ReflectiveOperationException | java.io.IOException e) {
+      return null;
+    }
   }
 }

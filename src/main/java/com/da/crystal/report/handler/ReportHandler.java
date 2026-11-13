@@ -2,7 +2,7 @@
  * @Author                : Robert Huang<56649783@qq.com>                                                              *
  * @CreatedDate           : 2025-03-16 11:51:49                                                                        *
  * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
- * @LastEditDate          : 2026-11-13 11:10:36                                                                        *
+ * @LastEditDate          : 2026-11-13 12:23:04                                                                        *
  * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
  **********************************************************************************************************************/
 
@@ -10,11 +10,14 @@ package com.da.crystal.report.handler;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import com.crystaldecisions.sdk.occa.report.application.ReportClientDocument;
 import com.crystaldecisions.sdk.occa.report.document.ISummaryInfo;
@@ -157,7 +160,6 @@ public class ReportHandler implements Handler<RoutingContext> {
         closeClientDoc(clientDoc, report);
       }
     }, false).onFailure(e -> {
-      log.error("Error processing report", e);
       if (!resp.closed()) {
         resp.setStatusCode(500).end("<H1>Server Error!</H1><br>" + e.getMessage());
       }
@@ -196,23 +198,36 @@ public class ReportHandler implements Handler<RoutingContext> {
   }
 
   private void exportReport(ReportClientDocument clientDoc, HttpServerResponse resp, String format, String fileName)
-      throws ReportSDKExceptionBase, IOException {
-    switch (format) {
-      case "pdf":
-        CRJavaHelper.exportPDF(clientDoc, resp, fileName.isEmpty() ? false : true);
-        break;
-      case "rtf":
-      case "doc":
-      case "docx":
-        CRJavaHelper.exportMSWord(clientDoc, resp, fileName.isEmpty() ? false : true);
-        break;
-      case "xls":
-      case "xlsx":
-        CRJavaHelper.exportExcel(clientDoc, resp, fileName.isEmpty() ? false : true);
-        break;
-      case "csv":
-        CRJavaHelper.exportCSV(clientDoc, resp, fileName.isEmpty() ? false : true);
-        break;
+      throws RuntimeException, ReportSDKExceptionBase, IOException {
+    try {
+      switch (format) {
+        case "pdf":
+          CRJavaHelper.exportPDF(clientDoc, resp, fileName.isEmpty() ? false : true);
+          break;
+        case "rtf":
+        case "doc":
+        case "docx":
+          CRJavaHelper.exportMSWord(clientDoc, resp, fileName.isEmpty() ? false : true);
+          break;
+        case "xls":
+        case "xlsx":
+          CRJavaHelper.exportExcel(clientDoc, resp, fileName.isEmpty() ? false : true);
+          break;
+        case "csv":
+          CRJavaHelper.exportCSV(clientDoc, resp, fileName.isEmpty() ? false : true);
+          break;
+      }
+    } catch (ReportSDKExceptionBase e) {
+      if (e.getMessage().contains("out of bounds for length")
+          && getFullExceptionText(e).contains("OpenTypeFontManager")) {
+        Set<String> fontNames = CRJavaHelper.collectFontNames(clientDoc);
+        log.error("Missing fonts, fonts used: {}", fontNames);
+        throw new RuntimeException("Missing fonts, fonts used: " + fontNames);
+      } else {
+        throw e;
+      }
+    } catch (IOException e) {
+      throw e;
     }
   }
 
@@ -225,8 +240,20 @@ public class ReportHandler implements Handler<RoutingContext> {
     }
   }
 
+  private static String getFullExceptionText(Throwable e) {
+    if (e == null) {
+      return "";
+    }
+    StringWriter sw = new StringWriter();
+    try (PrintWriter pw = new PrintWriter(sw)) {
+      e.printStackTrace(pw);
+      return sw.toString();
+    }
+  }
+
   private static class ReportInfo {
     String reportFileName = "";
     String author = "Crystal Report Server Java";
   }
+
 }
