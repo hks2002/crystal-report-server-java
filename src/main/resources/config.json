@@ -7,9 +7,9 @@
   },
   "srvInfo": {
     "name": "@project.name@",
-    "version": "@project.version@",
-    "dependencies": "@project.dependencies@"
+    "version": "@project.version@"
   },
+  "dependencies": "@project.dependencies@",
   "database": {
     "url": "jdbc:sqlserver://127.0.0.1\\x3v12;DatabaseName=x3v12;TrustServerCertificate=true;",
     "driverClassName": "com.microsoft.sqlserver.jdbc.SQLServerDriver",

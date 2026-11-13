@@ -230,13 +230,20 @@
       <!-- add default resources -->
       <resource>
         <directory>src/main/resources/</directory>
-        <filtering>true</filtering>
         <includes>
           <include>**/*.*</include>
         </includes>
         <excludes>
           <exclude>**/*.json</exclude>
         </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources/</directory>
+        <targetPath>../config</targetPath>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*.json</include>
+        </includes>
       </resource>
     </resources>
 

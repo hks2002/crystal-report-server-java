@@ -1,13 +1,14 @@
-/*******************************************************************************
- * @Author                : Robert Huang<56649783@qq.com>                      *
- * @CreatedDate           : 2026-02-14 21:15:24                                *
- * @LastEditors           : Robert Huang<56649783@qq.com>                      *
- * @LastEditDate          : 2026-08-16 18:06:21                                *
- * @CopyRight             : Dedienne Aerospace China ZhuHai                    *
- ******************************************************************************/
+/***********************************************************************************************************************
+ * @Author                : Robert Huang<56649783@qq.com>                                                              *
+ * @CreatedDate           : 2026-02-14 21:15:24                                                                        *
+ * @LastEditors           : Robert Huang<56649783@qq.com>                                                              *
+ * @LastEditDate          : 2026-11-13 18:27:46                                                                        *
+ * @CopyRight             : Dedienne Aerospace China ZhuHai                                                            *
+ **********************************************************************************************************************/
 package com.da.crystal.report;
 
 import com.da.crystal.report.handler.ReportHandler;
+import com.da.crystal.report.handler.ServerDepsHandler;
 import com.da.crystal.report.handler.ServerInfoHandler;
 
 import io.vertx.core.Vertx;
@@ -64,7 +65,9 @@ public class RootRouter {
     Router api = Router.router(vertx);
 
     api.route("/Report/*").handler(new ReportHandler());
-    api.route("/Report-api/server-info").handler(new ServerInfoHandler());
+    api.route("/rpt/*").handler(new ReportHandler());
+    api.route("/rpt-api/server/info").handler(new ServerInfoHandler());
+    api.route("/rpt-api/server/dependencies").handler(new ServerDepsHandler());
     print(api);
 
     return api;

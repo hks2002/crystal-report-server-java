@@ -11,8 +11,8 @@
       "console": "internalConsole",
       "mainClass": "com.da.crystal.report.VertxApp",
       "args": [
-        "--options=src/main/resources/vertx-options.json",
-        "--conf=src/main/resources/config-dev.json"
+        "--options=target/config/vertx-options.json",
+        "--conf=target/config/config-dev.json"
       ],
       "vmArgs": "-Dlog4j.skipJansi=false -Dlog4j.configurationFile=src/test/resources/log4j2.xml",
     }
