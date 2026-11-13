@@ -1,5 +1,44 @@
 # Changelog
 
+## [3.0.0](https://github.com/hks2002/crystal-report-server-java/compare/v2.2.0...v3.0.0) (2026-11-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* ✨change spring boot to vertx
+
+### Features
+
+* ✨add rpt fonts used info when export error ([18c44ae](https://github.com/hks2002/crystal-report-server-java/commit/18c44ae11fae6bad749121f45257eb1e6ffeef7c))
+* ✨added two functions ([5cdc8c7](https://github.com/hks2002/crystal-report-server-java/commit/5cdc8c7ffcc962d2af249185ef4f7cd49f827f92))
+* ✨better para name for file name ([18248e8](https://github.com/hks2002/crystal-report-server-java/commit/18248e8dcbd24acf5d07d87be3aaa23f8626d26d))
+* ✨change spring boot to vertx ([316b6a9](https://github.com/hks2002/crystal-report-server-java/commit/316b6a996b82ba70db681b1cbc2636f2c3994e74))
+* ✨JNDI suport ([e61a07f](https://github.com/hks2002/crystal-report-server-java/commit/e61a07f46e9e9297515e4e87fba1067b130cfe9e))
+* ✨JNDI support ([d733b19](https://github.com/hks2002/crystal-report-server-java/commit/d733b193ac5e023f97e0a6ef446816599e94406f))
+* ✨rpt updated enable ([d0ac057](https://github.com/hks2002/crystal-report-server-java/commit/d0ac0578b7965c449ef9464996b2646e6cf0a3ac))
+* ✨UFL support ([8169b59](https://github.com/hks2002/crystal-report-server-java/commit/8169b59a1ce3ca6d654fef737d8c37d1eb6db263))
+* ✨update to CR 12.2.233.5802 ([311606e](https://github.com/hks2002/crystal-report-server-java/commit/311606e256866b4c2aed70f41d8ea235a48748c0))
+
+
+### Bug Fixes
+
+* 🐛fix ci file name ([7b38ea0](https://github.com/hks2002/crystal-report-server-java/commit/7b38ea01d158ea8d35f73a14c8bf602c2871d5d6))
+* 🐛fix the test bug ([43b65cd](https://github.com/hks2002/crystal-report-server-java/commit/43b65cd0f70179f9419c988b29d500a911bc059c))
+* 🐛fix UF bugs ([835ad4d](https://github.com/hks2002/crystal-report-server-java/commit/835ad4d3142f9eec2c401b29d38d2e53196a48b7))
+* 🐛fix workflow action bugs ([fa9f828](https://github.com/hks2002/crystal-report-server-java/commit/fa9f828b3f481cc942da5d6de3af77d23db576e6))
+* 🐛rpt-api for server info ([6498081](https://github.com/hks2002/crystal-report-server-java/commit/6498081b9d2addc86caefe3cbddc5ec8c9c01c99))
+* 🐛ufl name using lowercase ([3d507e0](https://github.com/hks2002/crystal-report-server-java/commit/3d507e03cfbc2b30ee3fdf9ec11fe1bdac9fd319))
+* 🐛update fun X3TranslatedText ([55d62bd](https://github.com/hks2002/crystal-report-server-java/commit/55d62bdcbd0582c2047920f8611c580d95894d11))
+* 🐛update sql error ([fd064bc](https://github.com/hks2002/crystal-report-server-java/commit/fd064bc9c4af31a00df9cb57953dd579ec0c5522))
+* 🐛update the shell script ([31c7cab](https://github.com/hks2002/crystal-report-server-java/commit/31c7cabafc7055190e2f056b9a0156c68efce1d4))
+
+
+### Performance Improvements
+
+* 🚀add sql intercept to tracking the SQL ([efa6c40](https://github.com/hks2002/crystal-report-server-java/commit/efa6c401fa9bf9658e68fac1263f5b7acddc3be6))
+* 🚀improve performance ([3f1e74e](https://github.com/hks2002/crystal-report-server-java/commit/3f1e74e19a61137591e71fee2a82b0a7ea21505e))
+* 🚀remove ufl formula log ([b3ab88a](https://github.com/hks2002/crystal-report-server-java/commit/b3ab88acf6e45209bd9fa7864eb3a264c14deacd))
+
 ## [2.2.0](https://github.com/hks2002/crystal-report-server-java/compare/v2.1.1...v2.2.0) (2026-11-13)
 
 
